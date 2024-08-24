@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@font-face {
+  font-family: 'Oswlad-Bold';
+  src: url('../public/fonts/Oswald-Bold.ttf') format('truetype');
+  font-weight: 900; /* Black weight is typically 900 */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Oswlad-SemiBold';
+  src: url('../public/fonts/Oswald-SemiBold.ttf') format('truetype');
+  font-weight: 900; /* Black weight is typically 900 */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto-Medium';
+  src: url('../public/fonts/Roboto-Medium.ttf') format('truetype');
+  font-weight: 500; /* Black weight is typically 900 */
+  font-style: bold;
+}
+
+.cardRecentSearch {
+  height: 300px;
+  overflow-y: auto;
+}
+
+.custom-dropdown.popover-style {
+  position: absolute;
+  top: 100%; /* Position below the trigger element */
+  right: 0;
+  z-index: 1000;
+  display: block;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+}
+
+.page-title {
+
+  font-size: 1rem;
+}
+.subtitle {
+ display: block;
+ margin: 0;
+ font-size: .5rem;
+}
+
+

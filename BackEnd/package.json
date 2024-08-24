@@ -1,0 +1,24 @@
+{
+  "name": "apr",
+  "version": "1.0.0",
+  "description": "API rest for APR",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "ASLI Ayoub",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+    "mssql": "^10.0.2",
+    "neo4j-driver": "^5.19.0",
+    "nodemon": "^2.0.15",
+    "tar": "^6.2.0"
+  }
+}

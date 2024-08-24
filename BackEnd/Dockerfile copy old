@@ -1,0 +1,30 @@
+FROM ubuntu:latest
+
+# Install Apache
+RUN apt-get update && apt-get install -y apache2
+
+RUN apt-get update && apt-get install -y curl gnupg
+
+RUN apt-get update && apt-get install -y nano 
+
+RUN apt-get install -y sudo 
+
+RUN apt-get install -y systemctl 
+
+
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
+
+
+# Install Node.js (adjust the version if needed)
+RUN apt-get install -y nodejs
+
+COPY ./ /var/www/html/api
+
+# Configure Apache
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+RUN a2enmod proxy proxy_http rewrite
+RUN service apache2 restart
+
+EXPOSE 80
+
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
