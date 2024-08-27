@@ -6,6 +6,8 @@ import { CascadeSelect } from 'primereact/cascadeselect';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Button } from 'primereact/button';
+import { ButtonGroup } from 'primereact/buttongroup';
+
 // import { GeoService } from './services/geoService';
 
 import { MapProvider,  useMapContext } from '../Components/Map/MapContext';
@@ -435,9 +437,7 @@ const showMapPanel = () => {
                   </a>
               </div>
               <div className='grid'>
-                 <div className='col'>
-                  test 1
-                 </div>
+                
                  <div className='col'>
                  {options.togglerElement}
                  </div>
@@ -458,11 +458,9 @@ const showMapPanel = () => {
                 <span className="font-bold">Area Activity: Transactions in these zip codes</span>
             </div>
             <div className='grid'>
+                 
                  <div className='col'>
-                  test
-                 </div>
-                 <div className='col'>
-                 {options.togglerElement}
+                  {options.togglerElement}
                  </div>
                   
             </div>
@@ -482,8 +480,8 @@ const headerPane3 = ( options:PanelHeaderTemplateOptions) => {
           </div>
           <div>
                
-                {options.togglerElement}
-            </div>
+              {options.togglerElement}
+          </div>
       </div>
   );
 };
@@ -556,8 +554,9 @@ const headerPane3 = ( options:PanelHeaderTemplateOptions) => {
 
           </div>
           <div className="col-12 md:col-fixed">
-              <ZoomButton  zoom={15} zips={currentZip ? currentZip : []} city={currentCity ? currentCity : null} isLoadingTransactions={isLoadingTransactions} onLoadingTransactionsChange={handleLoadingTransactions} nbrMonth={currentMonth ? currentMonth.value : 12} />
-              <ClearButton clearData={clearData} />
+                <ZoomButton  zoom={15} zips={currentZip ? currentZip : []} city={currentCity ? currentCity : null} isLoadingTransactions={isLoadingTransactions} onLoadingTransactionsChange={handleLoadingTransactions} nbrMonth={currentMonth ? currentMonth.value : 12} />
+                <ClearButton clearData={clearData} />
+              
           </div>
 
           <Divider />
