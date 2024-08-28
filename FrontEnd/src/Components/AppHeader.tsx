@@ -487,7 +487,7 @@ const AppHeader : React.FC = () => {
                             <button
                               type="button"
                               className="btn btn-primary mr-5"
-                              onClick={() => keycloak.login({ redirectUri: `https://crems-labs.com/apr/SearchByName` })}
+                              onClick={() => keycloak.login({ redirectUri: `${process.env.REACT_APP_LOGIN_URL}` })}
 
                             >
                               Login
@@ -498,7 +498,7 @@ const AppHeader : React.FC = () => {
                             <button
                               type="button"
                               className="btn btn-danger "
-                              onClick={() => keycloak.logout({ redirectUri: `https://crems-labs.com/web`})}
+                              onClick={() => keycloak.logout({ redirectUri: `${process.env.REACT_APP_LOGOUT_URL}`})}
                             >
                               Logout ({keycloak.tokenParsed?keycloak.tokenParsed.preferred_username:null})
                             </button>
