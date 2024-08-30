@@ -9,7 +9,7 @@ import AppMenu from './Components/AppMenu';
 import Footer from './Components/Footer';
 import AppHeader from './Components/AppHeader';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
-import 'primeflex/primeflex.css';  
+// import 'primeflex/primeflex.css';  
 import 'primereact/resources/primereact.css';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 
