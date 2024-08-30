@@ -492,6 +492,7 @@ const AppHeader : React.FC = () => {
                               className="btn btn-primary mr-5"
                               onClick={() => keycloak.login({ redirectUri: `${redirectUrl}` })}
 
+
                             >
                               Login
                             </button>

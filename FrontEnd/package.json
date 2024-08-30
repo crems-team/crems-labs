@@ -44,7 +44,7 @@
     "three-bmfont-text": "^3.0.1",
     "web-vitals": "^2.1.0"
   },
-  "homepage": "https://crems-labs.com/apr",
+  "homepage": "https://dev.crems-labs.com/apr",
   "scripts": {
     "start": "sh -ac 'PORT=3001 . ./.env.local; react-scripts start'",
     "build": "react-scripts build",
