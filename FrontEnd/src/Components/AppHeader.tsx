@@ -45,7 +45,10 @@ const AppHeader : React.FC = () => {
   let currentComponent;
   const { handleSearchAction } = useSearch();
 
-  
+  const redirectUrl = process.env.REACT_APP_REDIRECT_URL;
+  const redirectLogOutUrl = process.env.REACT_APP_REDIRECT_LOGOUT_URL;
+
+
 
   
 
@@ -487,7 +490,7 @@ const AppHeader : React.FC = () => {
                             <button
                               type="button"
                               className="btn btn-primary mr-5"
-                              onClick={() => keycloak.login({ redirectUri: `https://crems-labs.com/apr/SearchByName` })}
+                              onClick={() => keycloak.login({ redirectUri: `${redirectUrl}` })}
 
                             >
                               Login
@@ -498,7 +501,7 @@ const AppHeader : React.FC = () => {
                             <button
                               type="button"
                               className="btn btn-danger "
-                              onClick={() => keycloak.logout({ redirectUri: `https://crems-labs.com/web`})}
+                              onClick={() => keycloak.logout({ redirectUri:`${redirectLogOutUrl}`})}
                             >
                               Logout ({keycloak.tokenParsed?keycloak.tokenParsed.preferred_username:null})
                             </button>
