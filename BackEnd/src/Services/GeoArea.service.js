@@ -372,8 +372,10 @@ GeoAreaService.getStates = () => {
             request.input('nbrMonth',  nbrMonth);
             request.input('agentId',  agentId);
             const query = `select elatitude lat,elongitude lng, count(listingid) nbrlist,count(listAgentId) nbragt,  max(primary_ +' '+street_)  street,max(zip5+'-'+zip4) zip from prod.agp_listGeo
-            where listAgentId=1431295 and DATEDIFF(MONTH, creationDate,getDATE())<=12
+            where listAgentId=@agentId and DATEDIFF(MONTH, creationDate,getDATE())<=@nbrMonth
             and  listAgentId<>0
+            and elatitude is not null 
+			and elongitude is not null 
             group by elatitude,elongitude`;
             request.query(query, (err, res) => {
   

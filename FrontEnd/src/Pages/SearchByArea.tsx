@@ -88,7 +88,7 @@ function SearchByArea() {
         { value: 6 ,key: 2},
         { value: 3 ,key: 1}
     ];
-    const [currentMonth, setCurrentMonth] = useState<number>();
+    const [currentMonth, setCurrentMonth] = useState<number>(3);
     const [listSuggestionsMonth, setListSuggestionsMonth] = useState<MonthSuggestion[]>([]);
 
 
@@ -599,7 +599,7 @@ function SearchByArea() {
                                         
                                         <div className="col-md-4 mt-5">
                                             <span role="button"  onClick={(event) => ref.current?.toggle(event)}><ZoomButton zoom={15} zips={currentZip ? currentZip : []} city={currentCity ? currentCity : null} isLoadingTransactions={isLoadingTransactions} onLoadingTransactionsChange={handleLoadingTransactions} nbrMonth={currentMonth ? currentMonth : 12}
-                                                saveSearchHistory={saveSearchHistory} /></span>
+                                                saveSearchHistory={saveSearchHistory} handleClickActivityReport={handleClickActivityReport}/></span>
                                             <ClearButton clearData={clearData} />
                                             
                                         </div>
@@ -679,9 +679,8 @@ function SearchByArea() {
                     <div className="col-md-12 col-sm-6">
                         <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s total monthly production for the most recently completed 12 months, compared to the same 12-month period a year ago. It does not include the current “partial” month’s production. The values include listing and co-listing transactions. Plus, sales outside of the MLS, if we have that data.">
                             <i className="bi bi-info-circle fs-6" /></a> Area Activity: Transactions in these zip codes</h5>
-                        <div className="card  collapsed-card">
+                        <div className={`card ${!activityReportClicked ? '' : 'collapsed-card'}`}>
                             <div className="card-header">
-
                                 <div className="row">
                                     <div className="col-sm-3 border-right">
                                         <div className="description-block">
@@ -711,7 +710,7 @@ function SearchByArea() {
                                     </div>
 
                                     <div className="col-sm-2 text-right">
-                                        <button id="idDisplayChart" type="button" className="btn btn-tool " data-card-widget="collapse" onClick={handleClickActivityReport}>
+                                        <button id="idDisplayChart" type="button" className="btn btn-tool "  onClick={handleClickActivityReport}>
 
                                             {!activityReportClicked ? <strong>Close</strong> : <strong>Open</strong>}
 
@@ -722,7 +721,7 @@ function SearchByArea() {
                                 {/* /.card-tools */}
                             </div>
                             {/* /.card-header */}
-                            <div className="card-body pb-0 pt-0 pr-0 pl-0 " >
+                            <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!activityReportClicked ? '' : 'd-none'}`}>
                             <span role="button"  ><DisplayTableTransactionsBtn zoom={13} zips={currentZip ? currentZip : []} city={currentCity ? currentCity : null} nbrMonth={currentMonth ? currentMonth : 12} SwitchMapTable={SwitchMapTable} switchbtwMapTable={switchbtwMapTable}/></span>
                             {!switchbtwMapTable && <div className="row  pb-0 pt-0 pr-0 pl-0">
                                      {!activityReportClicked && <CremsTable displayAreaMap={displayAreaMap} nbrMonth={currentMonth ? currentMonth : 12} ></CremsTable> }

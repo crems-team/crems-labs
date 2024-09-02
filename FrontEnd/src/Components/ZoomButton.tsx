@@ -32,6 +32,7 @@ interface ZoomButtonProps {
   onLoadingTransactionsChange: (newBoolean: boolean) => void;
   nbrMonth : number;
   saveSearchHistory : (savedType :string, city: string, zips: string) => void;
+  handleClickActivityReport : () => void;
 //   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 
 }
@@ -57,7 +58,7 @@ interface ZoomButtonProps {
 //   popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
 // });
 
-const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city,isLoadingTransactions,onLoadingTransactionsChange, nbrMonth ,saveSearchHistory}) => {
+const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city,isLoadingTransactions,onLoadingTransactionsChange, nbrMonth ,saveSearchHistory,handleClickActivityReport}) => {
 //   const { zoomToLocation, getMapInstance, markers, addMarker, setMarkers, setTransactions } = useMapContext();
 // const { zoomToLocation, getMapInstance, markers, setTransactions ,setMarkers} = useMapContext();
 
@@ -113,6 +114,7 @@ try {
     console.error(e);
 } finally {
     onLoadingTransactionsChange(false);
+    handleClickActivityReport();
 }
 };
 
