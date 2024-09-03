@@ -1,11 +1,18 @@
 const mssql = require("mssql");
 
+const server = process.env.APP_DB_SERVER;
+const user = process.env.APP_DB_USER;
+const pwd = process.env.APP_DB_PWD;
+const db = process.env.APP_DB_NAME;
+
 const dbconfig = {
-  server: "webcasting.database.windows.net",
-  user: "report_user", 
-  password: "@ccess190907",
-  database: "TerradatumDB",
+  
+  server: `${server}`,
+  user: `${user}`,
+  password: `${pwd}`,
+  database: `${db}`,
   trustServerCertificate: true,
+
   options: {
     encrypt: true,
     enableArithAbort: true, 
@@ -22,7 +29,7 @@ const dbconfig = {
 const pool = new mssql.ConnectionPool(dbconfig);
 const poolConnect = pool.connect()
   .then(() => {
-    console.log("Connected to the database");
+    console.log("Connected to the database ["+server+"]");
   })
   .catch((err) => {
     console.error("Database connection failed! Error:", err);
