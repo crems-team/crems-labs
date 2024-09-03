@@ -572,9 +572,9 @@ function SearchByArea() {
                                 </span>
                             </div>
 
-                            <div className="col-6 md:col-6 col-4">
+                            <div className="col-6 md:col-6 col-4 mt-auto">
                                 <span className="p-float-label">
-                                    <MultiSelect inputId="multiselect" value={selectedZipCode} options={zipcodes} onChange={(e) => { setSelectedZipCode(e.value); handleClickZip(e.value) }} optionLabel="zip" className="w-full md:w-10rem" />
+                                    <MultiSelect inputId="multiselect" value={selectedZipCode} options={zipcodes} onChange={(e) => { setSelectedZipCode(e.value); handleClickZip(e.value) }} optionLabel="zip" className="w-full md:w-20rem" />
                                     <label htmlFor="multiselect">Zip Codes</label>
 
                                 </span>
