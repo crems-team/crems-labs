@@ -550,7 +550,7 @@ function SearchByArea() {
 
                     <div className="col-8">
                         <div className="grid">
-                            <div className="col-6 md:col-6 lg:col-4">
+                            <div className="col-6 md:col-4 lg:col-4">
                                 <span className="p-float-label">
                                     <AutoComplete inputId="autocompletstate" field="name" value={Currentstate} suggestions={states} completeMethod={filterStates} onChange={(e) => { setCurrentStates(e.value) }} dropdown />
                                     <label htmlFor="autocompletstate">Choose State</label>
@@ -558,14 +558,14 @@ function SearchByArea() {
                                 </span>
                             </div>
 
-                            <div className="col-6 md:col-6 col-4">
+                            <div className="col-6 md:col-4 col-4">
                                 <span className="p-float-label">
                                     <AutoComplete inputId="autocompletcounty" field="name" value={CurrentCountie} suggestions={counties} completeMethod={filterCounties} onChange={(e) => { setCurrentCounties(e.value) }} dropdown />
                                     <label htmlFor="autocompletcounty">Choose County</label>
                                 </span>
                             </div>
 
-                            <div className="col-6 md:col-6 col-4">
+                            <div className="col-6 md:col-4 col-4">
                                 <span className="p-float-label">
                                     <AutoComplete inputId="autocompletcity" field="name" value={currentCity} suggestions={cities} completeMethod={filterCities} onChange={(e) => { setCurrentCities(e.value) }} dropdown />
                                     <label htmlFor="autocompletcity">Choose City</label>
@@ -574,14 +574,14 @@ function SearchByArea() {
 
                             <div className="col-6 md:col-6 col-4">
                                 <span className="p-float-label">
-                                    <MultiSelect inputId="multiselect" value={selectedZipCode} options={zipcodes} onChange={(e) => { setSelectedZipCode(e.value); handleClickZip(e.value) }} optionLabel="zip" className="w-full md:w-20rem" />
+                                    <MultiSelect inputId="multiselect" value={selectedZipCode} options={zipcodes} onChange={(e) => { setSelectedZipCode(e.value); handleClickZip(e.value) }} optionLabel="zip" className="w-full md:w-10rem" />
                                     <label htmlFor="multiselect">Zip Codes</label>
 
                                 </span>
 
                             </div>
 
-                            <div className="col-12 md:col-12 col-6">
+                            <div className="col-12 md:col-6 col-6">
 
                                 <div className="flex flex-wrap gap-2">
                                     <div className="flex align-items-center">
