@@ -38,12 +38,12 @@ const ClearButton: React.FC<ClearButtonProps> = ({ clearData }) => {
 
   const handleClear = async () => {
 
-    setMarkers([]);
-    setTransactions([]);
+    // setMarkers([]);
+    // setTransactions([]);
   
 
-    center = [36.7783, -119.4179];
-    zoomToLocation(5, center);
+    // center = [36.7783, -119.4179];
+    // zoomToLocation(5, center);
     clearData();
         
   };

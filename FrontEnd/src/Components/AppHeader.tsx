@@ -14,7 +14,11 @@ import CurrentComponent from "./CurrentComponent"
 import { useSearch } from './Context/Context';
 import GeoAreaService from "../Services/GeoAreaService";
 import SearchItemArea from "../Models/SearchItemArea";
-
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import {fetchTransactions, setActivityReportClicked,fetchTotalAgents,fetchTotalTransactions,setCurrentCitySaveSearch,setCurrentZipSaveSearch} from '../Redux/Slices/MapSlice'
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
+import Cities from "../Models/Cities";
 
 
 
@@ -47,6 +51,10 @@ const AppHeader : React.FC = () => {
 
   const redirectUrl = process.env.REACT_APP_REDIRECT_URL;
   const redirectLogOutUrl = process.env.REACT_APP_REDIRECT_LOGOUT_URL;
+  const dispatch = useAppDispatch();
+  const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
+
+
 
 
 
@@ -266,6 +274,47 @@ const AppHeader : React.FC = () => {
   const redirectToApr = (id : string) => {
     navigate(`/AgentProdReports/${id}`);
   };
+
+  
+
+    const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number,citySelected : string) => {
+
+      try {
+          
+          // onLoadingTransactionsChange(true);
+      
+          // const response = await GeoAreaService.fetchTransactions(paramZip.join(','),nbrMonth);
+      
+          // dispatch(setTransactions(response));
+          await dispatch(fetchTransactions({ paramZip, nbrMonth }));
+           dispatch(fetchTotalTransactions({paramZip, nbrMonth}));
+           dispatch(fetchTotalAgents({paramZip, nbrMonth}));
+         
+      // setCurrentZip(zip);
+          await GeoAreaService.getZipByCode(paramZip.toString())
+          .then((response: any) => {
+              dispatch(setCurrentZipSaveSearch(response.data));
+              const city: Cities = { name: citySelected, code: 1 };
+              dispatch(setCurrentCitySaveSearch(city));
+
+
+
+          })
+          .catch((e: Error) => {
+              console.log(e);
+          });
+
+          
+      
+      } catch (e) {
+          console.error(e);
+      } finally {
+          // onLoadingTransactionsChange(false);
+          if(activityReportClicked){
+          dispatch(setActivityReportClicked(!activityReportClicked));
+          }
+      }
+  };
       
 
 
@@ -466,7 +515,7 @@ const AppHeader : React.FC = () => {
                       searchHistoryArea[0]?  (
                               <ul >
                                 {searchHistoryArea.map((search, index) => (
-                                    <a className="nav-link" href="#"  >
+                                    <a className="nav-link" href="#"  onClick={() => fetchTransactionsdata([search.zips],3,search.city)}>
                                       <li key={index} className="">
                                       {"City: "}{search.city}{" | zip "}{"["+ search.zips+"]"}
                                         

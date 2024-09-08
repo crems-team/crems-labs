@@ -7,8 +7,12 @@ import Zip from "../Models/Zip";
 import Cities from "../Models/Cities";
 import CityCoordinates from "../Models/CityCoordinates";
 import { Transaction } from 'neo4j-driver';
-import { useDispatch } from 'react-redux';
-import { setMarkers, setTransactions, zoomToLocation } from '../Redux/Slices/MapSlice';
+// import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
+
+import { fetchTotalTransactions,fetchTotalAgents ,fetchTransactions,setActivityReportClicked} from '../Redux/Slices/MapSlice';
 
 
 
@@ -28,11 +32,11 @@ interface ZoomButtonProps {
   zoom: number;
   zips: Zip[];
   city: Cities | null;
-  isLoadingTransactions: boolean| any;
-  onLoadingTransactionsChange: (newBoolean: boolean) => void;
+  // isLoadingTransactions: boolean| any;
+  // onLoadingTransactionsChange: (newBoolean: boolean) => void;
   nbrMonth : number;
   saveSearchHistory : (savedType :string, city: string, zips: string) => void;
-  handleClickActivityReport : () => void;
+  // handleClickActivityReport : () => void;
 //   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 
 }
@@ -58,7 +62,7 @@ interface ZoomButtonProps {
 //   popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
 // });
 
-const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city,isLoadingTransactions,onLoadingTransactionsChange, nbrMonth ,saveSearchHistory,handleClickActivityReport}) => {
+const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city, nbrMonth ,saveSearchHistory}) => {
 //   const { zoomToLocation, getMapInstance, markers, addMarker, setMarkers, setTransactions } = useMapContext();
 // const { zoomToLocation, getMapInstance, markers, setTransactions ,setMarkers} = useMapContext();
 
@@ -66,7 +70,12 @@ const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city,isLoadingTrans
   const [Cities, setCities] = useState<Array<CityCoordinates>>([]);
   const [zipcodes, setZipcodes] = useState<Array<Zip>>([]);
   const [listPositions, setListPositions] = useState<Array<any>>([]);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
+  const TotalTransactions = useSelector((state: RootState) => state.map.totalTransactions);
+  const TotalAgents = useSelector((state: RootState) => state.map.totalAgents);
+
 
 
   
@@ -102,20 +111,28 @@ const ZoomButton: React.FC<ZoomButtonProps> = ({ zoom, zips, city,isLoadingTrans
 //       });
 //       }, [listPositions]);
 
-const fetchTransactions = async (paramZip: string[],nbrMonth : number) => {
+
+const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number) => {
+  
 try {
-    onLoadingTransactionsChange(true);
+    // onLoadingTransactionsChange(true);
 
-    const response = await GeoAreaService.fetchTransactions(paramZip.join(','),nbrMonth);
+    // const response = await GeoAreaService.fetchTransactions(paramZip.join(','),nbrMonth);
 
-    dispatch(setTransactions(response));
+    // dispatch(setTransactions(response));
+    await dispatch(fetchTransactions({ paramZip, nbrMonth }));
+    await dispatch(fetchTotalTransactions({paramZip, nbrMonth}));
+    await dispatch(fetchTotalAgents({paramZip, nbrMonth}));
+
 
 } catch (e) {
     console.error(e);
 } finally {
-    onLoadingTransactionsChange(false);
-    handleClickActivityReport();
-}
+    // onLoadingTransactionsChange(false);
+    if(activityReportClicked){
+      dispatch(setActivityReportClicked(!activityReportClicked));
+      }
+    }
 };
 
   const handleZoomClick = async () => {
@@ -178,7 +195,9 @@ try {
 
         //     console.log(e);
         //     });
-        fetchTransactions(paramZip,nbrMonth);
+
+        // fetchTransactions(paramZip,nbrMonth); active in old version
+        fetchTransactionsdata(paramZip,nbrMonth);
 
         // await GeoAreaService.fetchTransactionsGeo(paramZip.join(','),nbrMonth)
         // .then((response: any) => {

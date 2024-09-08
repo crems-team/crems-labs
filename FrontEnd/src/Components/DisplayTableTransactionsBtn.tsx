@@ -39,7 +39,7 @@ interface TableTransBtnProps {
 }
 
 
-const DisplayTableTransactionsBtn: React.FC<TableTransBtnProps> = ({ zoom, zips, city, nbrMonth,SwitchMapTable,switchbtwMapTable,}) => {
+const DisplayTableTransactionsBtn: React.FC<TableTransBtnProps> = ({ zoom, zips, city, nbrMonth,SwitchMapTable,switchbtwMapTable}) => {
 //   const { zoomToLocation, getMapInstance, markers, addMarker, setMarkers, setTransactions } = useMapContext();
 // const { zoomToLocation, getMapInstance, markers, setTransactions ,setMarkers} = useMapContext();
 const {  getMapInstance,zoomToLocation } = useMapContext();
@@ -96,9 +96,9 @@ const fetchMarkers = async (paramZip: string[],nbrMonth : number) => {
     // onLoadingTransactionsChange(true);
 
     const map = getMapInstance();
-    if (!city) {
-      return;
-    }
+    // if (!city) {
+    //   return;
+    // }
     //let obj = await geoservice.fetchCityById(city.code);
 
     // await GeoAreaService.getCityById(city.code)
@@ -152,6 +152,8 @@ const fetchMarkers = async (paramZip: string[],nbrMonth : number) => {
 
         //     console.log(e);
         //     });
+        console.log(zips);
+
         fetchMarkers(paramZip,nbrMonth);
 
         // await GeoAreaService.fetchTransactionsGeo(paramZip.join(','),nbrMonth)

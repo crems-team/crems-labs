@@ -37,6 +37,10 @@ import { toast } from 'react-toastify';
 import { Dialog } from 'primereact/dialog';
 import DisplayTableTransactionsBtn from '../Components/DisplayTableTransactionsBtn';
 import { RadioButton, RadioButtonChangeEvent } from "primereact/radiobutton";
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import { fetchTransactions,setActivityReportClicked,fetchTotalTransactions,fetchTotalAgents,setMarkers,setTransactions,setTotalTransactions,setTotalAgents,setCurrentCitySaveSearch,setCurrentZipSaveSearch} from '../Redux/Slices/MapSlice'
 
 
 // interface AutocompleteItem {
@@ -75,11 +79,19 @@ function SearchByArea() {
     const [selectedZipCode, setSelectedZipCode] = useState<Zip[]>([]);
     const msgs = useRef<Messages>(null);
 
-    const [isLoadingTransactions, setIsLoadingTransactions] = useState<boolean>(false);
+    // const [isLoadingTransactions, setIsLoadingTransactions] = useState<boolean>(false);
+    const transactions = useSelector((state: RootState) => state.map.transactions);
+    const isLoadingTransactions = useSelector((state: RootState) => state.map.loadingTransactions);
+    const TotalTransactions = useSelector((state: RootState) => state.map.totalTransactions);
+    const TotalAgents = useSelector((state: RootState) => state.map.totalAgents);
+    const currentZipSaveSearch = useSelector((state: RootState) => state.map.currentZipSaveSearch);
+    const currentCitySaveSearch = useSelector((state: RootState) => state.map.currentCitySaveSearch);
 
-    const handleLoadingTransactions = (newBoolean: boolean) => {
-        setIsLoadingTransactions(newBoolean);
-    };
+
+
+    // const handleLoadingTransactions = (newBoolean: boolean) => {
+    //     setIsLoadingTransactions(newBoolean);
+    // };
 
     const [refreshKey, setRefreshKey] = useState(0);
     const ListMonthSuggestions: MonthSuggestion[] = [
@@ -90,6 +102,7 @@ function SearchByArea() {
     ];
     const [currentMonth, setCurrentMonth] = useState<number>(3);
     const [listSuggestionsMonth, setListSuggestionsMonth] = useState<MonthSuggestion[]>([]);
+    const dispatch = useAppDispatch();
 
 
 
@@ -106,7 +119,9 @@ function SearchByArea() {
     const [searchHistory, setSearchHistory] = useState<Array<SearchItemArea>>([]);
     const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(Boolean);
     const { keycloak, initialized } = useKeycloak();
-    const [activityReportClicked, setActivityReportClicked] = useState(true);
+    //const [activityReportClicked, setActivityReportClicked] = useState(true);
+    const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
+
     const [areaReportClicked, setareaReportClicked] = useState(false);
     const ref = useRef<Panel>(null);
     const [visible, setVisible] = useState(false);
@@ -145,6 +160,15 @@ function SearchByArea() {
         };
 
         fetchStates();
+        dispatch(setMarkers([]));
+        dispatch(setTransactions([]));
+        dispatch(setTotalTransactions([]));
+        dispatch(setTotalAgents([]));
+        dispatch(setActivityReportClicked(true));
+        dispatch(setCurrentZipSaveSearch([]));
+        dispatch(setCurrentCitySaveSearch(null));
+
+
 
     }, []);
 
@@ -404,8 +428,14 @@ function SearchByArea() {
         setCurrentCountie(null);
         setCurrentCity(null);
         setSelectedZipCode([]);
-        setCurrentMonth(1);
+        setCurrentMonth(3);
         setRefreshKey(prevKey => prevKey + 1); // Change the refresh key to force re-render    
+        dispatch(setMarkers([]));
+        dispatch(setTransactions([]));
+        dispatch(setTotalTransactions([]));
+        dispatch(setTotalAgents([]));
+        dispatch(setActivityReportClicked(true));
+
     }
 
     const completeMethod = () => {
@@ -501,7 +531,8 @@ function SearchByArea() {
 
     const handleClickActivityReport = () => {
 
-        setActivityReportClicked(!activityReportClicked);
+        // setActivityReportClicked(!activityReportClicked);
+        dispatch(setActivityReportClicked(!activityReportClicked));
     }
 
     const displayAreaMap = () => {
@@ -527,27 +558,110 @@ function SearchByArea() {
                         <i id="idInfoIcon" className="bi bi-info-circle" />
                     </a>
                 </div>
+                {currentZip &&(
+                    currentCity && (
+                        getMessageHeader(currentCity, currentZip || [])
+                    )
+                )}
+               
                 <div className='grid'>
 
                     <div className='col'>
-                        {options.togglerElement}
+                        
+                        {options.collapsed ? (
+                        <button type="button" className="btn btn-tool ">
+                            <strong>Open</strong>
+                        </button>
+                    ) : (
+                        <button type="button" className="btn btn-tool ">
+                            <strong>Close</strong>
+                        </button>
+                    )}
+                    {options.togglerElement}
                     </div>
 
                 </div>
             </div>
         );
     };
+    const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number,citySelected : string) => {
 
+        try {
+            
+            // onLoadingTransactionsChange(true);
+        
+            // const response = await GeoAreaService.fetchTransactions(paramZip.join(','),nbrMonth);
+        
+            // dispatch(setTransactions(response));
+            await dispatch(fetchTransactions({ paramZip, nbrMonth }));
+            await dispatch(fetchTotalTransactions({paramZip, nbrMonth}));
+            await dispatch(fetchTotalAgents({paramZip, nbrMonth}));
+           
+        // setCurrentZip(zip);
+            await GeoAreaService.getZipByCode(paramZip.toString())
+            .then((response: any) => {
+                setCurrentZip(response.data);
+                const city: Cities = { name: citySelected, code: 1 };
+                setCurrentCity(city);
+
+
+
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+
+            
+        
+        } catch (e) {
+            console.error(e);
+        } finally {
+            // onLoadingTransactionsChange(false);
+            if(activityReportClicked){
+            dispatch(setActivityReportClicked(!activityReportClicked));
+            }
+        }
+    };
+
+        // useEffect(() => {
+        //    console.log(TotalTransactions[0]?.transactions);
+        //    console.log(TotalAgents[0]?.agents);
+
+
+        // }, [TotalTransactions,TotalAgents]);
+
+    function getMessageHeader(city: Cities,zips : Zip[]){
+        const param = zips.map((element) => element.zip);
+
+           return(
+
+            <div className="flex align-items-center gap-3">
+                <strong>
+            {`City: ${city ? city.name : ''} | zip [${param.join(', ')}]`}
+            </strong>
+            <div>
+            <strong>
+                {currentMonth+' - Month'}
+                </strong>
+
+            </div>
+         </div>
+
+           );
+        };
+    useEffect(() => {
+        setCurrentCity(currentCitySaveSearch);
+        setCurrentZip(currentZipSaveSearch);
+    }, [currentCitySaveSearch,currentZipSaveSearch]);
+    
 
 
     return (
         <MapProvider>
 
 
-            <Panel header="Choose Area" headerTemplate={headerPane1} toggleable>
+            <Panel header="Choose Area" headerTemplate={headerPane1} ref={ref}toggleable>
                 <div className="grid nested-grid" key={refreshKey}>
-
-
                     <div className="col-8">
                         <div className="grid">
                             <div className="col-6 md:col-4 lg:col-4">
@@ -607,12 +721,23 @@ function SearchByArea() {
                                 </div>
 
                             </div>
-                            <div className="col-fixed">
-                                <span role="button" onClick={(event) => ref.current?.toggle(event)}><ZoomButton zoom={15} zips={currentZip ? currentZip : []} city={currentCity ? currentCity : null} isLoadingTransactions={isLoadingTransactions} onLoadingTransactionsChange={handleLoadingTransactions} nbrMonth={currentMonth ? currentMonth : 12}
-                                    saveSearchHistory={saveSearchHistory} handleClickActivityReport={handleClickActivityReport} /></span>
-                                <ClearButton clearData={clearData} />
-                            </div>
+                     
+                            
                         </div>
+                        <div className="d-flex justify-content-end ">
+                                <div>
+                                <span role="button" onClick={(event) => ref.current?.toggle(event)}>
+                                    <ZoomButton 
+                                        zoom={15} 
+                                        zips={currentZip ? currentZip : []} 
+                                        city={currentCity ? currentCity : null}  
+                                        nbrMonth={currentMonth ? currentMonth : 12}
+                                        saveSearchHistory={saveSearchHistory}  
+                                    />
+                                </span>
+                                <ClearButton clearData={clearData} />
+                                </div>
+                            </div>
                     </div>
                     <div className="col-12 md:col-4">
                         <div className="card" >
@@ -642,7 +767,7 @@ function SearchByArea() {
                                         <ul className="list-group">
                                             {searchHistory.map((search, index) => (
                                                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center" >
-                                                    <span role="button" >
+                                                    <span role="button" onClick={() => fetchTransactionsdata([search.zips],3,search.city)}>
                                                         {"City: "}{search.city}{" | zip "}{"[" + search.zips + "]"}
                                                     </span>
                                                     <Checkbox onChange={(event) => toggleFavorite(search, event)} checked={!search.isFavorite}></Checkbox>
@@ -688,14 +813,14 @@ function SearchByArea() {
                             <div className="row">
                                 <div className="col-sm-3 border-right">
                                     <div className="description-block">
-                                        <h5 className="">0</h5>
+                                        <h5 className="">{TotalTransactions[0] ? TotalTransactions[0]?.transactions : '0' }</h5>
                                         <span className="">Transactions</span>
                                     </div>
                                     {/* /.description-block */}
                                 </div>
                                 <div className="col-sm-3 border-right">
                                     <div className="description-block">
-                                        <h5 className="">0</h5>
+                                        <h5 className="">{TotalAgents[0] ? TotalAgents[0]?.agents : '0' }</h5>
                                         <span className="">Agents</span>
                                     </div>
                                     {/* /.description-block */}

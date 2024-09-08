@@ -26,6 +26,10 @@ GeoAreaRouter.post('/toggle-favorite',GeoAreaController.toggleFavorite);
 GeoAreaRouter.post('/getFavoriteHistory',GeoAreaController.getFavoriteHistory);
 
 GeoAreaRouter.post('/fetchTransactionsGeoByAgent',GeoAreaController.fetchTransactionsGeoByAgent);
+GeoAreaRouter.post('/GetTotalTransactions',GeoAreaController.GetTotalTransactions);
+GeoAreaRouter.post('/GetTotalAgents',GeoAreaController.GetTotalAgents);
+
+
 
 
 

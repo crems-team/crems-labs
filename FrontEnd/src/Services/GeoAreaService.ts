@@ -112,6 +112,34 @@ const fetchTransactionsGeoByAgent = async (agentId: string, nbrMonth : number): 
     }
   };
 
+const GetTotalTransactions = async (zips: string,nbrMonth : number): Promise<any[]> => {
+  try {
+    const param = encodeURIComponent(zips);
+    const response = await http.post<any>("/geoArea/GetTotalTransactions",{zips : zips,nbrMonth : nbrMonth});
+    const data = response.data;
+
+    return data;
+
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
+const GetTotalAgents = async (zips: string,nbrMonth : number): Promise<any[]> => {
+  try {
+    const param = encodeURIComponent(zips);
+    const response = await http.post<any>("/geoArea/GetTotalAgents",{zips : zips,nbrMonth : nbrMonth});
+    const data = response.data;
+
+    return data;
+
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
 const GeoAreaService = {
     
     getStates,
@@ -127,7 +155,9 @@ const GeoAreaService = {
     getSavedSearches,
     toggleFavorite,
     getSavedFavorite,
-    fetchTransactionsGeoByAgent
+    fetchTransactionsGeoByAgent,
+    GetTotalTransactions,
+    GetTotalAgents
 };
 
 export default GeoAreaService;

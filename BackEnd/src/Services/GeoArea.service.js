@@ -393,5 +393,64 @@ GeoAreaService.getStates = () => {
     });
   };
 
+  GeoAreaService.GetTotalTransactions = (zips,nbrMonth) => {
+    return new Promise((resolve, reject) => {
+        poolConnect.then(() => {
+  
+            const request = pool.request();
+            request.input('nbrMonth',  nbrMonth);
+            const query = `select SUM(total) transactions
+            from [prod].[agp_ProdDataGeo] 
+            where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
+            and agentId<>0 
+            and AgentPos in ('SELL','DNA')
+            and zipcode in (`+ decodeURIComponent(zips) + `);`;
+            request.query(query, (err, res) => {
+             
+  
+                if (err) {
+                  console.log(err);
+  
+                    reject(err);
+                    return;
+                }
+                resolve(res.recordset);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+  };
+
+  GeoAreaService.GetTotalAgents = (zips,nbrMonth) => {
+    return new Promise((resolve, reject) => {
+        poolConnect.then(() => {
+  
+            const request = pool.request();
+            request.input('nbrMonth',  nbrMonth);
+            const query = `select count(DISTINCT agentId) agents
+            from [prod].[agp_ProdDataGeo] 
+            where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
+            and agentId<>0 
+            and AgentPos in ('SELL','DNA')
+            and zipcode in (`+ decodeURIComponent(zips) + `);`;
+            request.query(query, (err, res) => {
+             
+  
+                if (err) {
+                  console.log(err);
+  
+                    reject(err);
+                    return;
+                }
+                resolve(res.recordset);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+  };
+
+  
 
 module.exports = GeoAreaService;

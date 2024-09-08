@@ -229,4 +229,44 @@ GeoAreaController.getCounties = async (req, res) => {
     }
   };
 
+  GeoAreaController.GetTotalTransactions = async (req, res) => {
+    try {
+
+      const zips = req.body.zips;
+      const nbrMonth = req.body.nbrMonth;
+      console.log(nbrMonth);
+      console.log(zips);
+      const data = await GeoAreaService.GetTotalTransactions(zips,nbrMonth);
+  
+      if (!data) {
+        return res.status(404).json({ message: 'Result not found' });
+      }
+  
+      res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  GeoAreaController.GetTotalAgents = async (req, res) => {
+    try {
+
+      const zips = req.body.zips;
+      const nbrMonth = req.body.nbrMonth;
+      console.log(nbrMonth);
+      console.log(zips);
+      const data = await GeoAreaService.GetTotalAgents(zips,nbrMonth);
+  
+      if (!data) {
+        return res.status(404).json({ message: 'Result not found' });
+      }
+  
+      res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
 module.exports = GeoAreaController;
