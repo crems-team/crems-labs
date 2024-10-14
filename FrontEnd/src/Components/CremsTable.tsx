@@ -5,9 +5,10 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import GeoAreaService from "../Services/GeoAreaService";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../Hooks/DispatchHook';
 import { RootState } from '../Redux/Store';
-import { setMarkers, addMarker } from '../Redux/Slices/MapSlice';
+import { setMarkers, addMarker ,setLoadingMarkers,setFromSearchByArea} from '../Redux/Slices/MapSlice';
 
 
 interface CremsTableProps {
@@ -25,7 +26,7 @@ interface CremsTableProps {
   const {   getMapInstance,zoomToLocation } = useMapContext();
   const [listPositions, setListPositions,] = useState<Array<any>>([]);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const transactions = useSelector((state: RootState) => state.map.transactions);
   const dt = useRef<DataTable<any>>(null);
 
@@ -36,6 +37,8 @@ interface CremsTableProps {
   };
 
   const handleRedirectToApr = (rowData: any) => {
+    dispatch(setFromSearchByArea(true));
+
     navigate(`/AgentProdReports/${rowData.agentId}`);
 
   };
@@ -62,12 +65,15 @@ interface CremsTableProps {
           icon: null,
         }));
       });
+      dispatch(setLoadingMarkers(false));
+
     }
   }, [listPositions, dispatch]);
 
      
       const fetchMarkers = async (rowData : any) => {
         dispatch(setMarkers([]));
+        dispatch(setLoadingMarkers(true));
 
         //areaReportRendred(true);
         const map = getMapInstance();

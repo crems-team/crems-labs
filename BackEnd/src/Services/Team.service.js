@@ -19,25 +19,16 @@ TeamService.getTeam= async (idAgent) => {
   const session = driver.session();
 
   const queryNode = `
-  match (n:Agent{id:${idAgent}}) 
-  return n.id as id, n.name as agentname,n.office as agentoffice
+  MATCH (a:Agent{agId:${idAgent}})
+  return a.agId as id, a.name as agentname,a.office as agentoffice,a.size as size, a.color as color
   union
-  match (n{id:${idAgent}})-[r:list_with]-(m)
-  return m.id as id, m.name as agentname,m.office as agentoffice
-  union
-  match (m)-[r:list_with]-(n:Agent{id:${idAgent}})
-  return m.id as id, m.name as agentname,m.office as agentoffice
-  `;
+  MATCH (a:Agent{agId:${idAgent}})-[r*1]-(b)
+  return b.agId as id, b.name as agentname,b.office as agentoffice,b.size as size, b.color as color`;
 
   const queryLinks = `
-  MATCH (n:Agent{id:${idAgent}})-[r:list_with]->(m)
-with r.count as count, n.id as source,m.id as target
-RETURN source, count,target
-union
-MATCH (n)-[r:list_with]->(m:Agent{id:${idAgent}})
-with r.count as count, n.id as source,m.id as target
-RETURN source, count,target
-`;
+  MATCH (n:Agent{agId:${idAgent}})-[r*1]-(m)
+  unwind r as rels
+  return startNode(rels).agId as source,endNode(rels).agId as target,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
 
   try {
     const nodeResult = await session.run(queryNode);
@@ -54,29 +45,55 @@ RETURN source, count,target
       const     id= record.get('id').toString();
       const     agentname =record.get('agentname').toString();
       const     agentoffice= record.get('agentoffice').toString();
+      let size = record.get('size').toNumber();
+      const     color= record.get('color').toString();
+      // green 12 ;8
+      // tar 8    ;6
+      // pink 6   ;4
+      // blue 3	 ; 2
+      if (size === 12) {
+        size = 9;
+      }
+      if (size === 8) {
+        size = 7;
+      }
+      if (size === 6) {
+        size = 5;
+      }
+      // if (size === 3) {
+      //   size = 3;
+      // }
 
         nodes.push({
             id: id,
             agentname: agentname,
             agentoffice: agentoffice,
-
+            size: size,
+            color: color,
         });
      
        
       
     });
 
-    console.log(nodes)
+    console.log(nodes);
 
     linkResult.records.forEach(record => {
       const sourceNodeId = record.get('source').toString();
       const targetNodeId = record.get('target').toString();
-      const count = record.get('count').toNumber(); // Assuming count is a numerical value
+      const size = record.get('size').toNumber()+1;
+      const count = record.get('count').toNumber();
+      const sell = record.get('sell').toNumber();
+      const colist = record.get('colist').toNumber();
+
 
       links.push({
         source: sourceNodeId,
         target: targetNodeId,
+        size : size,
         count: count,
+        sell : sell,
+        colist : colist,
       });
     });
     

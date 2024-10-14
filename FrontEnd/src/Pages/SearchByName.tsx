@@ -13,9 +13,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 //import { faStar, faStarHalfAlt,faSave ,fas  } from '@fortawesome/free-solid-svg-icons';
 import { fas, faR, faSave ,faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
-import SearchItem from "../Models/SearchItemAgent";
+import SearchItem from "../Models/SearchItemHistory";
 import { toast } from 'react-toastify';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
+import SearchHistory from '../Components/SearchHistory';
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import { resetMapState} from '../Redux/Slices/MapSlice'
 
 
 
@@ -52,6 +55,7 @@ function SearchByName() {
     const [searchHistory, setSearchHistory] = useState<Array<SearchItem>>([]);
     const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(Boolean);
     const [isLoadingSearchAgent, setIsLoadingSearchAgent] = useState(Boolean);
+    const dispatch = useAppDispatch();
 
 
 
@@ -311,6 +315,7 @@ const fetchSavedSearches =  async() => {
 
 useEffect(() => {
   if (keycloak.tokenParsed?.sub) {
+    dispatch(resetMapState());
     fetchSavedSearches();
   }
 }, [keycloak.tokenParsed?.sub]);
@@ -352,7 +357,13 @@ const handleSearch = async(firstName : string, lastName : string) => {
 
 
 const buttonDataTable = (rowData : AgentModel) => {
-    return <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => redirectToApr(rowData.agentIdC)} />;
+  return(
+  <div style={{ display: 'flex',  gap: '1rem' }}>
+        <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => redirectToApr(rowData.agentIdC)} />
+        <Button label="Teams" icon="bi bi-microsoft-teams" className="btn btn-primary" onClick={() => redirectToApr(rowData.agentIdC)} />
+
+    </div>
+  );
   };
 
   const redirectToApr = (id : number) => {
@@ -383,7 +394,7 @@ const buttonDataTable = (rowData : AgentModel) => {
                                     {suggestion.label}
                                 </li>
                                 ))):<li>   
-                                  <BeatLoader className="loading-container"size={10} color="#36d7b7" />                         
+                                  <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
                                   </li>}
                             </ul>
                             )}
@@ -405,7 +416,7 @@ const buttonDataTable = (rowData : AgentModel) => {
                                     {suggestionfn.label}
                                 </li>
                                 ))): <li>   
-                                <BeatLoader className="loading-container"size={10} color="#36d7b7" />                         
+                                <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
                                 </li>}
                             </ul>
                             )}
@@ -427,7 +438,7 @@ const buttonDataTable = (rowData : AgentModel) => {
                     <div className="card">
                       { isLoadingSearchAgent? ( <div  >
  
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
+                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
  
                                  </div>
                         ):dataAgent.length >0 && (
@@ -439,9 +450,6 @@ const buttonDataTable = (rowData : AgentModel) => {
                             <Column field="agentlastName" header="LastName" />
                             <Column field="agentIdC" header="CREMS ID" />
                             <Column field="officeName" header="Office Name" />
-                            <Column field="officeCity" header="Office City" />
-                            <Column field="Phone" header="Phone" />
-
                         </DataTable>
                       )}
                     </div>
@@ -469,65 +477,15 @@ const buttonDataTable = (rowData : AgentModel) => {
 
 
               <div className="col-md-4  mx-auto">
-                <div className="card" >
-                  <div className="card-header bg-primary text-white">
-                    <span className="page-title">Agent Search History</span>
-                    <span className="subtitle" style={{ fontSize: '12px' }}>
-                    Click the <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-square" viewBox="0 0 16 16">
-                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                              </svg> icon to save. Click the <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
-                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-                              </svg> icon to unsave.
-                              </span>
-                  
-                 </div>
-                  <div className="card-body cardRecentSearch">
-                 
-                  {isLoadingSavedSearch? ( <div  >
-                                  <ul className=""style={{listStyleType: 'none'}}>
-         
-                                    <li>
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
-                                    </li>
-                              
-                                 </ul> 
-                                 </div>
-                              ):                                    
-                  searchHistory.length>0?  (
-                    <ul className="list-group">
-                      {searchHistory.map((search, index) => (
-                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center" >
-                          <span role="button" onClick={() => redirectSaveToApr(search.agentIdC)}>
-                            {search.firstName} {search.lastName}
-                            </span>
-                          {/* <button */}
-                            {/* className={`btn ${search.isFavorite ? 'btn-primary' : 'btn-danger'}`}
-                            // onClick={(event) => toggleFavorite(search,event)} */}
-                          {/* > */}
-                                  {/* <FontAwesomeIcon icon={faSave} /> */}
-                                  {/* <FontAwesomeIcon icon={search.isFavorite ? faSave : faTrashAlt } /> */}
-                                  <Checkbox onChange={(event) => toggleFavorite(search,event)} checked={!search.isFavorite}></Checkbox>
+              <SearchHistory
+                title="Agent Search History"
+                isLoading={isLoadingSavedSearch}
+                searchHistory={searchHistory}
+                onSearchClick={(search : any) => redirectSaveToApr(search.agentIdC)}
+                onToggleFavorite={toggleFavorite}
+                parent="Agent"
+              />
 
-
-
-                {/*                  <FontAwesomeIcon icon={search.isFavorite ? faStar : faStarHalfAlt} />
-                */}                 
-                          {/* </button> */}
-                          </li>
-                        ))}
-                      </ul>
-                    ):  
-                        <ul className="list-group">
-                                                <li  className="list-group-item d-flex justify-content-between align-items-center">
-                                                No recent searches.
-                                          
-                                                </li>
-                                </ul>
-
-                              
-                                  }
-                  </div>
-                </div>
 
               </div>
               

@@ -731,11 +731,8 @@ AgentService.get_team_count_members = (id) => {
       const request = pool.request();
       request.input('idAgent',id);
       
-      var query = "select isnull((																	"+
-      "            select count(distinct listAgentId) as nombre from prod.agp_agent_teams "+
-      "            where coListAgentId=@idAgent and listAgentId is not null),0) +        "+
-      "            isnull((select count(distinct colistAgentId) from prod.agp_agent_teams "+
-      "            where listAgentId=@idAgent and colistAgentId is not null ),0) as total ";
+      var query = "select isnull((	select count(distinct agenty) as nombre from prod.agp_agent_rels where agentx = @idAgent ),0) + "+
+      "isnull((select count(distinct agentx) from prod.agp_agent_rels where agenty = @idAgent ),0) as total";
       request.query(query, (err, res) => {
           if (err) {
               reject(err);
@@ -760,14 +757,14 @@ AgentService.get_team_count_members = (id) => {
   
 };
 
-AgentService.get_team_agent_totlisting = (id) => {
+AgentService.get_team_agent_transactions = (id) => {
   return new Promise((resolve, reject) => {
     poolConnect.then(() => {
       const request = pool.request();
       request.input('idAgent',id);
       
-      var query = "select sum(isnull(countTxs,0)) as totlisting from prod.agp_agent_teams "+
-      "        where listAgentId=@idAgent                                             ";
+      var query = "select sum(total) total from prod.agp_agent_rels "+
+      "where agentx = @idAgent or agenty= @idAgent";
       request.query(query, (err, res) => {
           if (err) {
               reject(err);
@@ -779,7 +776,7 @@ AgentService.get_team_agent_totlisting = (id) => {
             }
 
           const Result = res.recordset.map(data => {
-            return data.totlisting;
+            return data.total;
           });
       
           resolve(Result); 
@@ -792,52 +789,49 @@ AgentService.get_team_agent_totlisting = (id) => {
   
 };
 
-AgentService.get_team_agent_totcolisting = (id) => {
-  return new Promise((resolve, reject) => {
-    poolConnect.then(() => {
-      const request = pool.request();
-      request.input('idAgent',id);
+// AgentService.get_team_agent_totcolisting = (id) => {
+//   return new Promise((resolve, reject) => {
+//     poolConnect.then(() => {
+//       const request = pool.request();
+//       request.input('idAgent',id);
       
-      var query = "select sum(isnull(countTxs,0)) as totcolisting from prod.agp_agent_teams "+
-      "        where colistAgentId=@idAgent                     ";
-      request.query(query, (err, res) => {
-          if (err) {
-              reject(err);
-              return;
-          }
-          if (res.recordset.length === 0) {
-              resolve(null);
-              return;
-            }
+//       var query = "select sum(isnull(countTxs,0)) as totcolisting from prod.agp_agent_teams "+
+//       "        where colistAgentId=@idAgent                     ";
+//       request.query(query, (err, res) => {
+//           if (err) {
+//               reject(err);
+//               return;
+//           }
+//           if (res.recordset.length === 0) {
+//               resolve(null);
+//               return;
+//             }
 
-          const Result = res.recordset.map(data => {
-            return data.totcolisting;
-          });
+//           const Result = res.recordset.map(data => {
+//             return data.totcolisting;
+//           });
       
-          resolve(Result); 
-        });
+//           resolve(Result); 
+//         });
 
-    }).catch(err => {
-      reject(err);
-    });
-  });
+//     }).catch(err => {
+//       reject(err);
+//     });
+//   });
   
-};
+// };
 
 AgentService.get_team_data= async(id) => {
   try {
-    const [count,totalListing, totalCoListing] = await Promise.all([
+    const [count,transactions] = await Promise.all([
       AgentService.get_team_count_members(id),
-      AgentService.get_team_agent_totlisting(id),
-      AgentService.get_team_agent_totcolisting(id)
+      AgentService.get_team_agent_transactions(id)
     ]);    
 
-    console.log(JSON.stringify({"count": count[0], "Listings": totalListing[0], "CoListings": totalCoListing[0],"Transactions":parseInt(totalListing) + parseInt(totalCoListing) }))
-
-    return JSON.stringify({"count": count[0], "Listings": totalListing[0], "CoListings": totalCoListing[0],"Transactions":parseInt(totalListing[0]) + parseInt(totalCoListing[0]) });
+    return JSON.stringify({"count": count[0],"Transactions":transactions[0] });
 
   } catch (error) {
-    console.error('Error calculating total listings:', error);
+    console.error('Error calculating team:', error);
     throw error;
   }
 
@@ -850,15 +844,16 @@ AgentService.get_team_agents_table = (idAgent) => {
       const request = pool.request();
       request.input('idAgent',idAgent);
       
-      var query = "with team_agents as (																																													"+
-      "select colistagentid as agentid, coListAgentFirstName as firstName,coListAgentLastName as lastName,listAgentOfficeName as OfficeName, countTxs colistings, 0 listings from agp_agent_teams "+
-      "where listagentid=@idAgent                                                                                                                                                                   "+
-      "union                                                                                                                                                                                      "+
-      "select listagentid as agentid,ListAgentFirstName as firstName,ListAgentLastName as lastName,colistAgentOfficeName as OfficeName,0 colistings ,countTxs listings from agp_agent_teams       "+
-      "where colistagentid=@idAgent                                                                                                                                                                 "+
-      ")                                                                                                                                                                                          "+
-      "select agentid,firstName,lastName,OfficeName,sum(colistings) as 'colistings',sum(listings) as 'listings', sum(colistings)+sum(listings) as total from team_agents                          "+
-      "group by agentid, firstName,lastName,OfficeName                                                                                                                                            ";
+      var query = "with teams		"+
+      "as(                                                                "+
+      "select agenty id,colist,sell,cosell,total from prod.agp_agent_rels "+
+      "where agentx=@idAgent                                              "+
+      "UNION                                                              "+
+      "select agentx id,colist,sell,cosell,total from prod.agp_agent_rels "+
+      "where agenty=@idAgent)                                             "+
+      "select id,ag.firstName,ag.lastName, sum(colist) colist,sum(cosell) cosell,sum(sell) sell,sum(total) total  from teams  "+
+      "join prod.agp_agentref ag on teams.id=ag.agentIdC "+
+      "group by id,firstName,lastName"; 
       request.query(query, (err, res) => {
           console.log(res.recordset);
           if (err) {
@@ -870,8 +865,8 @@ AgentService.get_team_agents_table = (idAgent) => {
               return;
             }
           const team = res.recordset.map(teamData => {
-            return new TeamAgentsData(teamData.agentid,teamData.firstName,teamData.lastName,teamData.OfficeName,teamData.colistings,
-                                      teamData.listings,teamData.total );
+            return new TeamAgentsData(teamData.id,teamData.firstName,teamData.lastName,teamData.colist,teamData.cosell,
+                                      teamData.sell,teamData.total );
           });
       
           resolve(team); 

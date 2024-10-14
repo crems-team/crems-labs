@@ -1,12 +1,11 @@
 class TeamAgentsData {
-    
-    constructor(agentid,firstName,lastName,OfficeName,colistings,listings,total ) {
-        this.agentid 	=   agentid ;
+    constructor(id,firstName,lastName,colist,cosell,sell,total ) {
+        this.id 	=   id ;
         this.firstName  =   firstName ;
         this.lastName   =   lastName ;
-        this.OfficeName =   OfficeName ;
-        this.colistings =   colistings ;
-        this.listings   =   listings ;
+        this.colist =   colist ;
+        this.cosell =   cosell ;
+        this.sell   =   sell ;
         this.total      =   total ;
                 
     }

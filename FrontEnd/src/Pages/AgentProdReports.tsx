@@ -17,6 +17,8 @@ import TeamInvestigatorProductiveGroup from '../Components/TeamInvestigatorProdu
 import TeamNeo4jGraph from '../Components/TeamNeo4jGraph';
 import TierPersonaReport from '../Components/TierPersonaReport';
 import AgentTierPersona from "../Models/AgentTierPersona";
+import BackButtonToArea from '../Components/BackButtonToArea';
+
 
 import 'driver.js/dist/driver.css'; 
 
@@ -146,6 +148,7 @@ import 'driver.js/dist/driver.css';
                //
                AgentService.getTeamData(data)
                .then((response: any) => {
+                console.log(JSON.parse(response.data));
                  setTeamData(JSON.parse(response.data));
                
                })
@@ -299,6 +302,7 @@ import 'driver.js/dist/driver.css';
         <div className="content-header">
             <div className="container-fluid">
                 <div className="row mb-2">
+                    <div><BackButtonToArea/></div>
                     <div className="col-sm-6">
                         <div className="card">
                             <div className="card-header">
@@ -366,12 +370,12 @@ import 'driver.js/dist/driver.css';
                                         </div>
                                         <div className="row">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small d-inline-block text-left">Active Listings : </span><strong>{activpendinglisting ? activpendinglisting[0].active :''}</strong>
+                                            <span className="small d-inline-block text-left">Active Listings : </span><strong> {activpendinglisting ? activpendinglisting[0].active :''}</strong>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small d-inline-block text-left">Pending Listings : </span><strong>{activpendinglisting ? activpendinglisting[0].pending :''}</strong>
+                                            <span className="small d-inline-block text-left">Pending Listings : </span><strong> {activpendinglisting ? activpendinglisting[0].pending :''}</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -467,12 +471,8 @@ import 'driver.js/dist/driver.css';
                                         </div>
                                         {/* /.card */}
 
-                                        <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s past 12 months of new listings and pending listings for each month. The values include listing and co-listing plus selling and co-selling properties. It includes this partial month’s totals as well.
-                                        <ul>
-                                            <li><strong>New Listings This Month:</strong> Listings that started this month and are not “S” or “F” status, but can be an A, C, U, or P status </li>
-                                            <li><strong>Pending Listings Today:</strong> new or previous month’s listings that are now a “P” status </li>
-                                        </ul>">
-                                    <i className="bi bi-info-circle fs-6" /></a> Future: Agent Listings Report</h5>
+                                        <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s past 12 months of new listings and pending listings for each month. It includes this partial month’s totals as well. New listings can be an A, C, U, or P status. Pending listings are “P” status. Each of the previous months show a snapshot at that time.">
+                                    <i className="bi bi-info-circle fs-6" /></a> Future: Future: New Listings Report</h5>
                                
                                <div className="card  collapsed-card">
                                    <div className="card-header">
@@ -520,8 +520,8 @@ import 'driver.js/dist/driver.css';
                                    
                                </div>
                                {/* /.card */}
-                               <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The purpose of the Team Investigator is to reveal what agents repeated complete transactions together in the past year.  There are two parts of the report. First is a table showing agents, offices, and the number of times they were the listing agent or co-listing agent.  Second is the node-map which graphically displays the same relationships. The colors represent different office, and the arrow’s direction goes from listing agent to co-listing agent.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Circle of Influence (COI): Team Investigator</h5>
+                               <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The purpose of the Level One Team Investigator is to reveal what other agents completed transactions with this agent in the past year. The color and size of the agent nodes represents the Tier of each one. (green=Tier1, tan=Tier 2, pink=Tier 3, blue=Tier 4) In addition, the thickness of the connecting line indicates the number of transactions between each agent.  The role that each agent performed in the transactions is not represented in the graph. But the second part of this report, a table, shows all the agents, their offices, and the number of times they performed each role in the transactions. There is another section of the COI called “Level Two Team Investigator” which extends the connections to agents beyond this group.">
+                                    <i className="bi bi-info-circle fs-6" /></a> Team Investigator (COI): First-Level Direct Connections</h5>
                                
                                <div className="card  collapsed-card">
                                    <div className="card-header">
@@ -530,31 +530,30 @@ import 'driver.js/dist/driver.css';
                                         <div className="col-sm-2 border-right pl-0 pr-0 mr-0">
                                             <div className="description-block pl-0 pr-0 mr-0">
                                                 <h5 className="">{teamData ? teamData.count : '0'}</h5>
-                                                <span className="pl-0 pr-0 mr-0">Team Agents</span>
+                                                <span className="pl-0 pr-0 mr-0">Agents</span>
                                             </div>
                                             {/* /.description-block */}
                                         </div>
                                         <div className="col-sm-2 border-right">
                                             <div className="description-block">
                                                 <h5 className="">{teamData?.Transactions ? teamData.Transactions : 0}</h5>
-                                                <span className="">Transact</span>
+                                                <span className="">Sides</span>
                                             </div>
                                             {/* /.description-block */}
                                         </div>
-                                        <div className="col-sm-2 border-right">
-                                            <div className="description-block">
+                                        <div className="col-sm-5 ">
+                                            {/* <div className="description-block">
                                                 <h5 className="">{teamData?.Listings ? teamData.Listings : '0'}</h5>
                                                 <span className="">Listings</span>
-                                            </div>
+                                            </div> */}
                                             {/* /.description-block */}
                                         </div>
-                                        <div className="col-sm-3 border-right">
+                                        {/* <div className="col-sm-3 border-right">
                                             <div className="description-block">
                                                 <h5 className="">{teamData?.CoListings ? teamData.CoListings : '0'}</h5>
                                                 <span className="">CoListings</span>
                                             </div>
-                                            {/* /.description-block */}
-                                        </div>
+                                        </div> */}
                                         <div className="col-sm-1">
                                                
 
@@ -575,13 +574,29 @@ import 'driver.js/dist/driver.css';
                                             <span className="mr-1">Extend table </span>
                                             <i className="bi bi-arrows-angle-expand"></i>
                                         </button>
-                                   <div className="row  pb-0 pt-0 pr-0 pl-0">
+                                   <div className="row  pb-0 pt-0 pr-0 pl-0  ">
 
                                    {!teamReportClicked&&<TeamNeo4jGraph id={idAgent ? idAgent : ''}/>}
 
                                                       
                                    </div>
-                                   
+                                     {/* Legend Section */}
+                                    <div className="mb-1 ml-1">
+                                        <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0' }}>
+                                            <li style={{ display: 'inline-block', marginRight: '20px' }}>
+                                            <span style={{ backgroundColor: '#D4EFDF', padding: '5px', marginRight: '5px' }}></span> Tier 1
+                                            </li>
+                                            <li style={{ display: 'inline-block', marginRight: '20px' }}>
+                                            <span style={{ backgroundColor: '#F6DDCC', padding: '5px', marginRight: '5px' }}></span> Tier 2
+                                            </li>
+                                            <li style={{ display: 'inline-block', marginRight: '20px' }}>
+                                            <span style={{ backgroundColor: '#F5B7B1', padding: '5px', marginRight: '5px' }}></span> Tier 3
+                                            </li>
+                                            <li style={{ display: 'inline-block', marginRight: '20px' }}>
+                                            <span style={{ backgroundColor: '#AED6F1', padding: '5px', marginRight: '5px' }}></span> Tier 4
+                                            </li>                                        
+                                        </ul>
+                                    </div>
                                     
                    
                                    </div>

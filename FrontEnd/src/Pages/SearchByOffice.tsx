@@ -10,7 +10,7 @@ import { debounce } from 'lodash';
 import http from '../http-common';
 import AgentOfficeData from "../Models/AgentOfficeData";
 import { InputText } from 'primereact/inputtext';
-import SearchItemOffice from "../Models/SearchItemOffice";
+import SearchItemOffice from "../Models/SearchItemHistory";
 import { useKeycloak } from "@react-keycloak/web";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,9 @@ import { fas, faR, faSave ,faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { toast } from 'react-toastify';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { useSearch } from '../Components/Context/Context';
+import SearchHistory from '../Components/SearchHistory';
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import { resetMapState} from '../Redux/Slices/MapSlice'
 
 
 
@@ -57,6 +60,7 @@ function SearchByOffice() {
     const { handleSearchAction, isLoadingSearchOffice, dataAgent,setDataAgent,setIsLoadingSearchOffice } = useSearch();
 
     const [filteredData, setFilteredData] = useState(dataAgent);
+    const dispatch = useAppDispatch();
 
 
 
@@ -278,6 +282,8 @@ function SearchByOffice() {
 
     useEffect(() => {
       if (keycloak.tokenParsed?.sub) {
+        setDataAgent([]);
+        dispatch(resetMapState());
         fetchSavedSearches();
         
       }
@@ -351,7 +357,7 @@ function SearchByOffice() {
                                             {suggestion.label}
                                         </li>
                                         ))):<li>   
-                                          <BeatLoader className="loading-container"size={10} color="#36d7b7" />                         
+                                          <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
                                           </li>}
                                     </ul>
                                     )}
@@ -375,7 +381,7 @@ function SearchByOffice() {
                                     {suggestionOff.label}
                                 </li>
                                 ))):<li>   
-                                  <BeatLoader className="loading-container"size={10} color="#36d7b7" />                         
+                                  <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
                                   </li>}
                                 </ul>
                                 )}
@@ -414,61 +420,15 @@ function SearchByOffice() {
 
 
               <div className="col-md-4  mx-auto">
-                <div className="card" >
-                  <div className="card-header bg-primary text-white">
-                    <span className="page-title">Office Search History</span>
-                    <span className="subtitle" style={{ fontSize: '12px' }}>
-                    Click the <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-square" viewBox="0 0 16 16">
-                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                              </svg> icon to save. Click the <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
-                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-                              </svg> icon to unsave.                                            
-                    </span>
-                  
-                 </div>
-                  <div className="card-body cardRecentSearch">
-                        {isLoadingSavedSearch? ( <div  >
-                                  <ul className=""style={{listStyleType: 'none'}}>
-         
-                                    <li>
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
-                                    </li>
-                              
-                                 </ul> 
-                                 </div>
-                              ):                             
-                        searchHistory.length>0?  (
-                          <ul className="list-group">
-                            {searchHistory.map((search, index) => (
-                              <li key={index} className="list-group-item d-flex justify-content-between align-items-center" >
-                                <span role="button" onClick={() => handleSearchAction(search)}>
-                                  {search.officeName} 
-                                  </span>
-                                  <Checkbox onChange={(event) => toggleFavorite(search,event)} checked={!search.isFavorite}></Checkbox>
-                                {/* <button
-                                  className={`btn ${search.isFavorite ? 'btn-primary' : 'btn-danger'}`}
-                                  onClick={(event) => toggleFavorite(search,event)}
-                                > */}
-                                  {/* <FontAwesomeIcon icon={search.isFavorite ?  faStarHalfAlt:  faStar} /> */}
-                                  {/* <FontAwesomeIcon icon={search.isFavorite ? faSave : faTrashAlt } /> */}
+              <SearchHistory
+                title="Office Search History"
+                isLoading={isLoadingSavedSearch}
+                searchHistory={searchHistory}
+                onSearchClick={handleSearchAction}
+                onToggleFavorite={toggleFavorite}
+                parent="Office"
+              />
 
-                                {/* </button> */}
-                                </li>
-                              ))}
-                            </ul>
-                          ):  
-                        <ul className="list-group">
-                                                <li  className="list-group-item d-flex justify-content-between align-items-center">
-                                                No recent searches.
-                                          
-                                                </li>
-                                </ul>
-
-                              
-                      }            
-                      
-                  </div>
-                </div>
 
               </div>
               
@@ -478,7 +438,7 @@ function SearchByOffice() {
         <div className="col-md-8 col-sm-4">
           { isLoadingSearchOffice? ( <div  >
  
-            <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
+            <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
 
             </div>
             ):dataAgent[0] ?  

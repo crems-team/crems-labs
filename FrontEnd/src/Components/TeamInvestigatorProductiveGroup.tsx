@@ -53,8 +53,7 @@ const TeamInvestigatorProductiveGroup : React.FC<ComponentProps> = ({ id }) => {
         setSelectedRow(event.value.agentid);
         /* const url = `https://crems-labs.com/AgentProdReports/${event.value.agentid}`;
         window.location.href = url; */
-        navigate(`/AgentProdReports/${event.value.agentid}`);
-        console.log('hna');
+        navigate(`/AgentProdReports/${event.value.id}`);
 
     };
     return (
@@ -67,10 +66,10 @@ const TeamInvestigatorProductiveGroup : React.FC<ComponentProps> = ({ id }) => {
                           onSelectionChange={handleRowSelect}>
                               <Column field="firstName" header="First Name" style={{ width: '1%' }} />
                               <Column field="lastName" header="Last Name" style={{ width: '1%' }}/>
-                              <Column field="OfficeName" header="Office Name" style={{ width: '2%' }} />
+                              <Column field="colist" header="Co-listings" style={{ width: '2%' }} />
+                              <Column field="cosell" header="Co-sellings" style={{ width: '1%' }}/>
+                              <Column field="sell" header="Sellings" style={{ width: '1%' }}/>
                               <Column field="total" header="Total" style={{ width: '1%' }}/>
-                              <Column field="listings" header="Listings" style={{ width: '1%' }}/>
-                              <Column field="colistings" header="Co-listings" style={{ width: '1%' }}/>
   
                           </DataTable>
                         

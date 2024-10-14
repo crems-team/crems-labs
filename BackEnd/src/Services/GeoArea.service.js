@@ -199,7 +199,10 @@ GeoAreaService.getStates = () => {
         ( 
         sum(total) 
         for AgentPos in ([LIST],[SELL],[DNA]) 
-        ) piv  order by zipcode, agentId;`;
+        ) piv
+        where 
+        COALESCE([SELL], 0) > 0
+        order by zipcode, agentId;`;
             request.query(query, (err, res) => {
   
                 if (err) {
@@ -222,9 +225,11 @@ GeoAreaService.getStates = () => {
             //decodedparam = 32086,32091
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
-            const query = `select elatitude lat,elongitude lng, count(listingid) nbrlist,count(listAgentId) nbragt,  max(primary_ +' '+street_)  street,max(zip5+'-'+zip4) zip from prod.agp_listGeo
-            where zip5  in ('`+ decodedparam+ `') and DATEDIFF(MONTH, creationDate,getDATE())<=@nbrMonth
-            group by elatitude,elongitude`;
+            const query = `select enhanced_latitude lat,enhanced_longitude lng, count(listing_id) nbrlist,count(distinct list_Agent_Id) nbragt,
+            max(primary_status +' '+street)  street,max(zip_5+'-'+zip_4) zip 
+            from prod.agp_listings_geo alg
+            where zip_5  in ('`+ decodedparam+ `') and DATEDIFF(MONTH, creation_date,getDATE())<=@nbrMonth
+            group by enhanced_latitude,enhanced_longitude`;
             request.query(query, (err, res) => {
   
                 if (err) {
@@ -242,7 +247,7 @@ GeoAreaService.getStates = () => {
   };
 
   //For saved search and favorite option
-  GeoAreaService.saveSearchHistory = (userId, savedType, city, zips) => {
+  GeoAreaService.saveSearchHistory = (userId, savedType, city, zips,state,county,nbrMonth) => {
     return new Promise((resolve, reject) => {
         poolConnect.then(() => {
           
@@ -251,12 +256,15 @@ GeoAreaService.getStates = () => {
             request.input('savedType',  savedType);
             request.input('city',  city);
             request.input('zips',  zips);
+            request.input('state',  state);
+            request.input('county',  county);
+            request.input('nbrMonth',  nbrMonth);
   
             const query = `
-                IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND City = @city AND Zips = @zips)
+                IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND City = @city AND Zips = @zips AND State = @state AND County = @county AND NbrMonth = @nbrMonth)
                 BEGIN
-                    INSERT INTO agp_searchHistory (UserId,savedType, City, Zips, IsFavorite)
-                    VALUES (@userId, @savedType, @city, @zips, 1)
+                    INSERT INTO agp_searchHistory (UserId,savedType, City, Zips,State,County,NbrMonth, IsFavorite)
+                    VALUES (@userId, @savedType, @city, @zips,@state,@county,@nbrMonth, 1)
                 END
             `;
             request.query(query, (err, res) => {
@@ -284,7 +292,7 @@ GeoAreaService.getStates = () => {
             request.input('userId',  userId);
             request.input('savedType', savedType);
             const query = `
-                SELECT savedType, City as city, Zips as zips, isFavorite
+                SELECT savedType, City as city, Zips as zips,State as state,County as county,cast(NbrMonth as int) as nbrMonth, isFavorite
                 FROM agp_searchHistory
                 WHERE UserId    = @userId
                 AND   savedType = @savedType
@@ -306,18 +314,22 @@ GeoAreaService.getStates = () => {
     });
   };
   
-  GeoAreaService.toggleFavorite = (userId, city, zips, isFavorite) => {
+  GeoAreaService.toggleFavorite = (userId, city, zips,state,county,nbrMonth, isFavorite) => {
     return new Promise((resolve, reject) => {
         poolConnect.then(() => {
             const request = pool.request();
             request.input('userId',  userId);
             request.input('city',  city);
             request.input('zips',  zips);
+            request.input('state',  state);
+            request.input('county',  county);
+            request.input('nbrMonth',  nbrMonth);
             request.input('isFavorite',  isFavorite);
+            console.log('hici');
             const query = `
                 UPDATE agp_searchHistory
                 SET IsFavorite = @isFavorite
-                WHERE UserId = @userId AND City = @city AND Zips = @zips
+                WHERE UserId = @userId AND City = @city AND Zips = @zips AND State = @state AND County = @county AND NbrMonth = @nbrMonth
             `;
             request.query(query, (err, res) => {
                 if (err) {
@@ -341,7 +353,7 @@ GeoAreaService.getStates = () => {
             request.input('savedType',  savedType);
   
             const query = `
-                SELECT savedType, City as city, Zips as zips, isFavorite
+                SELECT savedType, City as city, Zips as zips,State as state,County as county,NbrMonth as nbrMonth, isFavorite
                 FROM agp_searchHistory
                 WHERE UserId = @userId
                 AND   isFavorite = 0
@@ -371,12 +383,14 @@ GeoAreaService.getStates = () => {
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
             request.input('agentId',  agentId);
-            const query = `select elatitude lat,elongitude lng, count(listingid) nbrlist,count(listAgentId) nbragt,  max(primary_ +' '+street_)  street,max(zip5+'-'+zip4) zip from prod.agp_listGeo
-            where listAgentId=@agentId and DATEDIFF(MONTH, creationDate,getDATE())<=@nbrMonth
-            and  listAgentId<>0
-            and elatitude is not null 
-			and elongitude is not null 
-            group by elatitude,elongitude`;
+            const query = `select enhanced_latitude lat,enhanced_longitude lng, count(listing_id) nbrlist,count(distinct list_Agent_Id) nbragt,
+            max(primary_status +' '+street)  street,max(zip_5+'-'+zip_4) zip 
+            from prod.agp_listings_geo alg 
+            where list_Agent_Id=@agentId and DATEDIFF(MONTH, creation_date,getDATE())<=@nbrMonth
+            and  list_Agent_Id<>0
+            and enhanced_latitude is not null 
+            and enhanced_longitude is not null 
+            group by enhanced_latitude,enhanced_longitude`;
             request.query(query, (err, res) => {
   
                 if (err) {
@@ -428,12 +442,22 @@ GeoAreaService.getStates = () => {
   
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
-            const query = `select count(DISTINCT agentId) agents
+            const query = `select count(*) agents
+            from 
+            ( 
+            select zipcode, agentId, agentfirstname, agentlastname, total,AgentPos 
             from [prod].[agp_ProdDataGeo] 
             where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
             and agentId<>0 
-            and AgentPos in ('SELL','DNA')
-            and zipcode in (`+ decodeURIComponent(zips) + `);`;
+            and zipcode in (`+ decodeURIComponent(zips) + `) 
+            ) d 
+            pivot 
+            ( 
+            sum(total) 
+            for AgentPos in ([LIST],[SELL],[DNA]) 
+            ) piv 
+            where 
+        COALESCE([SELL], 0) > 0;`;
             request.query(query, (err, res) => {
              
   

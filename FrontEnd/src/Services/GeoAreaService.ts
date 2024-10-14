@@ -6,9 +6,7 @@ import Zip from "../Models/Zip";
 import CityCoordinates from "../Models/CityCoordinates";
 import { zip } from "lodash";
 import SearchItemArea from "../Models/SearchItemArea";
-
-
-
+import {setTotalTransactions} from '../Redux/Slices/MapSlice'
 
 
 
@@ -17,15 +15,15 @@ const getStates = () => {
   return http.post<States>("/geoArea/getStates");
 };
 
-const getCounties = (stateCode : string) => {
+const getCounties = (stateCode : string | null) => {
     return http.post<Counties>("/geoArea/getCounties",{stateCode : stateCode});
 };
 
-const getCities = (county : number) => {
+const getCities = (county : number | null) => {
     return http.post<Cities>("/geoArea/getCities",{county : county});
 };
 
-const getZips = (code : number) => {
+const getZips = (code : number | null) => {
     return http.post<Zip>("/geoArea/getZips",{city : code});
 };
 
@@ -41,12 +39,14 @@ const getZipByCity = (city : number) => {
     return http.post<Zip>("/geoArea/getZipByCity",{city : city});
 };
 
-const fetchTransactions = async (zips: string,nbrMonth : number): Promise<any[]> => {
+const fetchTransactions = async (dispatch: any,zips: string,nbrMonth : number): Promise<any[]> => {
     try {
       const param = encodeURIComponent(zips);
       const response = await http.post<any>("/geoArea/fetchTransactions",{zips : zips,nbrMonth : nbrMonth});
       const data = response.data;
       
+      let cumulativeTotal = 0;
+
   
       data.forEach((obj: any) => {
         for (let key in obj) {
@@ -55,8 +55,10 @@ const fetchTransactions = async (zips: string,nbrMonth : number): Promise<any[]>
           }
         }
         obj.total = parseInt(obj.listings, 10) + parseInt(obj.selling, 10);
+        cumulativeTotal += obj.total; // Update cumulative total
+
       });
-      console.log(data);
+      dispatch(setTotalTransactions(cumulativeTotal));
       return data;
 
     } catch (err) {
@@ -82,12 +84,12 @@ const fetchTransactionsGeo = async (zips: string, nbrMonth : number): Promise<an
   };
 
   //for saved search and favorite
-const saveSearchHistory = (userId : string, savedType : string, city : string, zips : string) => {
-    return http.post("/geoArea/save-search", { userId, savedType, city, zips });
+const saveSearchHistory = (userId : string, savedType : string, city : string, zips : string, state : string, county : string,nbrMonth:number) => {
+    return http.post("/geoArea/save-search", { userId, savedType, city, zips,state,county,nbrMonth });
   };
-  
-  const toggleFavorite = (userId : string, city : string, zips : string, isFavorite : boolean) => {
-    return http.post("/geoArea/toggle-favorite", { userId, search: { city, zips, isFavorite } });
+
+  const toggleFavorite = (userId : string, city : string, zips : string,state : string, county : string,nbrMonth : number, isFavorite : boolean) => {
+    return http.post("/geoArea/toggle-favorite", { userId, search: { city, zips,state, county,nbrMonth, isFavorite } });
   };
   
   const getSavedSearches = (userId : string, savedType : string) => {
