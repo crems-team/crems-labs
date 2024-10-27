@@ -360,7 +360,7 @@ const buttonDataTable = (rowData : AgentModel) => {
   return(
   <div style={{ display: 'flex',  gap: '1rem' }}>
         <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => redirectToApr(rowData.agentIdC)} />
-        <Button label="Teams" icon="bi bi-microsoft-teams" className="btn btn-primary" onClick={() => redirectToApr(rowData.agentIdC)} />
+        <Button label="Teams" icon="bi bi-microsoft-teams" className="btn btn-primary" onClick={() => redirectToTeamInvestigator(rowData.agentIdC)} />
 
     </div>
   );
@@ -373,6 +373,10 @@ const buttonDataTable = (rowData : AgentModel) => {
   const redirectSaveToApr = (id : string) => {
     navigate(`/AgentProdReports/${id}`);
   };
+
+  const redirectToTeamInvestigator = (id : number) => {
+    navigate(`/TeamInvestigator/${id}`);
+};
 
   
 

@@ -60,16 +60,17 @@ const TeamInvestigatorProductiveGroup : React.FC<ComponentProps> = ({ id }) => {
         <div>
             { dataTeam[0] ?                                                              
                           <DataTable value={dataTeam}
-                          paginator rows={5}  
+                          paginator
+                          rows={10}                            
                           selectionMode="single"
                           selection={selectedRow}
-                          onSelectionChange={handleRowSelect}>
-                              <Column field="firstName" header="First Name" style={{ width: '1%' }} />
-                              <Column field="lastName" header="Last Name" style={{ width: '1%' }}/>
-                              <Column field="colist" header="Co-listings" style={{ width: '2%' }} />
-                              <Column field="cosell" header="Co-sellings" style={{ width: '1%' }}/>
-                              <Column field="sell" header="Sellings" style={{ width: '1%' }}/>
-                              <Column field="total" header="Total" style={{ width: '1%' }}/>
+                          onSelectionChange={handleRowSelect} >
+                              <Column field="firstName" header="First Name" sortable style={{ width: '1%' }} />
+                              <Column field="lastName" header="Last Name" sortable style={{ width: '1%' }}/>
+                              <Column field="colist" header="Co-listings" sortable style={{ width: '2%' }} />
+                              <Column field="cosell" header="Co-sellings" sortable style={{ width: '1%' }}/>
+                              <Column field="sell" header="Sellings" sortable style={{ width: '1%' }}/>
+                              <Column field="total" header="Total" sortable style={{ width: '1%' }}/>
   
                           </DataTable>
                         

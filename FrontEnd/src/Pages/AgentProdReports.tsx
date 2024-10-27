@@ -18,6 +18,8 @@ import TeamNeo4jGraph from '../Components/TeamNeo4jGraph';
 import TierPersonaReport from '../Components/TierPersonaReport';
 import AgentTierPersona from "../Models/AgentTierPersona";
 import BackButtonToArea from '../Components/BackButtonToArea';
+import { useNavigate } from 'react-router-dom';
+
 
 
 import 'driver.js/dist/driver.css'; 
@@ -77,10 +79,15 @@ import 'driver.js/dist/driver.css';
     const [agentTierPersonaData, setAgentTierPersonaData] = useState<Array<AgentTierPersona>>([]);
 
     const [activpendinglisting, setActivpendinglisting] = useState<[{active: number;pending: number}]>();
+    const navigate = useNavigate();
 
 
     const toggleDataTableModal = () => {
         setShowDataTableModal(prevState => !prevState);
+    };
+
+    const redirectToTeamInvestigator = (id : string) => {
+        navigate(`/TeamInvestigator/${id}`);
     };
    
     useEffect(() => {
@@ -571,9 +578,13 @@ import 'driver.js/dist/driver.css';
                                    {/* /.card-header */}
                                    <div className="card-body pb-0 pt-0 pr-0 pl-0 " >
                                     <button type="button" className="btn btn-light btn-sm mt-1 ml-1" onClick={toggleDataTableModal}>
-                                            <span className="mr-1">Extend table </span>
+                                            <span className="mr-1">Table of Agents </span>
                                             <i className="bi bi-arrows-angle-expand"></i>
-                                        </button>
+                                    </button>
+                                    <button type="button" className="btn btn-light btn-sm mt-1 ml-1" onClick={() => redirectToTeamInvestigator(idAgent ? idAgent : '')}>
+                                            <span className="mr-1">Enlarger Display</span>
+                                            <i className="bi bi-microsoft-teams"></i>
+                                    </button>
                                    <div className="row  pb-0 pt-0 pr-0 pl-0  ">
 
                                    {!teamReportClicked&&<TeamNeo4jGraph id={idAgent ? idAgent : ''}/>}
@@ -584,7 +595,7 @@ import 'driver.js/dist/driver.css';
                                     <div className="mb-1 ml-1">
                                         <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0' }}>
                                             <li style={{ display: 'inline-block', marginRight: '20px' }}>
-                                            <span style={{ backgroundColor: '#D4EFDF', padding: '5px', marginRight: '5px' }}></span> Tier 1
+                                            <span style={{ backgroundColor: '#98EFBF', padding: '5px', marginRight: '5px' }}></span> Tier 1
                                             </li>
                                             <li style={{ display: 'inline-block', marginRight: '20px' }}>
                                             <span style={{ backgroundColor: '#F6DDCC', padding: '5px', marginRight: '5px' }}></span> Tier 2

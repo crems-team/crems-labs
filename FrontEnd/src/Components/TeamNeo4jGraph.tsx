@@ -13,8 +13,26 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
   const [links, setLinks] = useState<any[]>([]);
   const [teamNeo4jData, setTeamNeo4jData] = useState<TeamNeo4jData>();
   const [processedLinks, setProcessedLinks] = useState<any[]>([]);
+  const [teamNeo4jDataValide, setTeamNeo4jDataValide] = useState<TeamNeo4jData>();
 
 
+
+
+  function filterValidLinks(data: any): any {
+    // Create a map for quick lookup of node existence
+    const nodesMap = new Map<string, Node>(data.nodes.map((node:any) => [node.id, node]));
+  
+    // Filter out invalid links where source or target node doesn't exist in the nodes array
+    const validLinks = data.links.filter((link : any) => nodesMap.has(link.source) && nodesMap.has(link.target));
+  
+    console.log(nodesMap);
+
+    console.log(validLinks);
+    return {
+      nodes: data.nodes, // nodes remain the same
+      links: validLinks, // only valid links are passed
+    };
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +41,8 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
               .then((response: any) => {
                 // setTeamNeo4jData(response.data);
                 if(response.data){
+                  console.log(response.data.nodes);
+                  console.log(response.data.links);
                 // setNodes(teamNeo4jData.nodes);
                 // setLinks(teamNeo4jData.links);
                 // Process links to detect bidirectional relationships and set curvature
@@ -90,19 +110,30 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
     // console.log(processedLinks);
 
     if(teamNeo4jData){
-    
+
+      // setTeamNeo4jDataValide(filterValidLinks(teamNeo4jData));
+      console.log(teamNeo4jDataValide);
+           
     setNodes(teamNeo4jData.nodes);
     // setLinks(teamNeo4jData.links);
-    console.log(teamNeo4jData.nodes);
+    // console.log(teamNeo4jData.nodes);
+    // console.log(processedLinks);
+
+      // setLinks(processedLinks);
       setLinks(processedLinks);
     }
   }, [teamNeo4jData,processedLinks]);
 
-  useEffect(() => {
+  // useEffect(() => {
     
-    // setLinks(teamNeo4jData.links);
-      
-  }, [links]);
+  //   setNodes(teamNeo4jDataValide?teamNeo4jDataValide.nodes:[]);
+  //   // setLinks(teamNeo4jData.links);
+  //   // console.log(teamNeo4jData.nodes);
+  //   // console.log(processedLinks);
+
+  //     // setLinks(processedLinks);
+  //     setLinks(teamNeo4jDataValide?teamNeo4jDataValide.links:[]);      
+  // }, [teamNeo4jDataValide]);
 
   const handleNodeClick = (node:any) => {
     // Handle the click event, e.g., display details in a modal or a sidebar
@@ -117,11 +148,11 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
         graphData={{ nodes, links }}
         nodeId="id"
         enableZoomInteraction={true}
-        width={650}  // Adjust the width as needed
-        height={500}
-        nodeAutoColorBy="agentoffice"
+        width={650}  // 650 firt level
+        height={500} // 500 second level
+        // nodeAutoColorBy="agentoffice"
         maxZoom={7}
-        minZoom={4}
+        minZoom={5}
         // Customize node styling
         nodeCanvasObject={(node, ctx, globalScale) => {
           const label = node.agentname;

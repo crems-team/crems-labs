@@ -246,3 +246,35 @@ html {
   width: 100%;
   height: 100%;
 }
+
+/* Target the header in TabPanel and make it look like normal text */
+.p-tabview-nav li a {
+  color: #000; /* Set to black (or any other color) */
+  text-decoration: none; /* Remove the underline */
+  font-weight: normal; /* Set a normal font weight */
+}
+
+/* Optionally, remove the hover color change if needed */
+.p-tabview-nav li a:hover {
+  color: #000; /* Maintain the same color on hover */
+}
+
+fieldset{
+  border-color: rgb(187, 187, 187);
+
+}
+/* Separator between tab headers */
+.p-tabview-nav li {
+  position: relative;
+}
+
+.p-tabview-nav li:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 50%;
+  background-color: #080808; /* Separator color */
+}

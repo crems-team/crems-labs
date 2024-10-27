@@ -12,6 +12,8 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
   const matchSearchByArea = useMatch('/SearchByArea');
+  const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
+
 
   let currentComponent;
 
@@ -23,6 +25,8 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
     currentComponent = 'Office Production Reporting';
   }else if (matchSearchByArea) {
     currentComponent = 'Market Dynamics';
+  }else if (matchTeamInvestigator) {
+    currentComponent = 'Team Investigator';
   } else {
     currentComponent = ' ';
   }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { BeatLoader } from 'react-spinners'; // Assuming you're using this loader
-import { Checkbox,CheckboxChangeEvent } from 'primereact/checkbox'; // Or whatever checkbox component you use
+import { BeatLoader } from 'react-spinners'; 
+import { Checkbox,CheckboxChangeEvent } from 'primereact/checkbox'; 
 
 interface SearchHistoryProps {
   title: string;

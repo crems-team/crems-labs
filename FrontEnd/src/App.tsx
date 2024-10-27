@@ -17,10 +17,12 @@ import './App.css';
 import AgentProdReports from './Pages/AgentProdReports';
 
 
-//import 'primeflex/primeflex.css';
+// import 'primeflex/primeflex.css';
 
 import SearchByOffice from './Pages/SearchByOffice';
 import SearchByArea from './Pages/SearchByArea';
+import TeamInvestigator from './Pages/TeamInvestigator';
+
 
 import Home from './Components/Home';
 import InitialRedirect from './Components/InitialRedirect';
@@ -100,6 +102,13 @@ function App() {
                                     element={
                                       <PrivateRoute>
                                         <AgentProdReports />
+                                      </PrivateRoute>
+                                    }
+                        />
+                        <Route      path="/TeamInvestigator/:param"
+                                    element={
+                                      <PrivateRoute>
+                                        <TeamInvestigator />
                                       </PrivateRoute>
                                     }
                         />

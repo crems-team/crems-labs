@@ -1,7 +1,7 @@
 const mssql = require("mssql");
 
 const dbconfig = {
-  server: "webcasting.database.windows.net",
+ server: "webcasting.database.windows.net",
   user: "report_user",
   password: "@ccess190907",
   database: "TerradatumDB",

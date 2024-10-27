@@ -181,7 +181,7 @@ const AppHeader : React.FC = () => {
     setIsLoading(true);
     const currentLocation = location.pathname.substring(1,17);
     // Check if the current path is the active path
-    if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports') {
+    if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
       setIsDropdownOpen(!isDropdownOpen);
         
       if (keycloak.tokenParsed?.sub) {
