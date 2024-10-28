@@ -233,10 +233,10 @@ TeamService.getTeamByFilter= async (idAgent,filterCriteria) => {
   unwind r as rels
   with rels 
   where 1=1
-  ${tiers.T1 ? "and endNode(rels).tier<>'T1'and ((startNode(rels).tier<>'T1' and startNode(rels).agId<>n.agId) or (startNode(rels).tier=n.tier and startNode(rels).agId=n.agId)) " : ''} 
-  ${tiers.T2 ? "and endNode(rels).tier<>'T2'and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or (startNode(rels).tier=n.tier and startNode(rels).agId=n.agId)) " : ''} 
-  ${tiers.T3 ? "and endNode(rels).tier<>'T3'and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or (startNode(rels).tier=n.tier and startNode(rels).agId=n.agId)) " : ''} 
-  ${tiers.T4 ? "and endNode(rels).tier<>'T4'and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or (startNode(rels).tier=n.tier and startNode(rels).agId=n.agId)) " : ''} 
+  ${tiers.T1 ? "and ((endNode(rels).tier<>'T1' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T1' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T2 ? "and ((endNode(rels).tier<>'T2' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T3 ? "and ((endNode(rels).tier<>'T3' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T4 ? "and ((endNode(rels).tier<>'T4' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
   return startNode(rels).agId as source,endNode(rels).agId as target,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
 
   try {
