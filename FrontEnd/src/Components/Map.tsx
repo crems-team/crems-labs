@@ -5,7 +5,10 @@ import { Icon } from 'leaflet';
 import { useMapContext } from '../Components/Map/MapContext';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../Redux/Store';
-import { setMapInstance } from '../Redux/Slices/MapSlice';
+import { setMapInstance,setLoadingMarkers } from '../Redux/Slices/MapSlice';
+import { BeatLoader } from 'react-spinners';
+
+
 
 // Define the marker interface
 interface MarkerData {
@@ -22,12 +25,15 @@ const MapComponent: React.FC = () => {
     const { setMapInstance } = useMapContext();
     const map = useMap();
     const markers = useSelector((state: RootState) => state.map.markers);
+    const dispatch = useDispatch();
+
 
   
     useEffect(() => {
       setMapInstance(map);
     }, [map, setMapInstance]);
     console.log(markers);
+  
   
     return (
       <>
@@ -65,16 +71,43 @@ const CremsMap: React.FC = () => {
     //     }, [map]);
     //     return null;
     //   };
+    const loadingMarkers = useSelector((state: RootState) => state.map.loadingMarkers);
+
 
   return (
     <>
       <MapContainer center={[38.6270, -90.1994]} zoom={13} style={{ height: '100vh', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {loadingMarkers && <LoadingOverlay />} 
+      {/* {!loadingMarkers && <MapComponent />}  */}
       <MapComponent />
-
       {/* <MapEvents /> */}
     </MapContainer>
     </>
+  );
+};
+
+const LoadingOverlay: React.FC = () => {
+  const map = useMap(); // Access Leaflet map instance
+
+  return (
+    <div
+      className="map-loading-overlay"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: `${map.getSize().x}px`,
+        height: `${map.getSize().y}px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        zIndex: 1000,
+      }}
+    >
+      <BeatLoader size={30} /> {/* Spinner component from PrimeReact or any other spinner */}
+    </div>
   );
 };
 

@@ -159,9 +159,10 @@ GeoAreaController.getCounties = async (req, res) => {
 
   //Search history and favorite
   GeoAreaController.saveSearchHistory = async (req, res) => {
-    const { userId, savedType, city, zips } = req.body;
+    const { userId, savedType, city, zips,state,county,nbrMonth } = req.body;
+    console.log(zips);
     try {
-        await GeoAreaService.saveSearchHistory(userId, savedType, city, zips);
+        await GeoAreaService.saveSearchHistory(userId, savedType, city, zips,state,county,nbrMonth);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send('Error saving search history');
@@ -187,7 +188,7 @@ GeoAreaController.getCounties = async (req, res) => {
   GeoAreaController.toggleFavorite = async (req, res) => {
     const { userId, search } = req.body;
     try {
-        await GeoAreaService.toggleFavorite(userId, search.city, search.zips, search.isFavorite);
+        await GeoAreaService.toggleFavorite(userId, search.city, search.zips,search.state,search.county,search.nbrMonth, search.isFavorite);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send('Error toggling favorite');
@@ -217,6 +218,44 @@ GeoAreaController.getCounties = async (req, res) => {
       //const decodedparam = decodeURIComponent(zips).split(",").join("','");
 
       const data = await GeoAreaService.fetchTransactionsGeoByAgent(agentId,nbrMonth);
+  
+      if (!data) {
+        return res.status(404).json({ message: 'Result not found' });
+      }
+  
+      res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  GeoAreaController.GetTotalTransactions = async (req, res) => {
+    try {
+
+      const zips = req.body.zips;
+      const nbrMonth = req.body.nbrMonth;
+      const data = await GeoAreaService.GetTotalTransactions(zips,nbrMonth);
+  
+      if (!data) {
+        return res.status(404).json({ message: 'Result not found' });
+      }
+  
+      res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  GeoAreaController.GetTotalAgents = async (req, res) => {
+    try {
+
+      const zips = req.body.zips;
+      const nbrMonth = req.body.nbrMonth;
+      console.log(nbrMonth);
+      console.log(zips);
+      const data = await GeoAreaService.GetTotalAgents(zips,nbrMonth);
   
       if (!data) {
         return res.status(404).json({ message: 'Result not found' });

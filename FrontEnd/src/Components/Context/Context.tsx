@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext,ReactNode } from 'react';
+import React, { createContext, useState, useContext,ReactNode,useRef } from 'react';
 import SearchItemOffice from "../../Models/SearchItemOffice";
 import AgentOfficeData from "../../Models/AgentOfficeData";
 import OfficeService from "../../Services/OfficeService";
+import { Panel } from 'primereact/panel';
+
 
 
 
@@ -12,7 +14,13 @@ type ContextType = {
   dataAgent: any[];
   setDataAgent : React.Dispatch<React.SetStateAction<AgentOfficeData[]>>;
   setIsLoadingSearchOffice : React.Dispatch<React.SetStateAction<boolean>>;
+  panelRef: React.RefObject<Panel>;
+  togglePanel: () => void;
+  collapsed : boolean;
+  setCollapsed : React.Dispatch<React.SetStateAction<boolean>>;
 
+
+  
 
 };
 
@@ -26,6 +34,11 @@ interface ctxProviderProps {
 export const SearchProvider: React.FC<ctxProviderProps>  = ({ children }) => {
     const [isLoadingSearchOffice, setIsLoadingSearchOffice] = useState(Boolean);
     const [dataAgent, setDataAgent] = useState<Array<AgentOfficeData>>([]);
+    const panelRef = useRef<Panel>(null);
+    const [collapsed, setCollapsed] = useState(Boolean);
+
+
+
 
   const handleSearchAction = (search: SearchItemOffice) => {
     setIsLoadingSearchOffice(true);
@@ -44,9 +57,13 @@ export const SearchProvider: React.FC<ctxProviderProps>  = ({ children }) => {
         console.log(e);
       });
   };
+  const togglePanel = () => {
+    panelRef.current?.toggle(undefined);
+    setCollapsed(!collapsed); // Call toggle with undefined
+  };
 
   return (
-    <SearchContext.Provider value={{ handleSearchAction, isLoadingSearchOffice, dataAgent,setDataAgent,setIsLoadingSearchOffice }}>
+    <SearchContext.Provider value={{ handleSearchAction, isLoadingSearchOffice, dataAgent,setDataAgent,setIsLoadingSearchOffice ,panelRef, togglePanel,collapsed,setCollapsed}}>
       {children}
     </SearchContext.Provider>
   );

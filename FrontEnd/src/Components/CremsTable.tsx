@@ -1,13 +1,14 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMapContext } from '../Components/Map/MapContext';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import GeoAreaService from "../Services/GeoAreaService";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../Hooks/DispatchHook';
 import { RootState } from '../Redux/Store';
-import { setMarkers, addMarker } from '../Redux/Slices/MapSlice';
+import { setMarkers, addMarker ,setLoadingMarkers,setFromSearchByArea} from '../Redux/Slices/MapSlice';
 
 
 interface CremsTableProps {
@@ -25,8 +26,9 @@ interface CremsTableProps {
   const {   getMapInstance,zoomToLocation } = useMapContext();
   const [listPositions, setListPositions,] = useState<Array<any>>([]);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const transactions = useSelector((state: RootState) => state.map.transactions);
+  const dt = useRef<DataTable<any>>(null);
 
 
   const handleClickArea = (rowData: any) => {
@@ -35,6 +37,8 @@ interface CremsTableProps {
   };
 
   const handleRedirectToApr = (rowData: any) => {
+    dispatch(setFromSearchByArea(true));
+
     navigate(`/AgentProdReports/${rowData.agentId}`);
 
   };
@@ -43,7 +47,7 @@ interface CremsTableProps {
     return (
     <div style={{ display: 'flex',  gap: '1rem' }}>
         <Button label="Area" icon="bi bi-globe-americas" className="btn btn-success" onClick={() => handleClickArea(rowData)} />
-        <Button label="Reports" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => handleRedirectToApr(rowData)}/>
+        <Button label="Reports" icon="bi bi-bar-chart-line-fill" className="btn btn-primary" onClick={() => handleRedirectToApr(rowData)}/>
     </div>
     
     );
@@ -61,12 +65,15 @@ interface CremsTableProps {
           icon: null,
         }));
       });
+      dispatch(setLoadingMarkers(false));
+
     }
   }, [listPositions, dispatch]);
 
      
       const fetchMarkers = async (rowData : any) => {
         dispatch(setMarkers([]));
+        dispatch(setLoadingMarkers(true));
 
         //areaReportRendred(true);
         const map = getMapInstance();
@@ -89,10 +96,22 @@ interface CremsTableProps {
                 });
     };
 
+  
+
   return (
+    <>
     <div>
+    <Button
+        className="float-right"
+        label="Export to CSV"
+        icon="pi pi-file"
+        onClick={() => dt.current?.exportCSV()}
+      />
+    </div>
+    <div>
+     
     {transactions[0]?
-    <DataTable value={transactions} paginator rows={10} sortField="total" sortOrder={-1}  rowsPerPageOptions={[5, 10, 25, 50]} tableStyle={{ minWidth: '20rem' }}>
+    <DataTable value={transactions}  ref={dt} paginator rows={10} sortField="total" sortOrder={-1}  rowsPerPageOptions={[5, 10, 25, 50]} tableStyle={{ minWidth: '20rem' }}>
      
       <Column field="agentfirstname" header="First Name" sortable></Column>
       <Column field="agentlastname" header="Last Name" sortable></Column>
@@ -107,6 +126,7 @@ interface CremsTableProps {
     :"No results found"
     }
     </div>
+    </>
   );
 };
 

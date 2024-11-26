@@ -14,6 +14,15 @@ import CurrentComponent from "./CurrentComponent"
 import { useSearch } from './Context/Context';
 import GeoAreaService from "../Services/GeoAreaService";
 import SearchItemArea from "../Models/SearchItemArea";
+import { useAppDispatch } from '../Hooks/DispatchHook';
+import {fetchTransactions, setActivityReportClicked,fetchTotalAgents,fetchTotalTransactions,setCurrentCitySaveSearch,
+  setCurrentZipSaveSearch,setCurrentstateSaveSearch,setCurrentCountySaveSearch,setSelectedZipCodeSaveSearch,
+  setNbrMonthSaveSearch,setClosePanel} from '../Redux/Slices/MapSlice'
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
+import Cities from "../Models/Cities";
+import Counties from "../Models/Counties";
+import States from "../Models/States";
 
 
 
@@ -43,10 +52,14 @@ const AppHeader : React.FC = () => {
   const [isLoading, setIsLoading] = useState(Boolean);
   const [visible, setVisible] = useState(false);
   let currentComponent;
-  const { handleSearchAction } = useSearch();
+  const { handleSearchAction, togglePanel ,collapsed} = useSearch();
 
   const redirectUrl = process.env.REACT_APP_REDIRECT_URL;
   const redirectLogOutUrl = process.env.REACT_APP_REDIRECT_LOGOUT_URL;
+  const dispatch = useAppDispatch();
+  const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
+
+
 
 
 
@@ -168,7 +181,7 @@ const AppHeader : React.FC = () => {
     setIsLoading(true);
     const currentLocation = location.pathname.substring(1,17);
     // Check if the current path is the active path
-    if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports') {
+    if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
       setIsDropdownOpen(!isDropdownOpen);
         
       if (keycloak.tokenParsed?.sub) {
@@ -265,6 +278,63 @@ const AppHeader : React.FC = () => {
 
   const redirectToApr = (id : string) => {
     navigate(`/AgentProdReports/${id}`);
+  };
+
+  
+
+    const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number,citySelected : string,state : string,county : string) => {
+
+      try {
+
+        // if(collapsed){
+          togglePanel();
+          // }
+          
+          // onLoadingTransactionsChange(true);
+      
+          // const response = await GeoAreaService.fetchTransactions(paramZip.join(','),nbrMonth);
+      
+          // dispatch(setTransactions(response));
+
+          await dispatch(fetchTransactions({ paramZip, nbrMonth }));
+           dispatch(fetchTotalTransactions({paramZip, nbrMonth}));
+           dispatch(fetchTotalAgents({paramZip, nbrMonth}));
+
+           //Re-populate fields
+           const city: Cities = { name: citySelected.split(',')[0], code: Number(citySelected.split(',')[1]) };
+           dispatch(setCurrentCitySaveSearch(city));
+           const stateObj: States = { name: state.split(',')[1], code: state.split(',')[0] };
+           dispatch(setCurrentstateSaveSearch(stateObj));
+           const countyObj: Counties = { name: county.split(',')[1], code: Number(county.split(',')[0]) };
+           dispatch(setCurrentCountySaveSearch(countyObj));
+           dispatch(setNbrMonthSaveSearch(nbrMonth));
+         
+      // setCurrentZip(zip);
+          await GeoAreaService.getZipByCode(paramZip.toString())
+          .then((response: any) => {
+              dispatch(setCurrentZipSaveSearch(response.data));
+              dispatch(setSelectedZipCodeSaveSearch(response.data));
+
+              // dispatch(setClosePanel(true));
+
+
+          })
+          .catch((e: Error) => {
+              console.log(e);
+          });
+
+          
+      
+      } catch (e) {
+          console.error(e);
+      } finally {
+          // onLoadingTransactionsChange(false);
+          
+          if(activityReportClicked){
+          dispatch(setActivityReportClicked(!activityReportClicked));
+          }
+
+      }
   };
       
 
@@ -386,7 +456,7 @@ const AppHeader : React.FC = () => {
                                   <ul className=""style={{listStyleType: 'none'}}>
          
                                     <li>
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
+                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
                                     </li>
                               
                                  </ul> 
@@ -422,7 +492,7 @@ const AppHeader : React.FC = () => {
                                   <ul className=""style={{listStyleType: 'none'}}>
          
                                     <li>
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
+                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
                                     </li>
                               
                                  </ul> 
@@ -457,7 +527,7 @@ const AppHeader : React.FC = () => {
                                   <ul className=""style={{listStyleType: 'none'}}>
 
                                     <li>
-                                    <BeatLoader className="loading-container mt-3"size={10} color="#36d7b7" />
+                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
                                     </li>
                               
                                 </ul> 
@@ -466,9 +536,9 @@ const AppHeader : React.FC = () => {
                       searchHistoryArea[0]?  (
                               <ul >
                                 {searchHistoryArea.map((search, index) => (
-                                    <a className="nav-link" href="#"  >
+                                    <a className="nav-link" href="#"  onClick={() => fetchTransactionsdata([search.zips],Number(search.nbrMonth),search.city,search.state,search.county)}>
                                       <li key={index} className="">
-                                      {"City: "}{search.city}{" | zip "}{"["+ search.zips+"]"}
+                                      {"City: "}{search.city.split(',')[0]}{" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}
                                         
                                       </li>
                                   </a>

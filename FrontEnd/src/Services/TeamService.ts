@@ -8,8 +8,20 @@ const getTeam = (data : AgentInfosRequest) => {
   return http.post<TeamNeo4jData>("/team/getTeam", data);
 };
 
-const TeamService = {
-    getTeam
+const getTeamSecondLevel = (data : AgentInfosRequest) => {
+  return http.post<TeamNeo4jData>("/team/getTeamSecondLevel", data);
 };
+
+const getTeamByFilter = (data : AgentInfosRequest,filterCriteria : any) => {
+  return http.post<TeamNeo4jData>("/team/getTeamByFilter", {data:data,filterCriteria});
+};
+
+const TeamService = {
+    getTeam,
+    getTeamSecondLevel,
+    getTeamByFilter
+};
+
+
 
 export default TeamService;
