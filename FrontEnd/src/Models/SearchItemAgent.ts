@@ -4,6 +4,7 @@ export default interface SearchItemAgent {
     lastName: string,
     isFavorite: boolean,
     agentIdC : string,
+    State : string,
   }
   
   

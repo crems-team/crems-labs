@@ -204,12 +204,12 @@ function SearchByName() {
     }
 }; */
 
-const saveSearchHistory = async (savedType :string, firstName: string, lastName: string, agentIdC : string) => {
+const saveSearchHistory = async (savedType :string, firstName: string, lastName: string, agentIdC : string ,state : string) => {
   if (keycloak.tokenParsed?.sub) {
     const userId = keycloak.tokenParsed.sub;
     let history = JSON.parse(localStorage.getItem(userId+'-agent') || '[]');
-    const newSearch = {savedType, firstName, lastName, isFavorite: true, agentIdC };
-    if (!history.some((item :SearchItem)=> item.firstName === firstName && item.lastName === lastName)) {
+    const newSearch = {savedType, firstName, lastName, isFavorite: true, agentIdC, state };
+    if (!history.some((item :SearchItem)=> item.firstName === firstName && item.lastName === lastName && item.state === state)) {
       if (history.length >= 10) {
         //history = history.slice(1);
         history.pop();
@@ -221,7 +221,7 @@ const saveSearchHistory = async (savedType :string, firstName: string, lastName:
       localStorage.setItem(userId+'-agent', JSON.stringify(history));
       setSearchHistory(history);
       try {
-        await AgentService.saveSearchHistory(userId, savedType,firstName, lastName ,agentIdC);
+        await AgentService.saveSearchHistory(userId, savedType,firstName, lastName ,agentIdC,state);
       } catch (error) {
         console.error('Error saving search history:', error);
       }
@@ -235,13 +235,15 @@ const toggleFavorite = async (search : SearchItem,event: CheckboxChangeEvent) =>
   if (keycloak.tokenParsed?.sub) {
     const userId = keycloak.tokenParsed.sub;
     const updatedSearch = { ...search, isFavorite: !search.isFavorite };
+    console.log(updatedSearch);
     try {
-      await AgentService.toggleFavorite(userId, search.firstName, search.lastName, updatedSearch.isFavorite);
+      await AgentService.toggleFavorite(userId, search.firstName, search.lastName, updatedSearch.isFavorite, updatedSearch.state);
       setSearchHistory(prevHistory =>
         prevHistory.map(item =>
-          item.firstName === search.firstName && item.lastName === search.lastName ? { ...item, isFavorite: !item.isFavorite } : item
+          item.firstName === search.firstName && item.lastName === search.lastName && item.state === search.state ? { ...item, isFavorite: !item.isFavorite } : item
         )
       );
+
       localStorage.setItem(userId+'-agent', JSON.stringify(searchHistory));
       if(updatedSearch.isFavorite === false){
         toast.success(updatedSearch.firstName +' '+ updatedSearch.lastName+' is saved in your favorite list');
@@ -270,6 +272,7 @@ const fetchSavedSearches =  async() => {
         setSearchHistory(history); */ 
         
         setSearchHistory(response.data);
+        console.log(response.data);
         localStorage.setItem(userId+'-agent', JSON.stringify(response.data));
         setIsLoadingSavedSearch(false);
 
@@ -331,7 +334,8 @@ const handleSearch = async(firstName : string, lastName : string) => {
       await AgentService.getAgent(data)
       .then((response: any) => {
         setDataAgent(response.data);
-        saveSearchHistory("agent",firstName, lastName,response.data[0].agentIdC);
+        console.log(response.data[0]);
+        saveSearchHistory("agent",firstName, lastName,response.data[0].agentIdC,response.data[0].officeState);
         setIsLoadingSearchAgent(false);
       })
       .catch((e: Error) => {
@@ -447,13 +451,14 @@ const buttonDataTable = (rowData : AgentModel) => {
                                  </div>
                         ):dataAgent.length >0 && (
                           
-                                   
-                        <DataTable value={dataAgent} >
+                        
+
+                        <DataTable value={dataAgent} paginator rows={5}>
                         <Column body={buttonDataTable} />
                             <Column field="agentfirstName" header="FirstName" />
                             <Column field="agentlastName" header="LastName" />
-                            <Column field="agentIdC" header="CREMS ID" />
                             <Column field="officeName" header="Office Name" />
+                            <Column field="officeState" header="State" />
                         </DataTable>
                       )}
                     </div>
@@ -468,7 +473,7 @@ const buttonDataTable = (rowData : AgentModel) => {
                                 Search
                                 <i className="bi bi-search"></i>
                             </button>
-                            <button className="btn btn-warning btn-lg"  type="button" id="clear" name="clear"
+                            <button className="btn btn-warning btn-lg me-md-2 mb-2 mb-md-0"  type="button" id="clear" name="clear"
                             onClick={() => handleClear()}>
                                 Clear
                                 <i className="bi bi-arrow-repeat"></i>

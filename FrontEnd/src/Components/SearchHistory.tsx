@@ -50,13 +50,13 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                   <span role="button" onClick={() => onSearchClick(search)}>
                     {/* {search.officeName || `${search?.firstName} ${search?.lastName}` || `City: ${search.city.split(',')[0]} | zip [${search.zips}] | Mo [${search.nbrMonth}]`} */}
                     {parent === 'Area' && (
-                        "City: " + search.city.split(',')[0]+" | zip [" + search.zips + "] | Mo [" + search.nbrMonth + "]"
+                        "City: " + search.city.split(',')[0]+" | zip [" + search.zips + "] | Mo [" + search.nbrMonth + "] | State: "+search.state.split(',')[0]
                     )}
                     {parent === 'Agent' && (
-                        `${search.firstName} ${search.lastName}`
+                        `${search.firstName} ${search.lastName}${search.state ? " | State: " + search.state : ""}`
                     )}
                     {parent === 'Office' && (
-                        search.officeName
+                        `${search.officeName}${search.state ? " | State: " + search.state : ""}`
                     )}
                   </span>
                   <Checkbox onChange={(event) => onToggleFavorite(search, event)} checked={!search.isFavorite} />

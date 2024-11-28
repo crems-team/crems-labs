@@ -5,6 +5,7 @@ export default interface AgentModel {
   agentIdC: number,
   officeName: string,
   officeCity: string,
+  officeState : string,
   officeId: string,
   agentPhone: string,
   agentEmail: string,

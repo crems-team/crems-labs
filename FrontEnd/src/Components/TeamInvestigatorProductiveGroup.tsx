@@ -67,6 +67,7 @@ const TeamInvestigatorProductiveGroup : React.FC<ComponentProps> = ({ id }) => {
                           onSelectionChange={handleRowSelect} >
                               <Column field="firstName" header="First Name" sortable style={{ width: '1%' }} />
                               <Column field="lastName" header="Last Name" sortable style={{ width: '1%' }}/>
+                              <Column field="officeName" header="Office" sortable style={{ width: '1%' }}/>
                               <Column field="colist" header="Co-listings" sortable style={{ width: '2%' }} />
                               <Column field="cosell" header="Co-sellings" sortable style={{ width: '1%' }}/>
                               <Column field="sell" header="Sellings" sortable style={{ width: '1%' }}/>

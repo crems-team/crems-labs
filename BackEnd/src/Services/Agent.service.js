@@ -122,7 +122,7 @@ AgentService.getLastName = (item) => {
         request.input('lastName',lastName);
         request.input('firstName',firstName);
         
-        var query = "SELECT top 1 agentIdC as agentIdC, firstName as agentfirstName ,lastName as agentlastName,officeName,officeCity,officeId,agentPhone1 as agentPhone,agentEmail   FROM agp_agentref where lastName = @lastName and firstName = @firstName";
+        var query = "SELECT  agentIdC as agentIdC, firstName as agentfirstName ,lastName as agentlastName,officeName,officeCity,officeState,officeId,agentPhone1 as agentPhone,agentEmail   FROM agp_agentref where lastName = @lastName and firstName = @firstName";
         request.query(query, (err, res) => {
             console.log(res.recordset);
             if (err) {
@@ -851,11 +851,10 @@ AgentService.get_team_agents_table = (idAgent) => {
       "UNION                                                              "+
       "select agentx id,colist,sell,cosell,total from prod.agp_agent_rels "+
       "where agenty=@idAgent)                                             "+
-      "select id,ag.firstName,ag.lastName, sum(colist) colist,sum(cosell) cosell,sum(sell) sell,sum(total) total  from teams  "+
+      "select id,ag.firstName,ag.lastName, ag.officeName, sum(colist) colist,sum(cosell) cosell,sum(sell) sell,sum(total) total  from teams  "+
       "join prod.agp_agentref ag on teams.id=ag.agentIdC "+
-      "group by id,firstName,lastName"; 
+      "group by id,firstName,lastName,officeName"; 
       request.query(query, (err, res) => {
-          console.log(res.recordset);
           if (err) {
               reject(err);
               return;
@@ -865,7 +864,7 @@ AgentService.get_team_agents_table = (idAgent) => {
               return;
             }
           const team = res.recordset.map(teamData => {
-            return new TeamAgentsData(teamData.id,teamData.firstName,teamData.lastName,teamData.colist,teamData.cosell,
+            return new TeamAgentsData(teamData.id,teamData.firstName,teamData.lastName,teamData.officeName,teamData.colist,teamData.cosell,
                                       teamData.sell,teamData.total );
           });
       
@@ -910,7 +909,7 @@ AgentService.get_agent_tier_persona = (idAgent) => {
   
 };
 //For saved search and favorite option
-AgentService.saveSearchHistory = (userId, savedType, firstName, lastName, agentIdC) => {
+AgentService.saveSearchHistory = (userId, savedType, firstName, lastName, agentIdC,state) => {
   return new Promise((resolve, reject) => {
       poolConnect.then(() => {
         
@@ -920,13 +919,12 @@ AgentService.saveSearchHistory = (userId, savedType, firstName, lastName, agentI
           request.input('firstName',  firstName);
           request.input('lastName',  lastName);
           request.input('agentIdC',  agentIdC);
-
-          console.log('res');
+          request.input('state',  state);
           const query = `
-              IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND FirstName = @firstName AND LastName = @lastName)
+              IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND FirstName = @firstName AND LastName = @lastName AND State = @state)
               BEGIN
-                  INSERT INTO agp_searchHistory (UserId,savedType, FirstName, LastName, IsFavorite,agentIdC)
-                  VALUES (@userId, @savedType, @firstName, @lastName, 1, @agentIdC)
+                  INSERT INTO agp_searchHistory (UserId,savedType, FirstName, LastName, IsFavorite,agentIdC,State)
+                  VALUES (@userId, @savedType, @firstName, @lastName, 1, @agentIdC,@state)
               END
           `;
           request.query(query, (err, res) => {
@@ -955,7 +953,7 @@ AgentService.getSearchHistory = (userId,savedType) => {
           request.input('savedType',  savedType);
 
           const query = `
-              SELECT savedType, FirstName as firstName, LastName as lastName, isFavorite,agentIdC
+              SELECT savedType, FirstName as firstName, LastName as lastName, isFavorite,agentIdC,state
               FROM agp_searchHistory
               WHERE UserId = @userId
               AND   savedType = @savedType
@@ -977,7 +975,7 @@ AgentService.getSearchHistory = (userId,savedType) => {
   });
 };
 
-AgentService.toggleFavorite = (userId, firstName, lastName, isFavorite) => {
+AgentService.toggleFavorite = (userId, firstName, lastName, isFavorite, state) => {
   return new Promise((resolve, reject) => {
       poolConnect.then(() => {
           const request = pool.request();
@@ -985,10 +983,12 @@ AgentService.toggleFavorite = (userId, firstName, lastName, isFavorite) => {
           request.input('firstName',  firstName);
           request.input('lastName',  lastName);
           request.input('isFavorite',  isFavorite);
+          request.input('state',  state);
+
           const query = `
               UPDATE agp_searchHistory
               SET IsFavorite = @isFavorite
-              WHERE UserId = @userId AND FirstName = @firstName AND LastName = @lastName
+              WHERE UserId = @userId AND FirstName = @firstName AND LastName = @lastName AND ISNULL(State,'1') = ISNULL(@state,'1')
           `;
           request.query(query, (err, res) => {
               if (err) {
@@ -1011,7 +1011,7 @@ AgentService.getFavoriteHistory = (userId,savedType) => {
           request.input('userId',  userId);
           request.input('savedType',  savedType);
           const query = `
-              SELECT savedType, FirstName as firstName, LastName as lastName, isFavorite,agentIdC
+              SELECT savedType, FirstName as firstName, LastName as lastName, isFavorite,agentIdC, State
               FROM agp_searchHistory
               WHERE UserId = @userId
               and   isFavorite = 0

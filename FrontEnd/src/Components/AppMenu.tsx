@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { Link ,useNavigate} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
@@ -9,6 +9,8 @@ import { useSearch } from '../Components/Context/Context';
 
 
 function AppMenu() {
+
+  
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -21,18 +23,22 @@ function AppMenu() {
     setCollapsed(true);
     navigate('/SearchByArea');
   };
+
+  const handleSidebarClick = () => {
+    document.body.classList.toggle('sidebar-collapse');
+  };
   return (
-<div>
-<aside className="main-sidebar sidebar-dark-primary elevation-4 ">
+<div onClick={handleSidebarClick} style={{ cursor: 'pointer' }}>
+<aside className="main-sidebar sidebar-dark-primary sidebar-no-expand" >
   {/* Brand Logo */}
-  <a href="/" className="brand-link bg-grey">
+  <a href="/" className="brand-link bg-grey" >
     <span className="text-center ">
     <img src="./CREMS-LABS-Logo-No-Tagline-White.png" alt="CREMS Logo" className="img-fluid  "style={{width: '85%'}} />
     </span>
     <span className="  ml-1 "> </span>
   </a>
   {/* Sidebar */}
-  <div className="sidebar">
+  <div className="sidebar " >
     {/* Sidebar user panel (optional) */}
     
     {/* SidebarSearch Form 

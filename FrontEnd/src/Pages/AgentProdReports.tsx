@@ -95,6 +95,7 @@ import 'driver.js/dist/driver.css';
         if (params) {
             setidAgent(params.param ? params.param :'');
 
+            
             var data = {
                 id: params.param ? params.param :''
               };
@@ -314,7 +315,7 @@ import 'driver.js/dist/driver.css';
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title mb-0 "><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
-                                    <i id="idInfoIcon" className="bi bi-info-circle" /></a> Agent Information : <strong>{agentInfosData[0] ? agentInfosData[0].agentfirstName : ''} {agentInfosData[0] ? agentInfosData[0].agentlastName : ''}</strong></h3>
+                                    <i id="idInfoIcon" className="bi bi-info-circle" /></a> Agent Information: <strong>{agentInfosData[0] ? agentInfosData[0].agentfirstName : ''} {agentInfosData[0] ? agentInfosData[0].agentlastName : ''}</strong></h3>
 
                             </div>
                             {/* /.card-header */}
@@ -322,28 +323,28 @@ import 'driver.js/dist/driver.css';
                             <div className="card-body">
                                 <div className="row text-left">
                                     <div className="col-md-6 text-nowrap text-left">
-                                        <span className="small ">Phone1 : </span><strong>{agentInfosData[0] ? agentInfosData[0].agentPhone : ''}</strong>
+                                        <span className="small ">Phone1: </span><strong>{agentInfosData[0] ? agentInfosData[0].agentPhone : ''}</strong>
                                     </div>
                                     <div className="col-md-6 text-nowrap text-left">
-                                    <span className="small text-left">Email : </span><strong>{agentInfosData[0] ? agentInfosData[0].agentEmail : ''}</strong>
+                                    <span className="small text-left">Email: </span><strong>{agentInfosData[0] ? agentInfosData[0].agentEmail : ''}</strong>
                                     </div>
                                 </div>
                                 <div className="row">
                                     <div className="col-md-auto">
-                                        <span className="small text-left">Office : </span><strong>{agentInfosData[0] ? agentInfosData[0].officeName : ''}</strong>
+                                        <span className="small text-left">Office: </span><strong>{agentInfosData[0] ? agentInfosData[0].officeName : ''}</strong>
                                     </div>
                                 </div>
                                 <div className="row">
                                     <div className="col-md-auto">
-                                        <span className="small text-left">Address : </span><strong>{agentInfosData[0] ? agentInfosData[0].officeAddress : ''}</strong>
+                                        <span className="small text-left">Address: </span><strong>{agentInfosData[0] ? agentInfosData[0].officeAddress : ''}</strong>
                                     </div>
                                 </div>
                                 <div className="row ">
                                     <div className="col-md-6 text-nowrap">
-                                        <span className="small d-inline-block text-left">Office Phone : </span><strong>{agentInfosData[0] ? agentInfosData[0].officePhone : ''}</strong>
+                                        <span className="small d-inline-block text-left">Office Phone: </span><strong>{agentInfosData[0] ? agentInfosData[0].officePhone : ''}</strong>
                                     </div>
                                     <div className="col-md-6 text-nowrap ">
-                                        <span className="small d-inline-block text-left">City/State : </span> <strong>{agentInfosData[0] ? agentInfosData[0].officeCity : ''}</strong>, <strong>{agentInfosData[0] ? agentInfosData[0].officeState : ''}</strong>
+                                        <span className="small d-inline-block text-left">City/State: </span> <strong>{agentInfosData[0] ? agentInfosData[0].officeCity : ''}</strong>, <strong>{agentInfosData[0] ? agentInfosData[0].officeState : ''}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -358,7 +359,7 @@ import 'driver.js/dist/driver.css';
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title mb-0 "><a  className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The information in this area describes the important Tier ranking and Persona of this agent. Note that Tier 4 denotes agent who have 1-6 listings per year. This is significant, because the APR will not show agents who have no listings. The persona reveals the nature of the agent’s sales history over the past 12 months.">
-                                    <i className="bi bi-info-circle" /></a> Agent Profile :<strong>Tier and Persona</strong></h3>
+                                    <i className="bi bi-info-circle" /></a> Agent Profile: <strong>Tier and Persona</strong></h3>
                             </div>
                             {/* /.card-header */}
                             {/* form start */}
@@ -367,22 +368,22 @@ import 'driver.js/dist/driver.css';
                                     <div className="col-md-4 text-nowrap">
                                         <div className="row text-nowrap">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small  text-left">Tier : </span><strong>{getTier(agentTierPersonaData[0] ? agentTierPersonaData[0].total :-1)}</strong>
+                                            <span className="small  text-left">Tier: </span><strong>{getTier(agentTierPersonaData[0] ? agentTierPersonaData[0].total :-1)}</strong>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small d-inline-block text-left">Persona : </span><strong> {agentTierPersonaData[0] ? agentTierPersonaData[0].persona :''}</strong>
+                                            <span className="small d-inline-block text-left">Persona: </span><strong> {agentTierPersonaData[0] ? agentTierPersonaData[0].persona :''}</strong>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small d-inline-block text-left">Active Listings : </span><strong> {activpendinglisting ? activpendinglisting[0].active :''}</strong>
+                                            <span className="small d-inline-block text-left">Active Listings: </span><strong> {activpendinglisting ? activpendinglisting[0].active :''}</strong>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-4 text-nowrap">
-                                            <span className="small d-inline-block text-left">Pending Listings : </span><strong> {activpendinglisting ? activpendinglisting[0].pending :''}</strong>
+                                            <span className="small d-inline-block text-left">Pending Listings: </span><strong> {activpendinglisting ? activpendinglisting[0].pending :''}</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -527,7 +528,7 @@ import 'driver.js/dist/driver.css';
                                    
                                </div>
                                {/* /.card */}
-                               <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The purpose of the Level One Team Investigator is to reveal what other agents completed transactions with this agent in the past year. The color and size of the agent nodes represents the Tier of each one. (green=Tier1, tan=Tier 2, pink=Tier 3, blue=Tier 4) In addition, the thickness of the connecting line indicates the number of transactions between each agent.  The role that each agent performed in the transactions is not represented in the graph. But the second part of this report, a table, shows all the agents, their offices, and the number of times they performed each role in the transactions. There is another section of the COI called “Level Two Team Investigator” which extends the connections to agents beyond this group.">
+                               <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The purpose of the Team Investigator (COI) report is to reveal what other agents worked with this agent during the past year. The color and size of the agent nodes indicates the Tier of each one. In addition, the thickness of the connecting lines and the number on them indicate the number of transactions between each agent. Lines that loop back and forth between two agents, or just back on the same agent, mean that the agents performed both sides of some transactions. The role that each agent performed is not represented in the graph, but a table of agents and their roles is available on the “Table of Agents” link. An additional report is available by clicking the “Enlarge Display” link. On the new page there is a link labeled “Second-Level Graph”. This expands the view to reveal the agents who worked with the First-Level agents. Note the “filters” that are available in this view. You can filter for “Only This Office” and remove any combination of Tiers, too.">
                                     <i className="bi bi-info-circle fs-6" /></a> Team Investigator (COI): First-Level Direct Connections</h5>
                                
                                <div className="card  collapsed-card">
@@ -582,7 +583,7 @@ import 'driver.js/dist/driver.css';
                                             <i className="bi bi-arrows-angle-expand"></i>
                                     </button>
                                     <button type="button" className="btn btn-light btn-sm mt-1 ml-1" onClick={() => redirectToTeamInvestigator(idAgent ? idAgent : '')}>
-                                            <span className="mr-1">Enlarger Display</span>
+                                            <span className="mr-1">Enlarge Display</span>
                                             <i className="bi bi-microsoft-teams"></i>
                                     </button>
                                    <div className="row  pb-0 pt-0 pr-0 pl-0  ">

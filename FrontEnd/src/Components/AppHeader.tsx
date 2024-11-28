@@ -180,6 +180,7 @@ const AppHeader : React.FC = () => {
     //event.preventDefault(); // Prevent the default link behavior
     setIsLoading(true);
     const currentLocation = location.pathname.substring(1,17);
+    console.log(currentLocation);
     // Check if the current path is the active path
     if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
       setIsDropdownOpen(!isDropdownOpen);
@@ -194,7 +195,8 @@ const AppHeader : React.FC = () => {
           console.log(history);
           localStorage.setItem(userId, JSON.stringify(history));
           setSearchHistory(history); */ 
-  
+          console.log(response.data);
+
           setSearchHistoryAgent(response.data);
           setIsLoading(false);
 
@@ -212,7 +214,7 @@ const AppHeader : React.FC = () => {
       }
       
 
-    }else if(currentLocation == 'searchByOffice') {
+    }else if(currentLocation == 'searchByOffice' || currentLocation == 'officeProdReport') {
       setIsDropdownOpenOffice(!isDropdownOpenOffice);
 
       if (keycloak.tokenParsed?.sub) {
@@ -225,7 +227,6 @@ const AppHeader : React.FC = () => {
           console.log(history);
           localStorage.setItem(userId, JSON.stringify(history));
           setSearchHistory(history); */ 
-  
           setSearchHistoryOffice(response.data);
           setIsLoading(false);
 
@@ -278,6 +279,10 @@ const AppHeader : React.FC = () => {
 
   const redirectToApr = (id : string) => {
     navigate(`/AgentProdReports/${id}`);
+  };
+
+  const redirectToOpr = (id : string) => {
+    navigate(`/officeProdReports/${id}`);
   };
 
   
@@ -355,10 +360,10 @@ const AppHeader : React.FC = () => {
 
     <div>
     <div>
-      <nav className="main-header navbar navbar-expand navbar-white navbar-light">
+      <nav className="main-header navbar navbar-expand navbar-white navbar-light" >
             {/* Left navbar links */}
             
-            <ul className="navbar-nav">
+            <ul className="navbar-nav" >
             <li className="nav-item">
             {!keycloak.authenticated && (
 
@@ -467,7 +472,7 @@ const AppHeader : React.FC = () => {
                             {searchHistoryAgent.map((search, index) => (
                                 <a className="nav-link"   href="#" onClick={() => redirectToApr(search.agentIdC)}>
                                   <li key={index} className="">
-                                    {search.firstName} {search.lastName}
+                                    {search.firstName} {search.lastName} {search.State ? ` | State: ${search.State}` : ""} 
                                     
                                   </li>
                               </a>
@@ -501,9 +506,9 @@ const AppHeader : React.FC = () => {
                       searchHistoryOffice[0]?  (
                               <ul >
                                 {searchHistoryOffice.map((search, index) => (
-                                    <a className="nav-link" href="#" onClick={() => handleSearchAction(search)} >
+                                    <a className="nav-link" href="#" onClick={() => redirectToOpr(search.officeId)} >
                                       <li key={index} className="">
-                                        {search.officeName}
+                                        {search.officeName}{search.state ? ` | State: ${search.state}` : ""} 
                                         
                                       </li>
                                   </a>
@@ -538,7 +543,7 @@ const AppHeader : React.FC = () => {
                                 {searchHistoryArea.map((search, index) => (
                                     <a className="nav-link" href="#"  onClick={() => fetchTransactionsdata([search.zips],Number(search.nbrMonth),search.city,search.state,search.county)}>
                                       <li key={index} className="">
-                                      {"City: "}{search.city.split(',')[0]}{" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}
+                                      {"City: "}{search.city.split(',')[0]}{" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}{" | State: "+search.state.split(',')[0]}
                                         
                                       </li>
                                   </a>

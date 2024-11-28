@@ -15,6 +15,8 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 import './App.css';
 import AgentProdReports from './Pages/AgentProdReports';
+import OfficeProdReports from './Pages/OfficeProdReports';
+
 
 
 // import 'primeflex/primeflex.css';
@@ -102,6 +104,13 @@ function App() {
                                     element={
                                       <PrivateRoute>
                                         <AgentProdReports />
+                                      </PrivateRoute>
+                                    }
+                        />
+                        <Route      path="/officeProdReports/:param"
+                                    element={
+                                      <PrivateRoute>
+                                        <OfficeProdReports />
                                       </PrivateRoute>
                                     }
                         />

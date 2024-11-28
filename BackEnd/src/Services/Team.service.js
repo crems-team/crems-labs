@@ -104,6 +104,8 @@ TeamService.getTeam= async (idAgent) => {
       const count = record.get('count').toNumber();
       const sell = record.get('sell').toNumber();
       const colist = record.get('colist').toNumber();
+      // const office     = record.get('office').toString();
+
 
 
       links.push({
@@ -113,6 +115,7 @@ TeamService.getTeam= async (idAgent) => {
         count: count,
         sell : sell,
         colist : colist,
+        // office : office,
       });
     });
     
@@ -213,10 +216,7 @@ return b.agId as id, b.name as agentname,b.office as agentoffice,b.size as size,
 
 TeamService.getTeamByFilter= async (idAgent,filterCriteria) => {
   const session = driver.session();
-
-  console.log(filterCriteria);
-  const { office, tiers } = filterCriteria;
-
+  const { office,officeName, tiers } = filterCriteria;
 
   const queryNode = `MATCH (a:Agent{agId:${idAgent}})
   return a.agId as id, a.name as agentname,a.office as agentoffice,a.size as size, a.color as color
@@ -227,6 +227,7 @@ TeamService.getTeamByFilter= async (idAgent,filterCriteria) => {
     ${tiers.T2 ? "AND b.tier <> 'T2'" : ''}
     ${tiers.T3 ? "AND b.tier <> 'T3'" : ''}
     ${tiers.T4 ? "AND b.tier <> 'T4'" : ''}
+    ${office ? "AND b.office = a.office" : ''}
     return b.agId as id, b.name as agentname,b.office as agentoffice,b.size as size, b.color as color`;
 
   const queryLinks = `MATCH (n:Agent{agId:${idAgent}})-[r*1]-(m)
@@ -237,14 +238,14 @@ TeamService.getTeamByFilter= async (idAgent,filterCriteria) => {
   ${tiers.T2 ? "and ((endNode(rels).tier<>'T2' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
   ${tiers.T3 ? "and ((endNode(rels).tier<>'T3' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
   ${tiers.T4 ? "and ((endNode(rels).tier<>'T4' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
-  return startNode(rels).agId as source,endNode(rels).agId as target,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
-
+  ${office ? "AND (startNode(rels).office = n.office and endNode(rels).office = n.office)" : ''}
+  return rels.office,startNode(rels).agId as source,endNode(rels).agId as target,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
+  
   try {
     const nodeResult = await session.run(queryNode);
     const linkResult = await session.run(queryLinks);
 
-    console.log(queryNode);
-    console.log(queryLinks);
+    
 
 
 
@@ -329,8 +330,257 @@ TeamService.getTeamByFilter= async (idAgent,filterCriteria) => {
         colist : colist,
       });
     });
+    console.log(nodes);
+    console.log(links);
     
     return { nodes, links };
+
+  } finally {
+    await session.close();
+  }
+};
+
+TeamService.getTeamSecLevelByFilter= async (idAgent,filterCriteria) => {
+  const session = driver.session();
+  const { office,officeName, tiers } = filterCriteria;
+
+  // const queryNode = `MATCH (a:Agent{agId:${idAgent}})
+  // return a.agId as id, a.name as agentname,a.office as agentoffice,a.size as size, a.color as color
+  // union
+  // MATCH (a:Agent{agId:${idAgent}})-[r*1..2]-(b)
+  // where 1=1
+  //   ${tiers.T1 ? "AND b.tier <> 'T1'" : ''} 
+  //   ${tiers.T2 ? "AND b.tier <> 'T2'" : ''}
+  //   ${tiers.T3 ? "AND b.tier <> 'T3'" : ''}
+  //   ${tiers.T4 ? "AND b.tier <> 'T4'" : ''}
+  //   ${office ? "AND b.office = a.office" : ''}
+  // return b.agId as id, b.name as agentname,b.office as agentoffice,b.size as size, b.color as color`;
+
+  const queryNode = `MATCH (a:Agent{agId:${idAgent}})
+	  return a.agId as id, a.name as agentname,a.office as agentoffice,a.size as size, a.color as color
+	union
+	MATCH (a:Agent {agId:${idAgent}}) 
+	  MATCH path=(a)-[*1..2]-(b) 
+	  WHERE ALL(n in nodes(path) where (
+	  1=1
+	  ${tiers.T1 ? "AND n.tier <> 'T1'" : ''}
+	  ${tiers.T2 ? "AND n.tier <> 'T2'" : ''}
+	   ${tiers.T3 ? "AND n.tier <> 'T3'" : ''}
+	   ${tiers.T4 ? "AND n.tier <> 'T4'" : ''}
+	   ${office ? "AND n.office = a.office" : ''} 
+	  ) or n.agId=a.agId)
+	  return b.agId as id, b.name as agentname,b.office as agentoffice,b.size as size, b.color as color`;
+  
+  
+    const queryLinks = `MATCH (n:Agent{agId:${idAgent}})-[r*1..2]-(m)
+    unwind r as rels
+    with rels 
+    where 1=1
+    ${tiers.T1 ? "and ((endNode(rels).tier<>'T1' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T1' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+    ${tiers.T2 ? "and ((endNode(rels).tier<>'T2' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+    ${tiers.T3 ? "and ((endNode(rels).tier<>'T3' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+    ${tiers.T4 ? "and ((endNode(rels).tier<>'T4' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+    ${office ? "AND (startNode(rels).office = n.office and endNode(rels).office = n.office)" : ''}
+    return startNode(rels).agId as source,endNode(rels).agId as target,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
+
+  try {
+    const nodeResult = await session.run(queryNode);
+    const linkResult = await session.run(queryLinks);
+
+    
+
+
+
+    const nodes = [];
+    const links = [];
+
+    nodeResult.records.forEach(record => {
+      const sourceNodeId = record.get('id').toString();
+      //const targetNodeId = record.get('target').toString();
+
+      const     id= record.get('id').toString();
+      const     agentname =record.get('agentname').toString();
+      const     agentoffice= record.get('agentoffice').toString();
+      let size = record.get('size').toNumber();
+      const     color= record.get('color').toString();
+      // green 12 ;8 t1
+      // tar 8    ;6 3
+      // pink 6   ;4 2
+      // blue 3	 ; 2 4
+
+      //prod
+      if (size === 12) {
+        size = 9;
+      }
+      if (size === 8) {
+        size = 7;
+      }
+      if (size === 6) {
+        size = 5;
+      }
+      // if (size === 3) {
+      //   size = 3;
+      // }
+
+      //preProd
+      // green 7
+      // pink 3
+      // tar 5
+      // blue 1
+      if (size === 7) {
+        size = 9;
+      }
+      if (size === 5) {
+        size = 7;
+      }
+      if (size === 3) {
+        size = 5;
+      }
+      if (size === 1) {
+        size = 3;
+      }
+
+        nodes.push({
+            id: id,
+            agentname: agentname,
+            agentoffice: agentoffice,
+            size: size,
+            color: color,
+        });
+     
+       
+      
+    });
+
+    // console.log(nodes);
+
+    linkResult.records.forEach(record => {
+      const sourceNodeId = record.get('source').toString();
+      const targetNodeId = record.get('target').toString();
+      const size = record.get('size').toNumber()+1;
+      const count = record.get('count').toNumber();
+      const sell = record.get('sell').toNumber();
+      const colist = record.get('colist').toNumber();
+
+
+      links.push({
+        source: sourceNodeId,
+        target: targetNodeId,
+        size : size,
+        count: count,
+        sell : sell,
+        colist : colist,
+      });
+    });
+    console.log(nodes);
+    console.log(links);
+    
+    return { nodes, links };
+
+  } finally {
+    await session.close();
+  }
+};
+
+TeamService.getTeamTableByFilter= async (idAgent,filterCriteria) => {
+  console.log(idAgent);
+  console.log(filterCriteria);
+  const session = driver.session();
+  const { office,typeTable, tiers } = filterCriteria;
+  let firstSecondLevelResult = null;
+  const firstSecondLevelList = [];
+
+
+  const queryTableFirstLevel = `MATCH (n:Agent{agId:${idAgent}})-[r*1]-(m)
+    unwind r as rels
+    with rels,n 
+    where 1=1
+  ${tiers.T1 ? "and ((endNode(rels).tier<>'T1' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T1' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T2 ? "and ((endNode(rels).tier<>'T2' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T3 ? "and ((endNode(rels).tier<>'T3' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T4 ? "and ((endNode(rels).tier<>'T4' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${office ? "and (startNode(rels).office = n.office and endNode(rels).office = n.office)" : ''}
+  with startNode(rels) as a, endNode(rels) as b,rels
+  where EXISTS ((a)--()) and EXISTS ((b)--())
+  return DISTINCT startNode(rels).name as source,endNode(rels).name as target,endNode(rels).office as office,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
+  
+  const queryTableSecondLevel = `MATCH (n:Agent{agId:${idAgent}})-[r*1..2]-(m)
+    unwind r as rels
+    with rels,n 
+    where 1=1
+  ${tiers.T1 ? "and ((endNode(rels).tier<>'T1' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T1' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T2 ? "and ((endNode(rels).tier<>'T2' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T2' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T3 ? "and ((endNode(rels).tier<>'T3' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T3' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${tiers.T4 ? "and ((endNode(rels).tier<>'T4' and endNode(rels).agId<>n.agId) or endNode(rels).agId=n.agId) and ((startNode(rels).tier<>'T4' and startNode(rels).agId<>n.agId) or startNode(rels).agId=n.agId) " : ''} 
+  ${office ? "and (startNode(rels).office = n.office and endNode(rels).office = n.office)" : ''}
+  with startNode(rels) as a, endNode(rels) as b,rels
+  where EXISTS ((a)--()) and EXISTS ((b)--())
+  return DISTINCT startNode(rels).name as source,endNode(rels).name as target,endNode(rels).office as office,rels.size as size,rels.total as count,rels.sell as sell,rels.colist as colist`;
+  
+  try {
+
+    if(typeTable === 'level1'){
+      firstSecondLevelResult = await session.run(queryTableFirstLevel);
+
+
+      firstSecondLevelResult.records.forEach(record => {
+      const source = record.get('source').toString();
+      const target = record.get('target').toString();
+      const office = record.get('office').toString();
+      const size   = record.get('size').toNumber();
+      const count  = record.get('count').toNumber();
+      const sell   = record.get('sell').toNumber();
+      const colist = record.get('colist').toNumber();
+
+
+
+      firstSecondLevelList.push({
+        source: source,
+        target: target,
+        office: office,
+        size : size,
+        count: count,
+        sell : sell,
+        colist : colist,
+      });
+    });
+
+    }else if(typeTable === 'level2'){
+      firstSecondLevelResult = await session.run(queryTableSecondLevel);
+
+  
+      firstSecondLevelResult.records.forEach(record => {
+        const source = record.get('source').toString();
+        const target = record.get('target').toString();
+        const office = record.get('office').toString();
+        const size   = record.get('size').toNumber();
+        const count  = record.get('count').toNumber();
+        const sell   = record.get('sell').toNumber();
+        const colist = record.get('colist').toNumber();
+  
+  
+  
+        firstSecondLevelList.push({
+          source: source,
+          target: target,
+          office: office,
+          size : size,
+          count: count,
+          sell : sell,
+          colist : colist,
+        });
+      });
+
+    }
+    // const linkResult = await session.run(queryLinks);
+
+    
+
+
+
+    
+
+    return { firstSecondLevelList };
 
   } finally {
     await session.close();

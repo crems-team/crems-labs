@@ -10,6 +10,7 @@ interface CurrentComponentProps {
 const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
   const matchSearchByName = useMatch('/SearchByName');
   const matchagentProdReports = useMatch('/agentProdReports/:param');
+  const matchofficeProdReports = useMatch('/officeProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
   const matchSearchByArea = useMatch('/SearchByArea');
   const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
@@ -21,6 +22,8 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
     currentComponent = 'Agent Production Reporting';
   } else if (matchagentProdReports) {
     currentComponent = 'Agent Production Reporting';
+  }else if (matchofficeProdReports) {
+    currentComponent = 'Office Production Reporting';
   } else if (matchsearchByOffice) {
     currentComponent = 'Office Production Reporting';
   }else if (matchSearchByArea) {

@@ -56,12 +56,7 @@
     "build:uat": "env-cmd -f ./.env.uat npm run-script build",
     "build:prod": "env-cmd -f ./.env.production npm run-script build"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
+ 
   "browserslist": {
     "production": [
       ">0.2%",
@@ -83,3 +78,4 @@
     "style-loader": "^3.3.4"
   }
 }
+

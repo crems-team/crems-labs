@@ -2,6 +2,7 @@ export default interface TeamAgentsTable {
     id :string,
     firstName :string,
     lastName :string,
+    officeName :string,
     colist :string,
     cosell :string,
     sell :string,

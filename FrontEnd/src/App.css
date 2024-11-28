@@ -278,3 +278,32 @@ fieldset{
   height: 50%;
   background-color: #080808; /* Separator color */
 }
+
+.main-sidebar, .main-sidebar::before {
+  transition: margin-left .3s ease-in-out, width .3s ease-in-out;
+  width: 195px;
+}
+
+.main-sidebar {
+  height: 100vh;
+  overflow-y: visible;
+  z-index: 1038;
+}
+.layout-fixed .brand-link {
+  width: 193px;
+}
+
+@media (min-width: 992px) {
+  .sidebar-mini.sidebar-collapse .main-sidebar {
+      overflow-x: visible;
+  }
+}
+
+.separator {
+  border-right: 3px solid #080808; /* separator line */
+  padding-right: 10px; /* space between checkbox and separator */
+}
+
+.separator:last-child {
+  border-right: none; /* remove border on the last item */
+}

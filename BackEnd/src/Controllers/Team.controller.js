@@ -44,8 +44,7 @@ TeamController.getTeamByFilter = async (req, res) => {
     const agentId = req.body.data.id; 
     const filterCriteria = req.body.filterCriteria;
 
-console.log(agentId);
-console.log( req.body);
+
     const team = await TeamService.getTeamByFilter(agentId,filterCriteria);
 
     if (!team) {
@@ -53,6 +52,46 @@ console.log( req.body);
     }
 
     res.status(200).json(team);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+TeamController.getTeamSecLevelByFilter = async (req, res) => {
+  try {
+      
+    const agentId = req.body.data.id; 
+    const filterCriteria = req.body.filterCriteria;
+
+
+    const team = await TeamService.getTeamSecLevelByFilter(agentId,filterCriteria);
+
+    if (!team) {
+      return res.status(404).json({ message: 'team not found' });
+    }
+
+    res.status(200).json(team);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+TeamController.getTeamTableByFilter = async (req, res) => {
+  try {
+      console.log(req.body.filterCriteria);
+    const agentId = req.body.data.id; 
+    const filterCriteria = req.body.filterCriteria;
+
+
+    const teamTableData = await TeamService.getTeamTableByFilter(agentId,filterCriteria);
+
+    if (!teamTableData) {
+      return res.status(404).json({ message: 'team not found' });
+    }
+
+    res.status(200).json(teamTableData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });

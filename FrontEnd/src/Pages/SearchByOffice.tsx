@@ -24,16 +24,6 @@ import { resetMapState} from '../Redux/Slices/MapSlice'
 
 
 
-
-
-
-
-
-
-
-
-
-
 interface AutocompleteItem {
     value: number;
     label: string;
@@ -208,8 +198,9 @@ function SearchByOffice() {
       OfficeService.getAgentsByOffice(data)
         .then((response: any) => {
             if(response.data){
+              console.log(response.data);
                 setDataAgent(response.data);
-                saveSearchHistory("office",office, response.data[0].officeId);
+                saveSearchHistory("office",office, response.data[0].officeId,response.data[0].officeState);
                 setIsLoadingSearchOffice(false);
 
             }                 
@@ -229,24 +220,24 @@ function SearchByOffice() {
   
     }
 
-    const saveSearchHistory = async (savedType :string, officeName: string, officeId: string) => {
+    const saveSearchHistory = async (savedType :string, officeName: string, officeId: string, state: string) => {
       if (keycloak.tokenParsed?.sub) {
         const userId = keycloak.tokenParsed.sub;
         let history = JSON.parse(localStorage.getItem(userId+'-office') || '[]');
-        const newSearch = {savedType, officeName, officeId, isFavorite: true };
-        if (!history.some((item :SearchItemOffice)=> item.officeName === officeName && item.officeId === officeId)) {
+        const newSearch = {savedType, officeName, officeId, state, isFavorite: true };
+        if (!history.some((item :SearchItemOffice)=> item.officeName === officeName && item.officeId === officeId && item.state === state)) {
           if (history.length >= 10) {
             //history = history.slice(1);
             history.pop();
     
           }
           //history.push(newSearch);
-          history.unshift(newSearch);
-    
+          history.unshift(newSearch);          
+
           localStorage.setItem(userId+'-office', JSON.stringify(history));
           setSearchHistory(history);
           try {
-            await OfficeService.saveSearchHistory(userId, savedType,officeName, officeId );
+            await OfficeService.saveSearchHistory(userId, savedType,officeName, officeId, state );
           } catch (error) {
             console.error('Error saving search history:', error);
           }
@@ -261,12 +252,14 @@ function SearchByOffice() {
     
         await OfficeService.getSavedSearches(userId,"office")
           .then((response: any) => {
-            
+            console.log(response.data);
+
            /*  const history = response.data;
             console.log(history);
             localStorage.setItem(userId, JSON.stringify(history));
             setSearchHistory(history); */ 
-            
+            console.log(response.data);
+
             setSearchHistory(response.data);
             localStorage.setItem(userId+'-office', JSON.stringify(response.data));
             setIsLoadingSavedSearch(false);    
@@ -334,7 +327,25 @@ function SearchByOffice() {
     //         console.log(e);
     //     });
     // };
+    const redirectToOpr = (id : number) => {
+      navigate(`/officeProdReports/${id}`);
+    }
+    
+    const redirectSaveToOpr = (id : string) => {
+      navigate(`/officeProdReports/${id}`);
+    };
 
+    const buttonDataTable = (rowData : AgentOfficeData) => {
+      return(
+      <div style={{ display: 'flex',  gap: '1rem' }}>
+            <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => redirectToOpr(rowData.officeId)} />
+            {/* <Button label="Teams" icon="bi bi-microsoft-teams" className="btn btn-primary" /> */}
+            {/* onClick={() => redirectToTeamInvestigator(rowData.agentIdC)}  */}
+        </div>
+      );
+      }
+
+    
   return (
     <div className="container mt-3">
       <div className="row">
@@ -397,7 +408,30 @@ function SearchByOffice() {
                             </div>
                     </div>
                 </div>
-                
+                <div className="row">
+                    <div className="col-md-12">
+                    <div className="card">
+                    { isLoadingSearchOffice? ( <div  >
+ 
+                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
+
+                    </div>
+                    ):dataAgent[0] ?  
+
+                        <DataTable value={dataAgent} paginator rows={5}>
+                        <Column body={buttonDataTable} />
+                          <Column field="officeName" header="Office Name"  />
+                          <Column field="officeCity" header="City" /> 
+                          <Column field="officeState" header="State"  />
+                          <Column field="nbrAgent" header="Number of Agents"/>
+                        </DataTable>
+                    
+                      :''
+                    }
+                    </div>
+    
+                    </div>
+                </div>
                 
                 <div className="row mt-4">
                     <div className="col-md-12">
@@ -407,7 +441,7 @@ function SearchByOffice() {
                                 Search
                                 <i className="bi bi-search"></i>
                             </button>
-                            <button className="btn btn-warning btn-lg"  type="button" id="clear" name="clear"
+                            <button className="btn btn-warning btn-lg me-md-2 mb-2 mb-md-0"  type="button" id="clear" name="clear"
                                onClick={() => handleClear()}>
                                 Clear
                                 <i className="bi bi-arrow-repeat"></i>
@@ -424,7 +458,7 @@ function SearchByOffice() {
                 title="Office Search History"
                 isLoading={isLoadingSavedSearch}
                 searchHistory={searchHistory}
-                onSearchClick={handleSearchAction}
+                onSearchClick={(search : any) => redirectSaveToOpr(search.officeId)}
                 onToggleFavorite={toggleFavorite}
                 parent="Office"
               />
@@ -434,56 +468,7 @@ function SearchByOffice() {
               
       </div>
 
-      <div className="row">       
-        <div className="col-md-8 col-sm-4">
-          { isLoadingSearchOffice? ( <div  >
- 
-            <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-
-            </div>
-            ):dataAgent[0] ?  
-                  <div style={{ height: '100%', width: '100%' ,display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-
-                              
-                                                                    
-                            <DataTable value={filteredData} showGridlines tableStyle={{ minWidth: '60rem' }}
-                            paginator rows={5}  
-                            selectionMode="single"
-                            selection={selectedRow}
-                            onSelectionChange={handleRowSelect}
-                            >              
-                                <Column field="officeRank" header="Ranking"  />
-                                <Column field="agentlastName" header="Last Name" />
-                                <Column field="agentfirstName" header="First Name"  />
-                                <Column field="agentPhone" header="Phone"/>
-                                <Column field="list" header="Listings" />
-                                <Column field="sell" header="Selling"/>
-    
-                            </DataTable>
-                          
-                          
-              
-              </div>
-              :''
-            }
-
-        </div>
-        <div className="col-md-4  mx-auto">
-
-            {isLoadingSearchOffice? ( <div  >
- 
-            </div>
-            ): dataAgent[0] ?  
-              <div className="d-flex justify-content-center mb-2">
-                <InputText  value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-              </div>
-              :''
-            }
-
-
-        </div>
-
-      </div>
+      
 
 
 

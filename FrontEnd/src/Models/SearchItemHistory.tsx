@@ -5,6 +5,7 @@ export default interface SearchItemHistory {
     agentIdC : string,
     officeName: string,
     officeId: string,
+    officeState: string,
     city: string,
     zips: string,
     state: string,

@@ -14,6 +14,7 @@
     size : number;
     sell:number;
     colist : number;
+    office: string;
   }
   
   export default interface TeamNeo4jData {

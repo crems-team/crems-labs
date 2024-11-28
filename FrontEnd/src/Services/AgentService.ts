@@ -14,6 +14,7 @@ import AgentRanking from '../Models/AgentRanking';
 import TeamData from '../Models/TeamData';
 import TeamAgentsTable from '../Models/TeamAgentsTable';
 import AgentTierPersona from '../Models/AgentTierPersona';
+import SearchItem from "../Models/SearchItemHistory";
 
 
 
@@ -25,14 +26,14 @@ interface dataReqAgentRank {
   id: string;
   officeId : string
 }
-interface SearchItem {
-  savedType : string;
-  firstName : string;
-  lastName  : string;
-  isFavorite: boolean;
-  agentIdC : string;
+// interface SearchItem {
+//   savedType : string;
+//   firstName : string;
+//   lastName  : string;
+//   isFavorite: boolean;
+//   agentIdC : string;
 
-}
+// }
 
 const getAgent = (data : AgentNameRequest) => {
   return http.post<AgentModel>("/search/agentByName", data);
@@ -100,12 +101,12 @@ const getAgentTierPersona = (data : AgentInfosRequest) => {
 };
 
 //for saved search and l
-const saveSearchHistory = (userId : string, savedType : string, firstName : string, lastName : string, agentIdC : string) => {
-  return http.post("/search/save-search", { userId, savedType, firstName, lastName ,agentIdC});
+const saveSearchHistory = (userId : string, savedType : string, firstName : string, lastName : string, agentIdC : string, state : string) => {
+  return http.post("/search/save-search", { userId, savedType, firstName, lastName ,agentIdC,state});
 };
 
-const toggleFavorite = (userId : string, firstName : string, lastName : string, isFavorite : boolean) => {
-  return http.post("/search/toggle-favorite", { userId, search: { firstName, lastName, isFavorite } });
+const toggleFavorite = (userId : string, firstName : string, lastName : string, isFavorite : boolean, state : string) => {
+  return http.post("/search/toggle-favorite", { userId, search: { firstName, lastName, isFavorite, state } });
 };
 
 const getSavedSearches = (userId : string, savedType : string) => {

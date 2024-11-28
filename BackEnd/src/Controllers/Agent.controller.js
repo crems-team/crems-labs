@@ -60,8 +60,7 @@ agentController.getLastName = async (req, res) => {
     try {
       const firstName = req.body.firstName; 
       const lastName  = req.body.lastName; 
-      console.log(firstName);
-      console.log(lastName);
+
 
 
       const agent = await AgentService.getAgentByName(lastName,firstName);
@@ -327,7 +326,7 @@ agentController.getLastName = async (req, res) => {
   agentController.toggleFavorite = async (req, res) => {
     const { userId, search } = req.body;
     try {
-        await AgentService.toggleFavorite(userId, search.firstName, search.lastName, search.isFavorite);
+        await AgentService.toggleFavorite(userId, search.firstName, search.lastName, search.isFavorite, search.state);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send('Error toggling favorite');
@@ -335,9 +334,9 @@ agentController.getLastName = async (req, res) => {
   };
 
   agentController.saveSearchHistory = async (req, res) => {
-    const { userId, savedType, firstName, lastName, agentIdC } = req.body;
+    const { userId, savedType, firstName, lastName, agentIdC,state } = req.body;
     try {
-        await AgentService.saveSearchHistory(userId, savedType, firstName, lastName, agentIdC);
+        await AgentService.saveSearchHistory(userId, savedType, firstName, lastName, agentIdC,state);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send('Error saving search history');
