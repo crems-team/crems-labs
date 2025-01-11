@@ -1,10 +1,8 @@
 export default interface SearchItemHistory {
-    idHistory : number;
     savedType : string,
     firstName: string,
     lastName: string,
     agentIdC : string,
-    agentId : string,
     officeName: string,
     officeId: string,
     officeState: string,
@@ -13,6 +11,5 @@ export default interface SearchItemHistory {
     state: string,
     county: string,
     nbrMonth : number,
-    address : string,
     isFavorite: boolean,
   }

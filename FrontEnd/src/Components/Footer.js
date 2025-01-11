@@ -9,7 +9,7 @@ function Footer() {
   function getVersion() {
     let version;
   
-    return version = '1.2.9';
+    return version = '1.3.0';
   }
 
   return (

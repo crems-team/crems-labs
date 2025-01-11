@@ -25,6 +25,7 @@ import OfficeMixOfSalesReport from '../Components/Office/OfficeMixOfSalesReport'
 import AgentTierPersona from "../Models/AgentTierPersona";
 import BackButtonToArea from '../Components/BackButtonToArea';
 import { useNavigate } from 'react-router-dom';
+import OfficeTopCities from "../Models/Office/OfficeTopCities";
 
 
 
@@ -86,6 +87,7 @@ function AgentProdReports() {
 
     const [activpendinglisting, setActivpendinglisting] = useState<[{ active: number; pending: number }]>();
     const navigate = useNavigate();
+    const [officeTopCities, setOfficeTopCities] = useState<Array<OfficeTopCities>>([]);
 
 
     const toggleDataTableModal = () => {
@@ -109,6 +111,16 @@ function AgentProdReports() {
                 .then((response: any) => {
 
                     setOfficeInfosData(response.data);
+
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
+            //
+            OfficeService.getOfficeTopCities(data)
+                .then((response: any) => {
+
+                    setOfficeTopCities(response.data);
 
                 })
                 .catch((e: Error) => {
@@ -318,7 +330,7 @@ function AgentProdReports() {
                                 </div>
                                 {/* /.card-header */}
                                 {/* form start */}
-                                <div className="card-body mb-6">
+                                <div className="card-body">
                                     <div className="row">
                                         <div className="col-md-auto">
                                             <span className="small text-left">Address: </span><strong>{officeInfosData[0] ? officeInfosData[0].officeAddress1 : ''}</strong>
@@ -358,8 +370,8 @@ function AgentProdReports() {
                                             </div>
                                             <div className="row">
                                                 <div className="col-md-4 text-nowrap">
-                                                    <span className="small d-inline-block text-left">Annual Sides: </span><strong> 872</strong>
-                                                </div>
+                                                    <span className="small d-inline-block text-left">Annual Sides: </span><strong> {monthData ? monthData[0].list + monthData[0].sell + monthData[0].dna : '0'}</strong>
+                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-md-4 text-nowrap ">
@@ -368,17 +380,31 @@ function AgentProdReports() {
                                                     Top Two Cities:
                                                 </div>
                                                 <div className="col-md-6 text-nowrap  ">
-                                                    <ul className="pr-1"style={{ listStyleType: 'none' }}>
+                                                    {officeTopCities[0] ? (
+                                                        <ul className="pr-1" style={{ listStyleType: 'none' }}>
+
+                                                            {officeTopCities.map((element, index) => (
+                                                                <li key={index}><strong>{element.city}</strong></li>
+
+                                                            ))}
+                                                         </ul>
+                                                    ):(<ul className="pr-1 "style={{ listStyleType: 'none' }}>
+                                                        <li className="text-white"><strong>-</strong></li>
+                                                        <li className="text-white"><strong>-</strong></li>
+
+                                                    </ul>)}
+                                                   
+                                                    {/* <ul className="pr-1"style={{ listStyleType: 'none' }}>
                                                         <li><strong>Irvine</strong></li>
                                                         <li><strong>Mission Vieja</strong></li>
 
-                                                    </ul>
+                                                    </ul> */}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-md-4 text-nowrap">
                                             <div className="pb-0 pt-0 pr-0 pl-0 mr-0 mb-0 ml-2 mt-0" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                <OfficeMixOfSalesReport id={officeId ? officeId : ''} />
+                                                {/* <OfficeMixOfSalesReport id={officeId ? officeId : ''} /> */}
                                             </div>
                                         </div>
                                     </div>

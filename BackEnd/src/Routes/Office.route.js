@@ -43,6 +43,9 @@ officesRouter.post('/getOfficeProduction',officeController.get_office_production
 
 officesRouter.post('/getOfficeRankingReport',officeController.get_Office_Ranking_Report);
 
+officesRouter.post('/getOfficeTopCities',officeController.get_Office_Top_Cities);
+
+
 
 
 

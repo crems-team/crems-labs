@@ -7,6 +7,7 @@ const OfficePresentMetrics = require('../Models/OfficePresentMetrics.model');
 const GeoDataReportOffice = require('../Models/GeoDataReportOffice.model');
 const OfficeProd = require('../Models/OfficeProd.model');
 const AgentRanking = require('../Models/AgentRanking.model');
+const OfficeTopCities = require('../Models/OfficeTopCities');
 
 
 
@@ -700,7 +701,7 @@ OfficeService.get_Office_Ranking_Report = (officeId) => {
       
       var query ="select  ar.officeRank as ranking,  ar.agentIdC agentId, ar.firstName, ar.lastName, ar.totPrd as nombre, officeName "+
       "from agp_agentref ar "+
-      "where officeRank <= 20 and officeid=@officeId "+
+      "where officeRank <= 10 and officeid=@officeId "+
       "order by officeRank asc ";
       request.query(query, (err, res) => {
           if (err) {
@@ -714,6 +715,40 @@ OfficeService.get_Office_Ranking_Report = (officeId) => {
             
             const result = res.recordset.map(data => {
               return new AgentRanking(data.ranking, data.agentId,data.firstName,data.lastName,data.nombre,data.officeName);
+            });
+            resolve(result);       
+          
+          });
+
+    }).catch(err => {
+      reject(err);
+    });
+  });
+  
+};
+
+OfficeService.get_Office_Top_Cities = (officeId) => {
+  return new Promise((resolve, reject) => {
+    poolConnect.then(() => {
+      const request = pool.request();
+      request.input('officeId',officeId);
+      
+      var query ="select top 2 city, count(listingId) nombre from prod.agp_listings2outref alo "+
+                  "where alo.officeId =@officeId "+
+                  "GROUP by city "+
+                  "ORDER by 2 desc";
+      request.query(query, (err, res) => {
+          if (err) {
+              reject(err);
+              return;
+          }
+          if (res.recordset.length === 0) {
+              resolve(null);
+              return;
+            }
+            
+            const result = res.recordset.map(data => {
+              return new OfficeTopCities(data.city, data.nombre);
             });
             resolve(result);       
           

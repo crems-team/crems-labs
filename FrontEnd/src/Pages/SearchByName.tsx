@@ -320,6 +320,8 @@ useEffect(() => {
   if (keycloak.tokenParsed?.sub) {
     dispatch(resetMapState());
     fetchSavedSearches();
+    const roles = keycloak.hasRealmRole('admin');
+    console.log(roles);
   }
 }, [keycloak.tokenParsed?.sub]);
 

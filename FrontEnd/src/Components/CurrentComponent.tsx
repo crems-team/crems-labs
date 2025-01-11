@@ -8,12 +8,13 @@ interface CurrentComponentProps {
 }
 
 const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
-  const matchSearchByName = useMatch('/SearchByName');
+  const matchSearchByName = useMatch('/SearchByAgent');
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchofficeProdReports = useMatch('/officeProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
   const matchSearchByArea = useMatch('/SearchByArea');
   const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
+  const matchSearchTool = useMatch('/searchTool');
 
 
   let currentComponent;
@@ -30,6 +31,8 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
     currentComponent = 'Market Dynamics';
   }else if (matchTeamInvestigator) {
     currentComponent = 'Team Investigator';
+  }else if (matchSearchTool) {
+    currentComponent = 'Source Report';
   } else {
     currentComponent = ' ';
   }

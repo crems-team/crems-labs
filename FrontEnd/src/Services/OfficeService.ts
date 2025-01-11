@@ -8,6 +8,7 @@ import OfficeDataPresentRep from "../Models/Office/OfficeDataPresentRep";
 import OfficeGeoDataReport from "../Models/Office/OfficeGeoDataReport";
 import OfficeProductionMetrics from "../Models/Office/OfficeProductionMetrics";
 import AgentRanking from '../Models/AgentRanking';
+import OfficeTopCities from "../Models/Office/OfficeTopCities";
 
 
 
@@ -80,6 +81,10 @@ const getOfficeProduction = (data: {id:string} ) => {
 const getOfficeRankingReport = (data:{id:string} ) => {
   return http.post<AgentRanking>("/office/getOfficeRankingReport", data);
   };
+
+const getOfficeTopCities = (data:{id:string} ) => {
+    return http.post<OfficeTopCities>("/office/getOfficeTopCities", data);
+    };
 const OfficeService = {
     
   getAgentsByOffice,
@@ -96,7 +101,8 @@ const OfficeService = {
   getGeoDataTot10,
   getOfficeDataGeoReport,
   getOfficeProduction,
-  getOfficeRankingReport
+  getOfficeRankingReport,
+  getOfficeTopCities
 };
 
 export default OfficeService;

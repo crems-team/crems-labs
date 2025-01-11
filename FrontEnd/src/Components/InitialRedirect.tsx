@@ -12,7 +12,7 @@ const InitialRedirect: React.FC = () => {
     console.log(initialized);
     if (initialized && !redirected) {
       if (keycloak.authenticated) {
-        navigate('/SearchByName');
+        navigate('/SearchByAgent');
       } else {
         navigate('/');
       }

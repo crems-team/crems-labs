@@ -17,12 +17,16 @@ import SearchItemArea from "../Models/SearchItemArea";
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import {fetchTransactions, setActivityReportClicked,fetchTotalAgents,fetchTotalTransactions,setCurrentCitySaveSearch,
   setCurrentZipSaveSearch,setCurrentstateSaveSearch,setCurrentCountySaveSearch,setSelectedZipCodeSaveSearch,
-  setNbrMonthSaveSearch,setClosePanel} from '../Redux/Slices/MapSlice'
+  setNbrMonthSaveSearch,setClosePanel,handleSearchSource} from '../Redux/Slices/MapSlice'
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
 import Cities from "../Models/Cities";
 import Counties from "../Models/Counties";
 import States from "../Models/States";
+import SearchItemHistory from "../Models/SearchItemHistory";
+import SearchToolsService from "../Services/Tools/SearchToolsService";
+
+
 
 
 
@@ -32,7 +36,7 @@ const AppHeader : React.FC = () => {
 
   const location = useLocation(); 
   // const matchHome = useMatch({ path: '/', end: true });
-  const matchSearchByName = useMatch('/SearchByName');
+  const matchSearchByName = useMatch('/SearchByAgent');
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
   const matchSearchByArea = useMatch('/SearchByArea');
@@ -40,14 +44,18 @@ const AppHeader : React.FC = () => {
   const [searchHistoryAgent, setSearchHistoryAgent] = useState<Array<SearchItemAgent>>([]);
   const [searchHistoryOffice, setSearchHistoryOffice] = useState<Array<SearchItemOffice>>([]);
   const [searchHistoryArea, setSearchHistoryArea] = useState<Array<SearchItemArea>>([]);
+  const [searchHistorySource, setSearchHistorySource] = useState<Array<SearchItemHistory>>([]);
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
   const [isDropdownOpenOffice, setIsDropdownOpenOffice] = useState(true);
   const [isDropdownOpenArea, setIsDropdownOpenArea] = useState(true);
+  const [isDropdownOpenSource, setIsDropdownOpenSource] = useState(true);
+
 
   const dropDownRef = useRef<HTMLDivElement>(null);
   const dropDownRefOffice = useRef<HTMLDivElement>(null);
   const dropDownRefArea = useRef<HTMLDivElement>(null);
+  const dropDownRefSource = useRef<HTMLDivElement>(null);
 
   const [isLoading, setIsLoading] = useState(Boolean);
   const [visible, setVisible] = useState(false);
@@ -58,6 +66,9 @@ const AppHeader : React.FC = () => {
   const redirectLogOutUrl = process.env.REACT_APP_REDIRECT_LOGOUT_URL;
   const dispatch = useAppDispatch();
   const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
+  const loadingSearchSourceResult = useSelector((state: RootState) => state.map.loadingSearchSourceResult);
+  const searchSourceResult = useSelector((state: RootState) => state.map.searchSourceResult);
+
 
 
 
@@ -79,6 +90,10 @@ const AppHeader : React.FC = () => {
     if (dropDownRefArea.current && !dropDownRefArea.current.contains(event.target as Node)) {
       setIsDropdownOpenArea(!isDropdownOpenArea);
     }
+
+    if (dropDownRefSource.current && !dropDownRefSource.current.contains(event.target as Node)) {
+      setIsDropdownOpenSource(!isDropdownOpenSource);
+    }
   };
 
   useEffect(() => {
@@ -86,11 +101,11 @@ const AppHeader : React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen,isDropdownOpenOffice,isDropdownOpenArea]);
+  }, [isDropdownOpen,isDropdownOpenOffice,isDropdownOpenArea,isDropdownOpenSource ]);
 
   useEffect(() => {
     if (matchSearchByName) {
-      currentComponent = 'SearchByName';
+      currentComponent = 'SearchByAgent';
     } else if (matchagentProdReports) {
       currentComponent = 'agentProdReports';
     } else if (matchsearchByOffice) {
@@ -182,7 +197,7 @@ const AppHeader : React.FC = () => {
     const currentLocation = location.pathname.substring(1,17);
     console.log(currentLocation);
     // Check if the current path is the active path
-    if (currentLocation == 'SearchByName' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
+    if (currentLocation == 'SearchByAgent' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
       setIsDropdownOpen(!isDropdownOpen);
         
       if (keycloak.tokenParsed?.sub) {
@@ -210,6 +225,8 @@ const AppHeader : React.FC = () => {
         })
         .catch((e: Error) => {
           console.log(e);
+          setIsLoading(false);
+
         });
       }
       
@@ -239,6 +256,8 @@ const AppHeader : React.FC = () => {
         })
         .catch((e: Error) => {
           console.log(e);
+          setIsLoading(false);
+
         });
       }
 
@@ -268,6 +287,40 @@ const AppHeader : React.FC = () => {
         })
         .catch((e: Error) => {
           console.log(e);
+          setIsLoading(false);
+
+        });
+      }
+
+    }else if(currentLocation == 'searchTool') {
+      setIsDropdownOpenSource(!isDropdownOpenSource);
+
+      if (keycloak.tokenParsed?.sub) {
+        const userId = keycloak.tokenParsed.sub;
+  
+        await SearchToolsService.getSavedFavorite(userId,"searchSource")
+        .then((response: any) => {
+          
+         /*  const history = response.data;
+          console.log(history);
+          localStorage.setItem(userId, JSON.stringify(history));
+          setSearchHistory(history); */ 
+  
+          setSearchHistorySource(response.data);
+          setIsLoading(false);
+          console.log(response.data);
+
+         // const filteredHistory = searchHistory.filter((item: SearchItem) => !item.isFavorite);
+          //setSearchHistory(filteredHistory);
+          
+  
+  
+  
+        })
+        .catch((e: Error) => {
+          console.log(e);
+          setIsLoading(false);
+
         });
       }
 
@@ -342,7 +395,14 @@ const AppHeader : React.FC = () => {
       }
   };
       
+  const handleSearch = async(agentId : string, office : string, address : string, city : string) => {
+  
+          
+        await dispatch(handleSearchSource({agentId , office, address , city}));
 
+
+        
+    };
 
 
 
@@ -390,7 +450,6 @@ const AppHeader : React.FC = () => {
                   Links
                 </a>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a className="dropdown-item" href="https://www.webedsystems.com/support">Support</a>
                   <a className="dropdown-item" onClick={() => setVisible(true)}>Reporting Accuracy</a>
 
                 </div>
@@ -404,12 +463,7 @@ const AppHeader : React.FC = () => {
 
              
 
-              <li className="nav-item mr-2">
-                <a href="https://www.webedsystems.com/support" className="nav-link " style={{color: '#03263a', 
-                fontFamily: 'Roboto-Medium, sans-serif', 
-                fontWeight: 'bold'
-                }}>Support</a>
-              </li>
+              
               <li className="nav-item mr-2">
                 <a role="button" className="nav-link " style={{color: '#03263a', 
                 fontFamily: 'Roboto-Medium, sans-serif', 
@@ -557,6 +611,43 @@ const AppHeader : React.FC = () => {
 
                     </div>
                           )}
+                    {!isDropdownOpenSource && (
+
+                      <div className=" custom-dropdown popover-style" ref={dropDownRefSource}>
+                        <div className="dropdown-item text-center">
+                        <h6>Source Report</h6> 
+                        </div>
+                        {isLoading? ( <div  >
+                                    <ul className=""style={{listStyleType: 'none'}}>
+
+                                      <li>
+                                      <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
+                                      </li>
+                                
+                                  </ul> 
+                                  </div>
+                                ):  
+                        searchHistorySource[0]?  (
+                                <ul >
+                                  {searchHistorySource.map((search, index) => (
+                                      <a className="nav-link" href="#"  onClick={() => handleSearch(search.agentId , search.officeName, search.address , search.city)}>
+                                        <li key={index} className="">
+                                        {"Agent ID: "}{search.agentId}{search.officeName?" Office: "+search.officeName:""}{search.address?" Address: "+search.address:""}{search.city?" City: "+search.city:""}
+                                        
+                                        {/* {" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}{" | State: "+search.state.split(',')[0]} */}
+                                          
+                                        </li>
+                                    </a>
+                                  ))}
+                                </ul>
+                              ):(
+                                <div className="dropdown-item text-center">No favorite Source</div>
+                              )}
+
+                          
+
+                      </div>
+                            )}
 
                 </li>
 

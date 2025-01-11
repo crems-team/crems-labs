@@ -26,6 +26,8 @@
   <!-- summernote -->
   <link rel="stylesheet" href="%PUBLIC_URL%/plugins/summernote/summernote-bs4.min.css">
 
+
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
@@ -115,6 +117,7 @@
   <!-- AdminLTE for demo purposes -->
   <!-- AdminLTE dashboard demo (This is only for demo purposes) 
   <script src="%PUBLIC_URL%/dist/js/pages/dashboard.js"></script>
+  
 
   remove for error innerhtml
   -->
@@ -152,4 +155,16 @@ $(document).on('click', function (e) {
 });
 
 </script>
-</html>
+<script type="text/javascript">
+  window.ATL_JQ_PAGE_PROPS = {
+    triggerFunction: function (showCollectorDialog) {
+      window.ATL_JQ_PAGE_PROPS.showCollectorDialog = showCollectorDialog;
+    },
+ 
+  };
+</script>
+<script
+  type="text/javascript"
+  src="https://crems.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/g2slup/b/9/c95134bc67d3a521bb3f4331beb9b804/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=48001e52"
+></script>
+  </html>

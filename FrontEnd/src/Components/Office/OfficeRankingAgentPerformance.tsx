@@ -74,10 +74,10 @@ const OfficeRankingAgentPerformance : React.FC<ComponentProps> = ({ id }) => {
         const selection = chart.getSelection();
         if (selection.length > 0) {
             const selectedRow = selection[0].row;
-            const agentId = data[selectedRow + 1][4]; // Retrieve agentId from data array
+            const officeId = data[selectedRow + 1][4]; // Retrieve agentId from data array
             //const url = `https://crems-labs.com/AgentProdReports/${agentId}`;
            // window.location.href = url;
-            navigate(`/officeProdReports/${agentId}`);
+            navigate(`/AgentProdReports/${officeId}`);
 
         }
     }; 
@@ -104,12 +104,12 @@ const OfficeRankingAgentPerformance : React.FC<ComponentProps> = ({ id }) => {
             bars: "horizontal",
 
 		  }}
-        //   chartEvents={[
-        //     {
-        //         eventName: 'select',
-        //         callback: handleChartSelect
-        //     }
-        // ]}
+          chartEvents={[
+            {
+                eventName: 'select',
+                callback: handleChartSelect
+            }
+        ]}
         chartWrapperParams={{
             view : {columns :[0,1,2,3]}
         }}

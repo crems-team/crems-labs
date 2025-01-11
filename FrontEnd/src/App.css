@@ -83,7 +83,7 @@
   overflow-y: auto;
   z-index: 100;
   position: absolute;
-  width: 100%;
+  width: 96%;
 
 }
 
@@ -306,4 +306,37 @@ fieldset{
 
 .separator:last-child {
   border-right: none; /* remove border on the last item */
+}
+
+/*  menu */
+/* Default (collapsed) state: Icons centered, labels below */
+.sidebar-collapse .nav-link {
+  flex-direction: column;
+  text-align: center;
+}
+
+.sidebar-collapse .menu-label {
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* Expanded state: Icons inline with labels */
+body:not(.sidebar-collapse) .nav-link {
+  flex-direction: row;
+  align-items: center;
+}
+
+body:not(.sidebar-collapse) .menu-label {
+  margin-left: 10px;
+  text-align: left;
+  margin-top: 0; /* Remove spacing when inline */
+}
+
+/* Smooth transition for both states */
+.nav-link {
+  transition: all 0.3s ease;
+}
+
+.border-menu-bottom {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }

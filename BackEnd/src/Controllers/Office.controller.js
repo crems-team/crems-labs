@@ -268,5 +268,21 @@ OfficeController.getCity = async (req, res) => {
     }
   };
 
+  OfficeController.get_Office_Top_Cities = async (req, res) => {
+    try {
+      const officeId = req.body.id; 
+      const officeData = await OfficeService.get_Office_Top_Cities(officeId);
+  
+      if (!officeData) {
+        return res.status(404).json({ message: 'Office not found' });
+      }
+  
+      res.status(200).json(officeData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
 
 module.exports = OfficeController;

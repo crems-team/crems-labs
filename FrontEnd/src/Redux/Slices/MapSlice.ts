@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Icon } from 'leaflet';
 import GeoAreaService from "../../Services/GeoAreaService";
+import SearchToolsService from "../../Services/Tools/SearchToolsService";
 import Cities from "../../Models/Cities"
 import Zip from "../../Models/Zip"
 import States from "../../Models/States"
@@ -38,6 +39,10 @@ interface MapState {
   totalTransactions: number;
   firstLoad: boolean; 
   fromSearchByArea: boolean; 
+  searchSourceResult: any[];
+  loadingSearchSourceResult: boolean;
+
+
 
 
 
@@ -64,6 +69,8 @@ const initialState: MapState = {
   totalTransactions : 0,
   firstLoad: true,
   fromSearchByArea : false,
+  searchSourceResult: [],
+  loadingSearchSourceResult :false,
 
 };
 
@@ -105,6 +112,24 @@ export const fetchTotalAgents = createAsyncThunk(
   }
 );
 
+export const handleSearchSource = createAsyncThunk(
+  'map/handleSearchSource',
+  async ({ agentId , office, address, city}: { agentId : string, office : string, address : string, city : string }, thunkAPI) => {
+    try {
+      var data = {
+        agentId : agentId ? agentId : null,
+        office  : office ? office : null,
+        address : address? address : null,
+        city    : city ? city : null
+        };
+      const response = await SearchToolsService.getSearchData(data);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 const mapSlice = createSlice({
   name: 'map',
   initialState,
@@ -120,6 +145,9 @@ const mapSlice = createSlice({
     },
     setTransactions(state, action: PayloadAction<any[]>) {
       state.transactions = action.payload;
+    },
+    setSearchSourceResult(state, action: PayloadAction<any[]>) {
+      state.searchSourceResult = action.payload;
     },
     zoomToLocation(state, action: PayloadAction<{ zoomLevel: number, center: [number, number] }>) {
       const { zoomLevel, center } = action.payload;
@@ -211,6 +239,19 @@ const mapSlice = createSlice({
       .addCase(fetchTotalAgents.rejected, (state, action) => {
         console.error(action.payload);
         // state.loadingTransactions = false;
+      })
+      .addCase(handleSearchSource.pending, (state) => {
+        state.loadingSearchSourceResult = true;
+
+      })
+      .addCase(handleSearchSource.fulfilled, (state, action) => {
+        state.searchSourceResult = action.payload;
+        state.loadingSearchSourceResult = false;
+      })
+      .addCase(handleSearchSource.rejected, (state, action) => {
+        console.error(action.payload);
+        state.loadingSearchSourceResult = false;
+      
       });
       
   },
@@ -236,6 +277,7 @@ export const {
   setFirstLoad,
   resetMapState,
   setFromSearchByArea,
+  setSearchSourceResult,
   
 } = mapSlice.actions;
 

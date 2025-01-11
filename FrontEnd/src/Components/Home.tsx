@@ -47,7 +47,7 @@ function Home() {
                             <button
                               type="button"
                               className="btn btn-primary mr-5"
-                              onClick={() => keycloak.login({ redirectUri: `http://localhost:3001/SearchByName` })}
+                              onClick={() => keycloak.login({ redirectUri: `http://localhost:3001/SearchByAgent` })}
 
                             >
                                         Reports Login

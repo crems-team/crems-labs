@@ -24,6 +24,8 @@ import OfficeProdReports from './Pages/OfficeProdReports';
 import SearchByOffice from './Pages/SearchByOffice';
 import SearchByArea from './Pages/SearchByArea';
 import TeamInvestigator from './Pages/TeamInvestigator';
+import SearchAgent from './Pages/Tools/SearchAgent';
+
 
 
 import Home from './Components/Home';
@@ -77,7 +79,7 @@ function App() {
                                     }
                         />                                       */}
  
-                        <Route      path="/SearchByName"
+                        <Route      path="/SearchByAgent"
                                     element={
                                       <PrivateRoute>
                                         <SearchByName />
@@ -118,6 +120,13 @@ function App() {
                                     element={
                                       <PrivateRoute>
                                         <TeamInvestigator />
+                                      </PrivateRoute>
+                                    }
+                        />
+                        <Route      path="/searchTool"
+                                    element={
+                                      <PrivateRoute>
+                                        <SearchAgent />
                                       </PrivateRoute>
                                     }
                         />
