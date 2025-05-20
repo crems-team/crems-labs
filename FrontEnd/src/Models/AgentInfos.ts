@@ -10,5 +10,6 @@ export default interface AgentInfos {
     agentEmail: string,
     officeAddress: string,
     officePhone: string,
+    officerName:string,
   
   }

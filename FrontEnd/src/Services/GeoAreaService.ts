@@ -142,6 +142,11 @@ const GetTotalAgents = async (zips: string,nbrMonth : number): Promise<any[]> =>
   }
 };
 
+//Area with USA Map
+const getCitiesByCountyFips = (countyFips : string | null) => {
+  return http.post<Cities>("/geoArea/getCitiesByCountyFips",{countyFips : countyFips});
+};
+
 const GeoAreaService = {
     
     getStates,
@@ -159,7 +164,8 @@ const GeoAreaService = {
     getSavedFavorite,
     fetchTransactionsGeoByAgent,
     GetTotalTransactions,
-    GetTotalAgents
+    GetTotalAgents,
+    getCitiesByCountyFips
 };
 
 export default GeoAreaService;

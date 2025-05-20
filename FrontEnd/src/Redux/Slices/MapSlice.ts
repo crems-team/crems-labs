@@ -8,6 +8,10 @@ import Zip from "../../Models/Zip"
 import States from "../../Models/States"
 import Counties from "../../Models/Counties"
 import { useAppDispatch } from '../../Hooks/DispatchHook';
+import SelectedLocation from "../../Models/GeoAreaAgentProd/SelectedLocation"
+import AgentGeoProdResult from "../../Models/GeoAreaAgentProd/AgentGeoProdResult"
+import GeoAreaAgentProdService from "../../Services/GeoAreaAgentProdService";
+
 
 
 
@@ -19,8 +23,16 @@ interface Marker {
   nbragt: string;
   icon: Icon | null;
 }
+interface LocationState {
+  state: string;
+  stateCode: string;
+  county: string;
+  city: string[];
+  agentId: number;
+}
 
 interface MapState {
+  error: string | null;
   markers: Marker[];
   transactions: any[];
   mapInstance: any | null;
@@ -41,16 +53,23 @@ interface MapState {
   fromSearchByArea: boolean; 
   searchSourceResult: any[];
   loadingSearchSourceResult: boolean;
-
-
-
-
-
+  sankeyReportClicked: boolean;
+  officeRankingLOClicked: boolean;
+  loanOfficerByAgentClicked: boolean;
+  idOfficeLO: string | null;
+  idAgentLO: string | null;
+  selectedLocation : SelectedLocation;
+  AgentGeoProdResult : AgentGeoProdResult[];
+  loadingAgentGeoProdResult: boolean;
+  geoAreaAgentProdReportClicked: boolean;
+  zipcodes: Zip[];
+  
 }
 
 
 
 const initialState: MapState = {
+  error: null,
   markers: [],
   transactions: [],
   mapInstance: null,
@@ -71,6 +90,17 @@ const initialState: MapState = {
   fromSearchByArea : false,
   searchSourceResult: [],
   loadingSearchSourceResult :false,
+  sankeyReportClicked: true,
+  officeRankingLOClicked: true,
+  loanOfficerByAgentClicked: true,
+  idOfficeLO: null,
+  idAgentLO: null,
+  selectedLocation : {state : '', stateCode: '',county:'', city:[], agentId:0, zip:[]},
+  AgentGeoProdResult : [],
+  geoAreaAgentProdReportClicked : true,
+  loadingAgentGeoProdResult : false,
+  zipcodes: [],
+
 
 };
 
@@ -99,6 +129,31 @@ export const fetchTotalTransactions = createAsyncThunk(
     }
   }
 );
+
+export const getTotalTransactionsListings = createAsyncThunk(
+  'map/getTotalTransactionsListings',
+  async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
+    try {
+      const response = await GeoAreaAgentProdService.getTotalTransactionsListings(selectedLocation);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getTotalAgentsListings = createAsyncThunk(
+  'map/getTotalAgentsListings',
+  async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
+    try {
+      const response = await GeoAreaAgentProdService.getTotalAgentsListings(selectedLocation);
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 
 export const fetchTotalAgents = createAsyncThunk(
   'map/fetchTotalAgents',
@@ -130,6 +185,18 @@ export const handleSearchSource = createAsyncThunk(
   }
 );
 
+export const getAgentGeoProduction = createAsyncThunk(
+  'map/getAgentGeoProduction',
+  async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
+    try {
+      const response = await GeoAreaAgentProdService.getAgentGeoProduction(selectedLocation);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 const mapSlice = createSlice({
   name: 'map',
   initialState,
@@ -152,7 +219,6 @@ const mapSlice = createSlice({
     zoomToLocation(state, action: PayloadAction<{ zoomLevel: number, center: [number, number] }>) {
       const { zoomLevel, center } = action.payload;
       if (state.mapInstance) {
-        console.log('in');
         state.mapInstance.setView(center, zoomLevel);
       }
     },
@@ -198,6 +264,39 @@ const mapSlice = createSlice({
     setFromSearchByArea: (state, action: PayloadAction<boolean>) => { 
       state.fromSearchByArea = action.payload;
     },
+    setSankeyReportClicked(state, action: PayloadAction<boolean>) {
+      state.sankeyReportClicked = action.payload;
+    },
+    setOfficeRankingLOClicked(state, action: PayloadAction<boolean>) {
+      state.officeRankingLOClicked = action.payload;
+    },
+    setLoanOfficerByAgentClicked(state, action: PayloadAction<boolean>) {
+      state.loanOfficerByAgentClicked = action.payload;
+    },
+    setIdAgentLO(state, action: PayloadAction<string | null>) {
+      state.idAgentLO = action.payload;
+    },
+    setIdOfficeLO(state, action: PayloadAction<string | null>) {
+      state.idOfficeLO = action.payload;
+    },
+    setSelectedLocation: (state, action: PayloadAction<Partial<SelectedLocation>>) => {
+      state.selectedLocation = { 
+        ...state.selectedLocation, 
+        ...action.payload 
+      };
+    },
+    setAgentGeoProdResult(state, action: PayloadAction<AgentGeoProdResult[]>) {
+      state.AgentGeoProdResult = action.payload;
+    },
+    setGeoAreaAgentProdReportClicked(state, action: PayloadAction<boolean>) {
+      state.geoAreaAgentProdReportClicked = action.payload;
+    },
+    //Zip codes for new area page
+  
+    //manage error
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+  },
     resetMapState: () => initialState
   },
   extraReducers: (builder) => {
@@ -252,6 +351,36 @@ const mapSlice = createSlice({
         console.error(action.payload);
         state.loadingSearchSourceResult = false;
       
+      })
+      //Area Geo Agent Prod
+      .addCase(getAgentGeoProduction.pending, (state) => {
+        state.loadingAgentGeoProdResult = true;
+      })
+      .addCase(getAgentGeoProduction.fulfilled, (state, action) => {
+        state.AgentGeoProdResult = action.payload;
+        state.loadingAgentGeoProdResult = false;
+      })
+      .addCase(getAgentGeoProduction.rejected, (state, action) => {
+        console.error(action.payload);
+        state.loadingAgentGeoProdResult = false;
+      
+      })
+      //Area V2
+      .addCase(getTotalAgentsListings.fulfilled, (state, action) => {
+        state.totalAgents = action.payload;
+        // state.loadingTransactions = false;
+      })
+      .addCase(getTotalAgentsListings.rejected, (state, action) => {
+        console.error(action.payload);
+        // state.loadingTransactions = false;
+      })
+      .addCase(getTotalTransactionsListings.fulfilled, (state, action) => {
+        state.totalTransactions = action.payload;
+        // state.loadingTransactions = false;
+      })
+      .addCase(getTotalTransactionsListings.rejected, (state, action) => {
+        console.error(action.payload);
+        // state.loadingTransactions = false;
       });
       
   },
@@ -278,6 +407,15 @@ export const {
   resetMapState,
   setFromSearchByArea,
   setSearchSourceResult,
+  setSankeyReportClicked,
+  setOfficeRankingLOClicked,
+  setLoanOfficerByAgentClicked,
+  setIdAgentLO,
+  setIdOfficeLO,
+  setSelectedLocation,
+  setAgentGeoProdResult,
+  setGeoAreaAgentProdReportClicked,
+  setError,
   
 } = mapSlice.actions;
 

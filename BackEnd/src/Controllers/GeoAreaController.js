@@ -267,5 +267,21 @@ GeoAreaController.getCounties = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+  //geo Area with USA Map
+  GeoAreaController.getCitiesByCountyFips = async (req, res) => {
+    try {
+
+      const countyFips = req.body.countyFips;
+      const data = await GeoAreaService.getCitiesByCountyFips(countyFips);
+  
+      if (!data) {
+        return res.status(404).json({ message: 'Result not found' });
+      }
+  
+      res.status(200).json(data);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 
 module.exports = GeoAreaController;

@@ -44,6 +44,7 @@ import { fetchTransactions,setActivityReportClicked,fetchTotalTransactions,fetch
 import { useSearch } from '../Components/Context/Context';
 import SearchHistory from '../Components/SearchHistory';
 import {useLocation } from 'react-router-dom';
+import UsaMap from './USAMap/MapIndex';
 
 
 
@@ -730,7 +731,8 @@ function SearchByArea() {
          </div>
 
            );
-        };
+     };
+     
     useEffect(() => {
         setCurrentCities(currentCitySaveSearch);
         setCurrentZip(currentZipSaveSearch);
@@ -752,11 +754,12 @@ function SearchByArea() {
     return (
         <MapProvider>
 
+<div className="container mt-3">
 
             <Panel header="Choose Area" headerTemplate={headerPane1} ref={panelRef} toggleable>
                 <div className="grid nested-grid" key={refreshKey}>
                     <div className="col-8">
-                        <div className="grid">
+                         <div className="grid">
                             <div className="col-6 md:col-4 lg:col-4">
                                 <span className="p-float-label">
                                     <AutoComplete inputId="autocompletstate" field="name" value={Currentstate} suggestions={states} completeMethod={filterStates} onChange={(e) => { setCurrentStates(e.value) }} dropdown />
@@ -816,8 +819,10 @@ function SearchByArea() {
                             </div>
                      
                             
-                        </div>
-                        <div className="d-flex justify-content-end ">
+                        </div> 
+                                            {/* <UsaMap /> */}
+
+                        <div className="d-flex justify-content-end  mt-2">
                                 <div>
                                 <span role="button" onClick={togglePanel}>
                                     <ZoomButton 
@@ -856,7 +861,7 @@ function SearchByArea() {
             <div className="row mt-1">
                 <div className="col-md-12 col-sm-6">
                     <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s total monthly production for the most recently completed 12 months, compared to the same 12-month period a year ago. It does not include the current “partial” month’s production. The values include listing and co-listing transactions. Plus, sales outside of the MLS, if we have that data.">
-                        <i className="bi bi-info-circle fs-6" /></a> Area Activity: Transactions in these zip codes</h5>
+                        <i className="bi bi-info-circle fs-6" /></a> Area Activity: What transaction have there been in this area?</h5>
                     <div className={`card ${!activityReportClicked ? '' : 'collapsed-card'}`}>
                         <div className="card-header">
                             <div className="row">
@@ -956,7 +961,7 @@ function SearchByArea() {
 
 
 
-
+</div>
         </MapProvider>
 
     );

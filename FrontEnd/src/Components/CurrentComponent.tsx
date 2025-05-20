@@ -15,6 +15,12 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
   const matchSearchByArea = useMatch('/SearchByArea');
   const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
   const matchSearchTool = useMatch('/searchTool');
+  const matchSearchLoanOfficer= useMatch('/SearchLoanOfficer');
+  const matchloanOfficerProdReport= useMatch('/loanOfficerProdReport/:param');
+  const matchsearchApiListing= useMatch('/searchApiListing');
+  const matchFactBook= useMatch('/FactBook');
+
+  
 
 
   let currentComponent;
@@ -33,6 +39,12 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
     currentComponent = 'Team Investigator';
   }else if (matchSearchTool) {
     currentComponent = 'Source Report';
+  }else if (matchSearchLoanOfficer) {
+    currentComponent = 'Loan Officer Production Reporting';
+  }else if (matchloanOfficerProdReport) {
+    currentComponent = 'Loan Officer Production Reporting';
+  }else if (matchFactBook) {
+    currentComponent = 'FACT BOOK Introduction';
   } else {
     currentComponent = ' ';
   }
@@ -51,7 +63,7 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
       
       {type === 'M' && (
  
-            <span  >
+            <span className="header-title custom-font-title-M" >
               {currentComponent}
             </span>
        

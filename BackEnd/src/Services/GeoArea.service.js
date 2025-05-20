@@ -185,6 +185,8 @@ GeoAreaService.getStates = () => {
   
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
+            const decodedparam = decodeURIComponent(zips).split(",").join("','");
+
             const query = `select zipcode, agentId, agentfirstname, agentlastname,[LIST] listings,[SELL] selling,[DNA] dna, 
             [LIST] + [DNA] total
         from 
@@ -193,7 +195,7 @@ GeoAreaService.getStates = () => {
         from [prod].[agp_ProdDataGeo] 
         where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
         and agentId<>0 
-        and zipcode in (`+ decodeURIComponent(zips) + `) 
+        and zipcode in ('`+ decodedparam+ `') 
         ) d 
         pivot 
         ( 
@@ -413,12 +415,13 @@ GeoAreaService.getStates = () => {
   
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
+            const decodedparam = decodeURIComponent(zips).split(",").join("','");
             const query = `select SUM(total) transactions
             from [prod].[agp_ProdDataGeo] 
             where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
             and agentId<>0 
             and AgentPos in ('SELL','DNA')
-            and zipcode in (`+ decodeURIComponent(zips) + `);`;
+            and zipcode in ('`+ decodedparam+ `');`;
             request.query(query, (err, res) => {
              
   
@@ -442,6 +445,8 @@ GeoAreaService.getStates = () => {
   
             const request = pool.request();
             request.input('nbrMonth',  nbrMonth);
+            const decodedparam = decodeURIComponent(zips).split(",").join("','");
+
             const query = `select count(*) agents
             from 
             ( 
@@ -449,7 +454,7 @@ GeoAreaService.getStates = () => {
             from [prod].[agp_ProdDataGeo] 
             where DATEDIFF(MONTH, datefromparts(listYear,listMonth,1) ,getDATE()) <= @nbrMonth
             and agentId<>0 
-            and zipcode in (`+ decodeURIComponent(zips) + `) 
+            and zipcode in ('`+ decodedparam+ `') 
             ) d 
             pivot 
             ( 
@@ -475,6 +480,33 @@ GeoAreaService.getStates = () => {
     });
   };
 
+  GeoAreaService.getCitiesByCountyFips = (countyFips) => {
+    return new Promise((resolve, reject) => {
+        poolConnect.then(() => {
+  
+            const request = pool.request();
+            request.input('countyFips',  countyFips);
+            const query = `
+            SELECT  city_ascii name ,city_id code
+            FROM us_city
+            where county_fips =@countyFips
+            order by city_ascii
+            `;
+            request.query(query, (err, res) => {
+  
+                if (err) {
+                  console.log(err);
+  
+                    reject(err);
+                    return;
+                }
+                resolve(res.recordset);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+  };
   
 
 module.exports = GeoAreaService;

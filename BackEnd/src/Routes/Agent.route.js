@@ -4,7 +4,11 @@ const agentsRouter = express.Router();
 
 const agentController = require("../Controllers/Agent.controller");
 
+const keycloak = require('../Config/keycloak'); 
 
+
+
+// agentsRouter.post('/getAgentInfos',keycloak.protect(),agentController.findAgentById);
 agentsRouter.post('/getAgentInfos',agentController.findAgentById);
 
 agentsRouter.get('/lastName?:term',agentController.getLastName);

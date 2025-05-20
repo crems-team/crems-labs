@@ -2,7 +2,7 @@ import React,{ useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { ReactKeycloakProvider,useKeycloak } from "@react-keycloak/web";
 import keycloak from "./Keycloak"
-import PrivateRoute from "./Helpers/PrivateRoute";
+import PrivateRoute from './Helpers/PrivateRoute';
 
 import SearchByName from './Pages/SearchByName';
 import AppMenu from './Components/AppMenu';
@@ -23,8 +23,16 @@ import OfficeProdReports from './Pages/OfficeProdReports';
 
 import SearchByOffice from './Pages/SearchByOffice';
 import SearchByArea from './Pages/SearchByArea';
+import SearchByAreaV2 from './Pages/SearchByAreaV2';
 import TeamInvestigator from './Pages/TeamInvestigator';
 import SearchAgent from './Pages/Tools/SearchAgent';
+import SearchApiListing from './Pages/Tools/SearchApiListing';
+import SearchLoanOfficer from './Pages/SearchLoanOfficer';
+import LoanOfficerProdReport from './Pages/LoanOfficerProdReport';
+import FactBook from './Pages/FactBook';
+import UsaMap from './Pages/USAMap/MapIndex';
+
+
 
 
 
@@ -51,6 +59,28 @@ console.log("url="+process.env.PUBLIC_URL)
 
 function App() {
 
+  // useEffect(() => {
+  //   const setupTokenRefresh = () => {
+  //     const updateToken = setInterval(() => {
+  //       if (keycloak.authenticated) {
+  //         keycloak.updateToken(70) 
+  //           .then((refreshed) => {
+  //             if (refreshed) {
+  //               console.log('Token rafraîchi avec succès');
+  //             }
+  //           })
+  //           .catch(() => {
+  //             console.error('Échec du rafraîchissement du token, déconnexion...');
+  //             keycloak.logout();
+  //           });
+  //       }
+  //     }, 60000); // Vérifier toutes les 60 secondes
+
+  //     return () => clearInterval(updateToken); // Nettoyer l'intervalle lors du démontage du composant
+  //   };
+
+  //   setupTokenRefresh();
+  // }, []);
 
   return (
     <div>
@@ -59,8 +89,18 @@ function App() {
       <ReactKeycloakProvider authClient={keycloak} initOptions={{
         onLoad: 'login-required', 
         redirectUri: `${redirectUrl}`,
-        checkLoginIframe: false,
-            }}>
+        checkLoginIframe: true,
+            }}
+        onEvent={(event, error) => {
+          if (event === 'onAuthError') {
+            console.error('Auth Error:', error);
+          }
+        }}
+        onTokens={(tokens) => {
+          if (tokens.token) {
+            localStorage.setItem('kc_token', tokens.token);
+          }
+        }}>
 
           <BrowserRouter basename={process.env.PUBLIC_URL}>
             
@@ -78,6 +118,20 @@ function App() {
                                         <Home />
                                     }
                         />                                       */}
+                           <Route      path="/UsaMap"
+                                    element={
+                                      <PrivateRoute>
+                                        <UsaMap />
+                                      </PrivateRoute>
+                                    }
+                        />
+                        <Route      path="/FactBook"
+                                    element={
+                                      <PrivateRoute>
+                                        <FactBook />
+                                      </PrivateRoute>
+                                    }
+                        />
  
                         <Route      path="/SearchByAgent"
                                     element={
@@ -102,6 +156,15 @@ function App() {
                                       </PrivateRoute>
                                     }
                         />
+                        
+                        <Route      path="/SearchByAreaV2"
+                                    element={
+                                      <PrivateRoute>
+                                        <SearchByAreaV2 />
+                                      </PrivateRoute>
+                                    }
+                        />
+
                         <Route      path="/agentProdReports/:param"
                                     element={
                                       <PrivateRoute>
@@ -129,8 +192,30 @@ function App() {
                                         <SearchAgent />
                                       </PrivateRoute>
                                     }
-                        />
+                        />                        
+                        <Route      path="/searchApiListing"
+                                    element={
+                                      <PrivateRoute>
+                                        <SearchApiListing />
+                                      </PrivateRoute>
+                                    } 
+                        /> 
+                        <Route      path="/SearchLoanOfficer"
+                                    element={
+                                      <PrivateRoute>
+                                        <SearchLoanOfficer />
+                                      </PrivateRoute>
+                                    } 
+                        /> 
+                        <Route      path="/loanOfficerProdReport/:param"
+                                    element={
+                                      <PrivateRoute>
+                                        <LoanOfficerProdReport />
+                                      </PrivateRoute>
+                                    } 
+                        />                                                
                       </Routes>
+
                     </div>
                     <PrivateRoute>
                       <Footer/>

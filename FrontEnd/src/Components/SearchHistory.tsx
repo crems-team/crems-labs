@@ -61,6 +61,9 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                     {parent === 'SearchSource' && (
                         `${search.agentId ? "AgentId: " + search.agentId : ""}${search.officeName ? " | Office: " + search.officeName : ""}${search.address ? " | Address: " + search.address : ""}${search.city ? " | City: " + search.city : ""}`
                     )}
+                    {parent === 'LoanOfficer' && (
+                        `${search.officerName}`
+                    )}
                   </span>
                   <Checkbox onChange={(event) => onToggleFavorite(search, event)} checked={!search.isFavorite} />
                 </li>

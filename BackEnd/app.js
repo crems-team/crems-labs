@@ -2,20 +2,35 @@ var  express = require('express');
 var  app = express();
 var  bodyParser = require('body-parser');
 var  morgan = require('morgan');
+const keycloak = require('./src/Config/keycloak'); 
+require('dotenv').config();
+
+
+
+
 const { apiRouter } = require('./src/Routes/index');
 
 const cors = require('cors');
 
+// const corsOptions = {
+//     origin: 'http://localhost:3001', // Replace with your client app's URL
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// };
 const corsOptions = {
-    origin: 'http://localhost:3001', // Replace with your client app's URL
+    origin: 'http://localhost:3001',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 7200
+  };
 
 // Use CORS middleware with options
 app.use(cors(corsOptions));
 //
 app.use(morgan('dev'));
+// Middleware Keycloak
+app.use(keycloak.middleware());
 //body parse
 // parse application/x-www-form-urlencoded
 //app.use(bodyParser.urlencoded({ limit: '50mb',extended: true }))
@@ -41,7 +56,9 @@ app.use(function(req, res, next) {
 });
 
 
-app.use('/app', apiRouter);
+// app.use('/app', apiRouter);
+app.use('/app', keycloak.protect(), apiRouter);
+
 
 
 module.exports = app;

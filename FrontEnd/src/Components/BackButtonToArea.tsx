@@ -1,7 +1,6 @@
 import {useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
-import { useSearch } from '../Components/Context/Context';
 
 const BackButtonToArea = () => {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ const BackButtonToArea = () => {
 
   const redirectToSearchArea = () => {
   
-    navigate('/SearchByArea',{ state: { fromReportPage: true } });
+    navigate('/SearchByAreaV2',{ state: { fromReportPage: true } });
   };
 
   return (

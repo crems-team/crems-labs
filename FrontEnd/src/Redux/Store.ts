@@ -1,9 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import mapReducer from './Slices/MapSlice';
+import AreaAgentSlice from './Slices/AreaAgentSlice';
+
 
 const store = configureStore({
   reducer: {
     map: mapReducer,
+    areaAgent: AreaAgentSlice,
   },
 });
 

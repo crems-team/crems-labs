@@ -416,7 +416,7 @@ import 'driver.js/dist/driver.css';
                             {/*<!-- Left col -->*/}
                             <section className="col-sm-6 ">                             
                                 <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s total monthly production for the most recently completed 12 months, compared to the same 12-month period a year ago. It does not include the current “partial” month’s production. The values include listing and co-listing transactions. Plus, sales outside of the MLS, if we have that data.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Past:  Year-over-Year Trend</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Past: How is the agent doing this year over last year?</h5>
                                         <div className="card  collapsed-card">
                                             <div className="card-header">
                             
@@ -480,7 +480,7 @@ import 'driver.js/dist/driver.css';
                                         {/* /.card */}
 
                                         <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s past 12 months of new listings and pending listings for each month. It includes this partial month’s totals as well. New listings can be an A, C, U, or P status. Pending listings are “P” status. Each of the previous months show a snapshot at that time.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Future: Future: New Listings Report</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Future: What sales do they expect in the near future?</h5>
                                
                                <div className="card  collapsed-card">
                                    <div className="card-header">
@@ -529,7 +529,7 @@ import 'driver.js/dist/driver.css';
                                </div>
                                {/* /.card */}
                                <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The purpose of the Team Investigator (COI) report is to reveal what other agents worked with this agent during the past year. The color and size of the agent nodes indicates the Tier of each one. In addition, the thickness of the connecting lines and the number on them indicate the number of transactions between each agent. Lines that loop back and forth between two agents, or just back on the same agent, mean that the agents performed both sides of some transactions. The role that each agent performed is not represented in the graph, but a table of agents and their roles is available on the “Table of Agents” link. An additional report is available by clicking the “Enlarge Display” link. On the new page there is a link labeled “Second-Level Graph”. This expands the view to reveal the agents who worked with the First-Level agents. Note the “filters” that are available in this view. You can filter for “Only This Office” and remove any combination of Tiers, too.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Team Investigator (COI): First-Level Direct Connections</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Teams: Do they work as a team with other agents?</h5>
                                
                                <div className="card  collapsed-card">
                                    <div className="card-header">
@@ -628,7 +628,7 @@ import 'driver.js/dist/driver.css';
                             {/*<!-- /.Right col -->*/}
                         <section className="col-sm-6 ">
                             <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the agent’s most recent 12-months sales for both Listing and Selling transactions.Plus, sales outside of the MLS, if we have that data. The values include listing and co-listing plus selling and co-selling transactions. It includes this partial month’s totals as well.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Present: Agent Production Report</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Present: What's their mix of business, listing or selling?</h5>
 
                             <div className="card  collapsed-card">
                                 <div className="card-header">
@@ -691,7 +691,7 @@ import 'driver.js/dist/driver.css';
                                         {/* /.card */}
 
                                         <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 zip codes that the agent has sales in the past 12 months, including this month. They can be a listing or selling agent. Plus, sales outside of the MLS, if we have that data.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Geography: Agent Listings Zip Code</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Geo: Where do most of their sales take place?</h5>
                                
                                         <div className="card  collapsed-card">
                                             <div className="card-header">
@@ -734,7 +734,7 @@ import 'driver.js/dist/driver.css';
                                         </div>
                                         {/* /.card */}
                                         <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 agents in this office alongside a graph of their sales volume in the past 12 months. If the agent of your search is part of the top 10, you can note their ranking in the office highlighted with a yellow bar graph. If the agent is below the top 10, then they will be shown in the 11th row so that you can see their relative sized graph. If you are interested in any of the other agents named on this graph, you can click on the bar chart next to their name and the report will move to that agent’s production reporting.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Office Ranking: Agent Performance</h5>
+                                    <i className="bi bi-info-circle fs-6" /></a> Office Ranking: How do they rank in their office?</h5>
                                
                                <div className="card  collapsed-card">
                                    <div className="card-header">

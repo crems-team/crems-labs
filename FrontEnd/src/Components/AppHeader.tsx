@@ -25,6 +25,8 @@ import Counties from "../Models/Counties";
 import States from "../Models/States";
 import SearchItemHistory from "../Models/SearchItemHistory";
 import SearchToolsService from "../Services/Tools/SearchToolsService";
+import LoanOfficerService from '../Services/LoanOfficerService';
+import { match } from 'assert';
 
 
 
@@ -40,22 +42,35 @@ const AppHeader : React.FC = () => {
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
   const matchSearchByArea = useMatch('/SearchByArea');
+  const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
+  const matchofficeProdReports= useMatch('/officeProdReports/:param');
+  const matchsearchTool= useMatch('/searchTool');
+  const matchSearchLoanOfficer= useMatch('/SearchLoanOfficer');
+  const matchloanOfficerProdReport= useMatch('/loanOfficerProdReport/:param');
+
+
   const { keycloak, initialized } = useKeycloak();
   const [searchHistoryAgent, setSearchHistoryAgent] = useState<Array<SearchItemAgent>>([]);
   const [searchHistoryOffice, setSearchHistoryOffice] = useState<Array<SearchItemOffice>>([]);
   const [searchHistoryArea, setSearchHistoryArea] = useState<Array<SearchItemArea>>([]);
   const [searchHistorySource, setSearchHistorySource] = useState<Array<SearchItemHistory>>([]);
+  const [searchHistoryLoanOfficer, setSearchHistoryLoanOfficer] = useState<Array<SearchItemHistory>>([]);
+
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
   const [isDropdownOpenOffice, setIsDropdownOpenOffice] = useState(true);
   const [isDropdownOpenArea, setIsDropdownOpenArea] = useState(true);
   const [isDropdownOpenSource, setIsDropdownOpenSource] = useState(true);
+  const [isDropdownOpenLoanOfficer, setIsDropdownOpenLoanOfficer] = useState(true);
+
 
 
   const dropDownRef = useRef<HTMLDivElement>(null);
   const dropDownRefOffice = useRef<HTMLDivElement>(null);
   const dropDownRefArea = useRef<HTMLDivElement>(null);
   const dropDownRefSource = useRef<HTMLDivElement>(null);
+  const dropDownRefLoanOfficer = useRef<HTMLDivElement>(null);
+
 
   const [isLoading, setIsLoading] = useState(Boolean);
   const [visible, setVisible] = useState(false);
@@ -94,6 +109,11 @@ const AppHeader : React.FC = () => {
     if (dropDownRefSource.current && !dropDownRefSource.current.contains(event.target as Node)) {
       setIsDropdownOpenSource(!isDropdownOpenSource);
     }
+
+    
+    if (dropDownRefLoanOfficer.current && !dropDownRefLoanOfficer.current.contains(event.target as Node)) {
+      setIsDropdownOpenLoanOfficer(!isDropdownOpenLoanOfficer);
+    }
   };
 
   useEffect(() => {
@@ -101,7 +121,7 @@ const AppHeader : React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen,isDropdownOpenOffice,isDropdownOpenArea,isDropdownOpenSource ]);
+  }, [isDropdownOpen,isDropdownOpenOffice,isDropdownOpenArea,isDropdownOpenSource,isDropdownOpenLoanOfficer ]);
 
   useEffect(() => {
     if (matchSearchByName) {
@@ -194,10 +214,10 @@ const AppHeader : React.FC = () => {
   const handleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
     //event.preventDefault(); // Prevent the default link behavior
     setIsLoading(true);
-    const currentLocation = location.pathname.substring(1,17);
+    const currentLocation = location.pathname.substring(1,18);
     console.log(currentLocation);
     // Check if the current path is the active path
-    if (currentLocation == 'SearchByAgent' || currentLocation == 'AgentProdReports' || currentLocation == 'TeamInvestigator') {
+    if (matchSearchByName || matchagentProdReports || matchTeamInvestigator) {
       setIsDropdownOpen(!isDropdownOpen);
         
       if (keycloak.tokenParsed?.sub) {
@@ -231,7 +251,7 @@ const AppHeader : React.FC = () => {
       }
       
 
-    }else if(currentLocation == 'searchByOffice' || currentLocation == 'officeProdReport') {
+    }else if(matchsearchByOffice || matchofficeProdReports) {
       setIsDropdownOpenOffice(!isDropdownOpenOffice);
 
       if (keycloak.tokenParsed?.sub) {
@@ -261,7 +281,7 @@ const AppHeader : React.FC = () => {
         });
       }
 
-    }else if(currentLocation == 'SearchByArea') {
+    }else if(matchSearchByArea) {
       setIsDropdownOpenArea(!isDropdownOpenArea);
 
       if (keycloak.tokenParsed?.sub) {
@@ -292,7 +312,7 @@ const AppHeader : React.FC = () => {
         });
       }
 
-    }else if(currentLocation == 'searchTool') {
+    }else if(matchsearchTool) {
       setIsDropdownOpenSource(!isDropdownOpenSource);
 
       if (keycloak.tokenParsed?.sub) {
@@ -324,6 +344,38 @@ const AppHeader : React.FC = () => {
         });
       }
 
+    }else if(matchSearchLoanOfficer || matchloanOfficerProdReport) {
+      setIsDropdownOpenLoanOfficer(!isDropdownOpenLoanOfficer);
+
+      if (keycloak.tokenParsed?.sub) {
+        const userId = keycloak.tokenParsed.sub;
+  
+        await LoanOfficerService.getSavedFavorite(userId,"loanOfficer")
+        .then((response: any) => {
+          
+         /*  const history = response.data;
+          console.log(history);
+          localStorage.setItem(userId, JSON.stringify(history));
+          setSearchHistory(history); */ 
+  
+          setSearchHistoryLoanOfficer(response.data);
+          setIsLoading(false);
+          // console.log(response.data);
+
+         // const filteredHistory = searchHistory.filter((item: SearchItem) => !item.isFavorite);
+          //setSearchHistory(filteredHistory);
+          
+  
+  
+  
+        })
+        .catch((e: Error) => {
+          console.log(e);
+          setIsLoading(false);
+
+        });
+      }
+
     }
    
     
@@ -336,6 +388,10 @@ const AppHeader : React.FC = () => {
 
   const redirectToOpr = (id : string) => {
     navigate(`/officeProdReports/${id}`);
+  };
+
+  const redirectToLO = (id : string) => {
+    navigate(`/loanOfficerProdReport/${id}`);
   };
 
   
@@ -648,6 +704,41 @@ const AppHeader : React.FC = () => {
 
                       </div>
                             )}
+                 {!isDropdownOpenLoanOfficer && (
+
+                    <div className=" custom-dropdown popover-style" ref={dropDownRefLoanOfficer}>
+                      <div className="dropdown-item text-center">
+                      <h6>Loan Officer</h6> 
+                      </div>
+                      {isLoading? ( <div  >
+                                      <ul className=""style={{listStyleType: 'none'}}>
+
+                                        <li>
+                                        <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
+                                        </li>
+                                  
+                                    </ul> 
+                                    </div>
+                                  ):                                         
+                      searchHistoryLoanOfficer[0]?  (
+                              <ul className="">
+                                {searchHistoryLoanOfficer.map((search, index) => (
+                                    <a className="nav-link"   href="#" onClick={() => redirectToLO(search.officerId)}>
+                                      <li key={index} className="">
+                                        {search.officerName} 
+                                        
+                                      </li>
+                                  </a>
+                                ))}
+                              </ul>
+                            ):(
+                              <div className="dropdown-item text-center">No favorite LO</div>
+                            )}
+
+
+
+                    </div>
+                          )}
 
                 </li>
 

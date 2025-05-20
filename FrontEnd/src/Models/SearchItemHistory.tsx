@@ -15,4 +15,6 @@ export default interface SearchItemHistory {
     nbrMonth : number,
     address : string,
     isFavorite: boolean,
+    officerId: string,
+    officerName: string
   }
