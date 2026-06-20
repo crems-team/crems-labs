@@ -5,6 +5,16 @@
 /.pnp
 .pnp.js
 
+*.zip
+.env
+.env.*
+dist/
+build/
+coverage/
+
+FrontEnd_11082025/
+mssql-fts.dockerfile
+
 # testing
 /coverage
 
