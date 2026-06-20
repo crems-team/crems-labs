@@ -26,6 +26,10 @@ import AgentTierPersona from "../Models/AgentTierPersona";
 import BackButtonToArea from '../Components/BackButtonToArea';
 import { useNavigate } from 'react-router-dom';
 import OfficeTopCities from "../Models/Office/OfficeTopCities";
+import { Skeleton } from 'primereact/skeleton';
+import { ProgressSpinner } from 'primereact/progressspinner';
+
+
 
 
 
@@ -88,6 +92,16 @@ function AgentProdReports() {
     const [activpendinglisting, setActivpendinglisting] = useState<[{ active: number; pending: number }]>();
     const navigate = useNavigate();
     const [officeTopCities, setOfficeTopCities] = useState<Array<OfficeTopCities>>([]);
+    //Loading state
+    const [officeInfosDataLoading, setOfficeInfosDataLoading] = useState<boolean>(false);
+    const [officeNbrAgentsLoading, setOfficeNbrAgentsLoading] = useState<boolean>(false);
+    const [monthDataLoading, setMonthDataLoading] = useState<boolean>(false);
+    const [officeTopCitiesLoading, setOfficeTopCitiesLoading] = useState<boolean>(false);
+    const [officeTotalPastDataLoading, setOfficeTotalPastDataLoading] = useState<boolean>(false);
+    const [geoDataTotLoading, setGeoDataTotLoading] = useState<boolean>(false);
+    const [officeProdLoading, setOfficeProdLoading] = useState<boolean>(false);
+
+
 
 
     const toggleDataTableModal = () => {
@@ -107,6 +121,9 @@ function AgentProdReports() {
             var data = {
                 id: params.param ? params.param : ''
             };
+
+            setOfficeInfosDataLoading(true);
+
             OfficeService.getOfficeInfos(data)
                 .then((response: any) => {
 
@@ -115,45 +132,59 @@ function AgentProdReports() {
                 })
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setOfficeInfosDataLoading(false);
                 });
             //
+            setOfficeTopCitiesLoading(true);
             OfficeService.getOfficeTopCities(data)
                 .then((response: any) => {
 
                     setOfficeTopCities(response.data);
-                    console.log(response.data);
 
                 })
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setOfficeTopCitiesLoading(false);
                 });
             //
+            setOfficeTotalPastDataLoading(true);
             OfficeService.getTotalPastOffice(data)
                 .then((response: any) => {
-                    setOfficeTotalPastData(JSON.parse(response.data));
+                    setOfficeTotalPastData(response.data);
 
-                    setPrct(((JSON.parse(response.data).current - JSON.parse(response.data).last) * 100 / JSON.parse(response.data).current).toFixed(2));
+                    setPrct(((response.data.current - response.data.last) * 100 / response.data.current).toFixed(2));
 
 
                 })
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setOfficeTotalPastDataLoading(false);
                 });
 
 
 
             //
-
+            setMonthDataLoading(true);
             OfficeService.getOfficePresentMetrics(data)
                 .then((response: any) => {
                     setMonthData(response.data);
-                    console.log(response.data);
 
                 })
                 .catch((e: Error) => {
                     console.log(e);
 
+                })
+                .finally(() => {
+                    setMonthDataLoading(false);
                 });
+
+            setOfficeNbrAgentsLoading(true);
 
             OfficeService.getOfficeNbrAgents(data)
                 .then((response: any) => {
@@ -162,8 +193,12 @@ function AgentProdReports() {
                 })
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setOfficeNbrAgentsLoading(false);
                 });
             //
+            setGeoDataTotLoading(true);
             OfficeService.getGeoDataTot10(data)
                 .then((response: any) => {
                     setGeoDataTot(response.data);
@@ -171,16 +206,22 @@ function AgentProdReports() {
                 })
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setGeoDataTotLoading(false);
                 });
 
+            setOfficeProdLoading(true);
             OfficeService.getOfficeProduction(data)
                 .then((response: any) => {
                     setOfficeProd(response.data[0]);
-                    console.log(officeProd);
 
                 }) 
                 .catch((e: Error) => {
                     console.log(e);
+                })
+                .finally(() => {
+                    setOfficeProdLoading(false);
                 });
             //
             //
@@ -326,7 +367,7 @@ function AgentProdReports() {
                             <div className="card">
                                 <div className="card-header">
                                     <h3 className="card-title mb-0 "><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
-                                        <i id="idInfoIcon" className="bi bi-info-circle" /></a> Office Information: <strong>{officeInfosData[0] ? officeInfosData[0].officeName : ''}</strong></h3>
+                                        <i id="idInfoIcon" className="bi bi-info-circle" /></a> Office Information: {officeInfosDataLoading ? <Skeleton width="10rem" className="d-inline-block" /> :<strong>{officeInfosData[0] ? officeInfosData[0].officeName : ''}</strong>}</h3>
 
                                 </div>
                                 {/* /.card-header */}
@@ -334,15 +375,28 @@ function AgentProdReports() {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col-md-auto">
-                                            <span className="small text-left">Address: </span><strong>{officeInfosData[0] ? officeInfosData[0].officeAddress1 : ''}</strong>
+                                            <span className="small text-left">Address: </span>
+                                            {officeInfosDataLoading ? <Skeleton width="15rem" className="d-inline-block" /> : <strong>{officeInfosData[0] ? officeInfosData[0].officeAddress1 : ''}</strong>}
                                         </div>
                                     </div>
                                     <div className="row ">
                                         <div className="col-md-6 text-nowrap">
-                                            <span className="small d-inline-block text-left">Office Phone: </span> <strong>{officeInfosData[0] ? officeInfosData[0].officePhone : ''}</strong>
+                                            <span className="small d-inline-block text-left mr-1">Office Phone: </span> 
+                                            {officeInfosDataLoading ? <Skeleton width="10rem" className="d-inline-block" /> : <strong>{officeInfosData[0] ? officeInfosData[0].officePhone : ''}</strong>}
+                                            
                                         </div>
                                         <div className="col-md-6 text-nowrap ">
-                                            <span className="small d-inline-block text-left">City/State: </span> <strong>{officeInfosData[0] ? officeInfosData[0].officeCity : ''}</strong>, <strong>{officeInfosData[0] ? officeInfosData[0].officeState : ''}</strong>
+                                            <span className="small d-inline-block text-left mr-1">City/State: </span> 
+                                            {officeInfosDataLoading ? (
+                                                <Skeleton width="8rem" className="d-inline-block ml-1" />
+                                            ) : (
+                                                <>
+                                                    <strong>{officeInfosData[0] ? officeInfosData[0].officeCity : ''}</strong>, <strong>{officeInfosData[0] ? officeInfosData[0].officeState : ''}</strong>
+                                                </>
+                                            )}
+                                            
+                                            
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -366,22 +420,28 @@ function AgentProdReports() {
                                         <div className="col-md-4 text-nowrap">
                                             <div className="row text-nowrap">
                                                 <div className="col-md-4 text-nowrap">
-                                                    <span className="small  text-left">Active Agents: </span><strong>{officeNbrAgents ? officeNbrAgents : '0'}</strong>
+                                                    <span className="small  text-left">Active Agents: </span>
+                                                    {officeNbrAgentsLoading ? <Skeleton width="3rem" className="d-inline-block" /> : <strong>{officeNbrAgents ? officeNbrAgents : '0'}</strong>}
+                                                    
                                                 </div>
                                             </div>
                                             <div className="row">
                                                 <div className="col-md-4 text-nowrap">
-                                                    <span className="small d-inline-block text-left">Annual Sides: </span><strong> {monthData ? monthData[0].list + monthData[0].sell + monthData[0].dna : '0'}</strong>
+                                                    <span className="small d-inline-block text-left">Annual Sides: </span>
+                                                    {monthDataLoading ? <Skeleton width="3rem" className="d-inline-block ml-1" /> : <strong> {monthData ? monthData[0].list + monthData[0].sell + monthData[0].dna : '0'}</strong>}
+                                                    
+                                                    
                                                  </div>
                                             </div>
                                         </div>
                                         <div className="col-md-4 text-nowrap ">
                                             <div className="row">
-                                                <div className="col-md-4 text-nowrap pl-0">
+                                                <div className="col-md-4 text-nowrap pl-0 mr-3">
                                                     Top Two Cities:
                                                 </div>
                                                 <div className="col-md-6 text-nowrap  ">
-                                                    {officeTopCities[0] ? (
+                                                    {officeTopCitiesLoading ? <Skeleton width="4rem" className="d-inline-block ml-1" /> : 
+                                                    officeTopCities[0] ? (
                                                         <ul className="pr-1" style={{ listStyleType: 'none' }}>
 
                                                             {officeTopCities.map((element, index) => (
@@ -431,30 +491,68 @@ function AgentProdReports() {
                                     <div className="row">
                                         <div className="col-sm-3 border-right">
                                             <div className="description-block">
-                                                <h5 className="">{officeTotalPastData ? officeTotalPastData.current : '0'}</h5>
-                                                <span className="">Recent 12m</span>
-                                            </div>
-                                            {/* /.description-block */}
-                                        </div>
-                                        <div className="col-sm-3 border-right">
-                                            <div className="description-block">
-                                                <h5 className="">{officeTotalPastData ? officeTotalPastData.last : '0'}</h5>
-                                                <span className="">Previous 12m</span>
-                                            </div>
-                                            {/* /.description-block */}
-                                        </div>
-                                        <div className="col-sm-3 border-right">
-                                            <div className="description-block">
-                                                <h5 className="">
-                                                    {officeTotalPastData ?
-                                                        <span id="spanOverYearIcon" className={`strong ${officeTotalPastData?.current >= officeTotalPastData.last ? "text-success" : "text-danger"}`}>
-                                                            <i className={`bi-arrow-${officeTotalPastData.current >= officeTotalPastData.last ? "up" : "down"}-circle-fill`}></i>
+                                            {officeTotalPastDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                    :
 
-                                                        </span>
-                                                        : '0'
-                                                    }
-                                                </h5>
-                                                <span className="">{prct ? prct : ''}%</span>
+                                                    <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Recent 12m</span>
+                                                                <span className="font-bold text-lg">{officeTotalPastData ? officeTotalPastData.current : '0'}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-calendar-check" />
+                                                            </span>
+                                                        </div>
+                                                    </div>  
+                                            }
+                                             
+                                            </div>
+                                            {/* /.description-block */}
+                                        </div>
+                                        <div className="col-sm-3 border-right">
+                                            <div className="description-block">
+                                                {officeTotalPastDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Previous 12m</span>
+                                                                <span className="font-bold text-lg">{officeTotalPastData ? officeTotalPastData.last : '0'}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-history" />
+                                                            </span>
+                                                        </div>
+                                                    </div> 
+                                                }
+                                            </div>
+                                            {/* /.description-block */}
+                                        </div>
+                                        <div className="col-sm-3 border-right">
+                                            <div className="description-block">
+                                                
+
+                                                {officeTotalPastDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                    :
+                                                    <h5 className="mb-0">
+                                                        {officeTotalPastData ?
+                                                            <span id="spanOverYearIcon" className={`strong ${officeTotalPastData?.current >= officeTotalPastData.last ? "text-success" : "text-danger"}`}>
+                                                                <i className={`bi-arrow-${officeTotalPastData.current >= officeTotalPastData.last ? "up" : "down"}-circle-fill`}></i>
+
+                                                            </span>
+                                                            : '0'
+                                                        }
+                                                    </h5>
+                                                }
+                                                {officeTotalPastDataLoading ? '' : <div className="">{prct ? prct : ''}%</div  >}
+
                                             </div>
                                             {/* /.description-block */}
                                         </div>
@@ -498,8 +596,24 @@ function AgentProdReports() {
                                     <div className="row">
                                         <div className="col-sm-4 border-right">
                                             <div className="description-block">
-                                                <h5 className="">{geoDataTot ? geoDataTot || 0 : 0}</h5>
-                                                <span className="">Percent in 10 Zips</span>
+
+                                                {geoDataTotLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                    :
+                                                    <div className="mx-1">
+                                                    <div className="flex justify-content-between gap-1">
+                                                        <div className="flex flex-column gap-1">
+                                                            <span className="text-secondary text-sm">Percent in 10 Zips</span>
+                                                            <span className="font-bold text-lg">{geoDataTot ? geoDataTot || 0 : 0}</span>
+                                                        </div>
+                                                        <span
+                                                            className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                            style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                        >
+                                                            <i className="fa fa-map-marker-alt" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                }                    
                                             </div>
                                             {/* /.description-block */}
                                         </div>
@@ -553,36 +667,96 @@ function AgentProdReports() {
 
                                     <div className="row">
                                         <div className="col-sm-2 border-right pl-0 pr-0 mr-0">
-                                            <div className="description-block pl-0 pr-0 mr-0">
-                                                <h5 className="">{monthData ? monthData[0].list || '0' : '0'}</h5>
-                                                <span className="pl-0 pr-0 mr-0">List Agent</span>
+                                            <div className="description-block pl-0 pr-0 mr-0">                                            
+
+                                            {monthDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                :
+                                                <div className="mx-1">
+                                                <div className="flex justify-content-between gap-1">
+                                                    <div className="flex flex-column gap-1">
+                                                        <span className="text-secondary text-sm">List Agent</span>
+                                                        <span className="font-bold text-lg">{monthData ? monthData[0].list || '0' : '0'}</span>
+                                                    </div>
+                                                    <span
+                                                        className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                        style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                    >
+                                                        <i className="fa fa-clipboard-list" />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            }
+                                            </div>
+                                            {/* /.description-block */}
+                                        </div>
+                                        <div className="col-sm-3 border-right">
+                                            <div className="description-block">                                            
+
+                                            {monthDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                :
+                                                <div className="mx-1">
+                                                <div className="flex justify-content-between gap-1">
+                                                    <div className="flex flex-column gap-1">
+                                                        <span className="text-secondary text-sm">Sell Agent</span>
+                                                        <span className="font-bold text-lg">{monthData ? monthData[0].sell || '0' : '0'}</span>
+                                                    </div>
+                                                    <span
+                                                        className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                        style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                    >
+                                                        <i className="fa fa-key" />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            }
                                             </div>
                                             {/* /.description-block */}
                                         </div>
                                         <div className="col-sm-2 border-right">
                                             <div className="description-block">
-                                                <h5 className="">{monthData ? monthData[0].sell || '0' : '0'}</h5>
-                                                <span className="">Sell Agent</span>
+                                            
+                                            {monthDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                :
+                                                <div className="mx-0">
+                                                <div className="flex justify-content-between gap-1">
+                                                    <div className="flex flex-column gap-1">
+                                                        <span className="text-secondary text-sm">Non MLS</span>
+                                                        <span className="font-bold text-lg">{monthData ? monthData[0].dna || '0' : '0'}</span>
+                                                    </div>
+                                                    <span
+                                                        className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                        style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                    >
+                                                        <i className="fa fa-eye-slash" />
+                                                    </span>
+                                                </div>
                                             </div>
-                                            {/* /.description-block */}
-                                        </div>
-                                        <div className="col-sm-2 border-right">
-                                            <div className="description-block">
-                                                <h5 className="">{monthData ? monthData[0].dna || '0' : '0'}</h5>
-                                                <span className="">Non MLS</span>
+                                            }
                                             </div>
                                             {/* /.description-block */}
                                         </div>
                                         <div className="col-sm-3 border-right">
                                             <div className="description-block">
-                                                <h5 className="">{monthData ? monthData[0].list + monthData[0].sell + monthData[0].dna : '0'}</h5>
-                                                <span className="">12 Months</span>
+                                            
+                                            {monthDataLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                :
+                                                <div className="mx-1">
+                                                <div className="flex justify-content-between gap-1">
+                                                    <div className="flex flex-column gap-1">
+                                                        <span className="text-secondary text-sm">12 Months</span>
+                                                        <span className="font-bold text-lg">{monthData ? monthData[0].list + monthData[0].sell + monthData[0].dna : '0'}</span>
+                                                    </div>
+                                                    <span
+                                                        className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                        style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                    >
+                                                        <i className="fa fa-chart-line" />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            }
                                             </div>
                                             {/* /.description-block */}
-                                        </div>
-                                        <div className="col-sm-1">
-
-
                                         </div>
 
                                         <div className="col-sm-2 text-right ">
@@ -616,15 +790,47 @@ function AgentProdReports() {
                                        <div className="row">
                                            <div className="col-sm-3 border-right">
                                                <div className="description-block">
-                                                   <h5 className="">{officeProd ? officeProd.num_agents || 0: '0' }</h5>
-                                                   <span className="">Agents</span>
+                                               
+                                            {officeProdLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                :
+                                                <div className="mx-1">
+                                                <div className="flex justify-content-between gap-1">
+                                                    <div className="flex flex-column gap-1">
+                                                    <span className="text-secondary text-sm">Agents</span>
+                                                    <span className="font-bold text-lg">{officeProd ? officeProd.num_agents || 0: '0' }</span>
+                                                    </div>
+                                                    <span
+                                                        className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                        style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                    >
+                                                        <i className="fa fa-trophy" />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            }
                                                </div>
                                                {/* /.description-block */}
                                            </div>
                                            <div className="col-sm-3 border-right">
                                                <div className="description-block">
-                                                   <h5 className="">{officeProd ? officeProd.nombre || 0: '0'}</h5>
-                                                   <span className="">Office Prod.</span>
+                                              
+                                                {officeProdLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                    :
+                                                    <div className="mx-1">
+                                                    <div className="flex justify-content-between gap-1">
+                                                        <div className="flex flex-column gap-1">
+                                                            <span className="text-secondary text-sm">Office Prod</span>
+                                                            <span className="font-bold text-lg">{officeProd ? officeProd.nombre || 0: '0'}</span>
+                                                        </div>
+                                                        <span
+                                                            className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                            style={{ backgroundColor:'#3adcf2', color: '#ffffff' }}
+                                                        >
+                                                            <i className="fa fa-percent" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                }
                                                </div>
                                                {/* /.description-block */}
                                            </div>

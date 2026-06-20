@@ -1,366 +1,270 @@
-import React, { useEffect, useState,useRef } from 'react';
-import Chart from 'react-google-charts';
-import { SankeyData, SankeyChartData } from '../Models/SankeyData';
-import LoanOfficerService from '../Services/LoanOfficerService';
-import { toInteger } from 'lodash';
-import AgentService from '../Services/AgentService';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
-import { useNavigate } from 'react-router-dom';
-import AgentInfos from "../Models/AgentInfos";
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
-import { setSankeyReportClicked,setOfficeRankingLOClicked,setLoanOfficerByAgentClicked,setIdAgentLO,setIdOfficeLO} from '../Redux/Slices/MapSlice'
+import {
+  setSankeyReportClicked,
+  setOfficeRankingLOClicked,
+  setLoanOfficerByAgentClicked,
+  setIdAgentLO,
+  setIdOfficeLO,
+} from '../Redux/Slices/MapSlice';
 import { useAppDispatch } from '../Hooks/DispatchHook';
+import LoanOfficerService from '../Services/LoanOfficerService';
+import AgentService from '../Services/AgentService';
+import AgentInfos from '../Models/AgentInfos';
 
-
-interface Agent {
-  agentId : number;
+type Agent = {
+  agentId: number;
   Name: string;
   Nlistings: number;
   total: number;
   captureRate: number;
-} 
+};
 
-interface SankeyNode {
-  agentId : string;
+type SankeyNode = {
+  agentId: string;
   name: string;
   depth: number;
   x0?: number;
   x1?: number;
   y0?: number;
   y1?: number;
-}
+};
 
-interface SankeyLink {
+type SankeyLink = {
   source: SankeyNode;
   target: SankeyNode;
   value: number;
-}
-interface SankeyChartProps {
-  officerId: string;
-}
+};
 
-//
-interface CustomSankeyNode extends SankeyNode {
-  name: string;
-  depth: number;
-  x0?: number;
-  x1?: number;
-  y0?: number;
-  y1?: number;
-}
+type Props = { officerId: string };
 
-interface CustomSankeyLink extends SankeyLink {
-  source: SankeyNode;
-  target: SankeyNode;
-  value: number;
-}
-
-const LoanOfficerSankeyReport: React.FC<SankeyChartProps> = ({ officerId }) => {
-  const [chartData, setChartData] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState<boolean>();
+export default function LoanOfficerSankeyReport({ officerId }: Props) {
+  const [data, setData] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedLink, setSelectedLink] = useState<CustomSankeyLink | null>(null);
-  const navigate = useNavigate();
-  const margin = { top: 40, right: 1, bottom: 40, left: 40 };
-  const [agentInfosData, setAgentInfosData] = useState<Array<AgentInfos>>([]);
-  const sankeyReportClicked = useSelector((state: RootState) => state.map.sankeyReportClicked);
-  const officeRankingLOClicked = useSelector((state: RootState) => state.map.officeRankingLOClicked);
-  const loanOfficerByAgentClicked = useSelector((state: RootState) => state.map.loanOfficerByAgentClicked);
- 
+  const [selectedLink, setSelectedLink] = useState<SankeyLink | null>(null);
+
+  const sankeyReportClicked = useSelector((s: RootState) => s.map.sankeyReportClicked);
+  const officeRankingLOClicked = useSelector((s: RootState) => s.map.officeRankingLOClicked);
+  const loanOfficerByAgentClicked = useSelector((s: RootState) => s.map.loanOfficerByAgentClicked);
   const dispatch = useAppDispatch();
 
-
-
-
+  const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const width = 1000;
-  const height = 600;
+
+  // Fetch data
   useEffect(() => {
-
-    if (!svgRef.current) return;
-        setLoading(true);
-        LoanOfficerService.getSankeyData({officerId})
-        .then((response: any) => {
-            if(response.data){
-                setChartData(response.data.listings);
-                setLoading(false);
-
-        }
-        })
-        .catch((e: Error) => {
-            console.log(e);
-            setError(e.message);
-            setLoading(false);
-        });
-    // fetchData();
+    let alive = true;
+    setLoading(true);
+    LoanOfficerService.getSankeyData({ officerId })
+      .then((res: any) => {
+        if (!alive) return;
+        setData(res?.data?.listings ?? []);
+        setLoading(false);
+      })
+      .catch((e: Error) => {
+        if (!alive) return;
+        setError(e.message);
+        setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [officerId]);
-  
 
-
+  // Trigger resize on orientation change (iOS/Safari)
   useEffect(() => {
+    const mq: MediaQueryList = window.matchMedia('(orientation: landscape)');
+    const onChange = () => requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+    if ('addEventListener' in mq) mq.addEventListener('change', onChange);
+    // legacy fallback
+    (mq as any).addListener?.(onChange);
+    return () => {
+      if ('removeEventListener' in mq) mq.removeEventListener('change', onChange);
+      (mq as any).removeListener?.(onChange);
+    };
+  }, []);
 
-    if (!chartData || chartData.length === 0) return; 
-    // if (!svgRef.current) return;
-    // 
-                
-    const leftNodes: SankeyNode[] = [...chartData]
+  // Draw / Redraw
+  useEffect(() => {
+    if (!svgRef.current || !wrapRef.current || data.length === 0) return;
+
+    const container = wrapRef.current;
+    const { width: w, height: h } = container.getBoundingClientRect();
+    if (!w || !h) return;
+
+    // Clean
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+
+    // Marges (for labels)
+    const margin = { top: 40, right: 220, bottom: 48, left: 180 };
+    const innerW = Math.max(320, w - margin.left - margin.right);
+    const innerH = Math.max(260, h - margin.top - margin.bottom);
+
+    //  nodes/links
+    const left: SankeyNode[] = [...data]
       .sort((a, b) => b.total - a.total)
-      .map(agent => ({ name: agent.Name, depth: 0,agentId: agent.agentId.toString()  }));
-
-    const rightNodes: SankeyNode[] = [...chartData]
+      .map(a => ({ name: a.Name, depth: 0, agentId: String(a.agentId) }));
+    const right: SankeyNode[] = [...data]
       .sort((a, b) => a.captureRate - b.captureRate)
-      .map(agent => ({ name: agent.Name, depth: 1, agentId: agent.agentId.toString()}));
+      .map(a => ({ name: a.Name, depth: 1, agentId: String(a.agentId) }));
 
-    const nodes: SankeyNode[] = [...leftNodes, ...rightNodes];
-
-    // 
-    const links: SankeyLink[] = chartData.map(agent => ({
-      source: leftNodes.find(n => n.name === agent.Name)!,
-      target: rightNodes.find(n => n.name === agent.Name)!,
+    const nodes: SankeyNode[] = [...left, ...right];
+    const links: SankeyLink[] = data.map(a => ({
+      source: left.find(n => n.name === a.Name)!,
+      target: right.find(n => n.name === a.Name)!,
       value: 1,
     }));
 
-    // 
-    const sankeyGenerator = sankey<SankeyNode, SankeyLink>()
+    const sankeyGen = sankey<SankeyNode, SankeyLink>()
       .nodeWidth(20)
-      .nodePadding(4) // remove space vertical between nodes
-  .extent([[200, 80], [width - 5, height - 150]]) // remove margin left/right
-        .nodeSort(() => 0);
-    // 
-    const { nodes: layoutNodes, links: layoutLinks } = sankeyGenerator({
-      nodes,
-      links,
-    });
-    //
-    const customColors = [
-      "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
-      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
-      "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
-      "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"
+      .nodePadding(8)
+      .extent([[margin.left, margin.top], [margin.left + innerW, margin.top + innerH]])
+      .nodeSort(() => 0);
+
+    const { nodes: Lnodes, links: Llinks } = sankeyGen({ nodes, links });
+
+    // colors
+    const colors = [
+      '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+      '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+      '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+      '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5'
     ];
-    
-    const colorScale = d3.scaleOrdinal(customColors)
-      .domain(chartData.map(agent => agent.Name));
-    // const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-    // .domain(chartData.map(agent => agent.Name));
+    const color = d3.scaleOrdinal<string, string>()
+      .domain(data.map(d => d.Name))
+      .range(colors);
 
-    const colorScaleLinks = d3.scaleOrdinal(d3.schemeCategory10)
-    .domain(chartData.map(agent => agent.agentId.toString()));
+    // SVG responsive
+    svg
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('viewBox', `0 0 ${w} ${h}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('overflow', 'visible');
 
-   // Ajuster le conteneur SVG
-const svg = d3.select(svgRef.current)
-.attr('width', '100%')
-.attr('height', '90%')
-// .attr('viewBox', `0 0 10 1000`)
-// .style('overflow', 'visible'); // Permet un débordement contrôlé
+    // Title colomns
+    svg.append('text')
+      .attr('x', margin.left - 10)
+      .attr('y', margin.top - 12)
+      .attr('text-anchor', 'start')
+      .attr('font-weight', '700')
+      .attr('fill', '#333')
+      .text('Agents by Sales');
 
-    // add the links
-    // svg.append('g')
-    //   .selectAll('path')
-    //   .data(layoutLinks)
-    //   .join('path')
-    //   .attr('d', sankeyLinkHorizontal())
-    //   // .attr('stroke', '#000')
-    //   .attr('stroke-opacity', 0.2)
-    //   .attr('stroke', d => colorScale(d.source.name))
-    //   .attr('stroke-width', d => Math.max(1, d.width!));
-      svg.append('g')
+    svg.append('text')
+      .attr('x', margin.left + innerW + 10)
+      .attr('y', margin.top - 12)
+      .attr('text-anchor', 'end')
+      .attr('font-weight', '700')
+      .attr('fill', '#333')
+      .text('Agents by Opportunity');
+
+    // Links
+    svg.append('g')
+      .attr('stroke-opacity', 0.45)
       .selectAll('path')
-      .data(layoutLinks)
+      .data(Llinks)
       .join('path')
       .attr('d', sankeyLinkHorizontal())
-      .attr('stroke', d => colorScale(d.source.name)) // Couleur synchronisée
-      .attr('stroke-opacity', 0.4)
       .attr('fill', 'none')
-      // .attr('stroke-width', d => Math.max(1, d.width!))
+      .attr('stroke', d => color((d as any).source.name))
+      // .attr('stroke-width', d => Math.max(12, (d as any).width ?? 12))
       .attr('stroke-width', 15)
       .style('mix-blend-mode', 'multiply')
       .style('cursor', 'pointer')
-      .data<CustomSankeyLink>(layoutLinks)
-      .join('path')
-      .attr('d', sankeyLinkHorizontal())
-      .on('click', (event: any, d: CustomSankeyLink) => {
-        event.stopPropagation();
-        setSelectedLink(d);
-      })
-      .on('mouseover', function(event: MouseEvent, d: CustomSankeyLink) {
-        d3.select(this)
-          .attr('stroke-opacity', 1)
-          .attr('stroke-width', 15);
-      })
-      .on('mouseout', function(event: MouseEvent, d: CustomSankeyLink) {
-        d3.select(this)
-          .attr('stroke-opacity', 0.6)
-          .attr('stroke-width', 15);
-      });
+      .on('click', (_, d: any) => setSelectedLink(d))
+      .on('mouseover', function () { d3.select(this).attr('stroke-opacity', 0.9); })
+      .on('mouseout', function () { d3.select(this).attr('stroke-opacity', 0.45); });
 
-
-    // add the nodes
-     svg.append('g')
+    // nodes
+    svg.append('g')
       .selectAll('rect')
-      .data(layoutNodes)
+      .data(Lnodes)
       .join('rect')
       .attr('x', d => d.x0!)
       .attr('y', d => d.y0!)
-      .attr('height', d => d.y1! - d.y0!)
-      .attr('width', sankeyGenerator.nodeWidth())
-      .attr('fill', d => colorScale(d.name))
-        .attr('stroke', '#000');
-    //   .attr('fill', '#69b3a2');
-      
+      .attr('height', d => (d.y1! - d.y0!))
+      .attr('width', sankeyGen.nodeWidth())
+      .attr('fill', d => color(d.name))
+      .attr('stroke', '#000');
 
-    // Ajout des labels
-    // svg.append('g')
-    //   .selectAll('text')
-    //   .data(layoutNodes)
-    //   .join('text')
-    //   .attr('x', d => d.depth === 0 ? d.x0! - 6 : d.x1! + 6)
-    //   .attr('y', d => (d.y1! + d.y0!) / 2)
-    //   .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
-    //   .text(d => d.name);
-    // const salesMap = new Map(agents.map(agent => [agent.name, agent.captureRate]));
-    const agentsMap = new Map(chartData.map(agent => [agent.Name, agent]));
-
+    // Labels 
+    const agentByName = new Map(data.map(a => [a.Name, a]));
     svg.append('g')
-    .selectAll('text')
-    .data(layoutNodes)
-    .join('text')
-    .attr('x', d => d.depth === 0 ? d.x0! - 6 : d.x1! + 6)
-    .attr('y', d => (d.y1! + d.y0!) / 2)
-    .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
-    .attr('font-size', d => d.depth === 0 ? 12 : 12)
-    // .attr('fill', d => d.depth === 0 ? '#1f77b4' : '#ff7f0e')
-    .attr('fill',  '#1f77b4' )
-    .attr('dy', '0.35em')
-    .attr('font-weight', '500')
-    // .text(d => {
-      // Ajout des ventes seulement à droite
-      // return d.depth === 1 
-      //   ? `${d.name} (${salesMap.get(d.name)})` 
-      //   : d.name;
+      .selectAll('text')
+      .data(Lnodes)
+      .join('text')
+      .attr('x', d => (d.depth === 0 ? d.x0! - 8 : margin.left + innerW + 8))
+      .attr('y', d => (d.y0! + d.y1!) / 2)
+      .attr('text-anchor', d => (d.depth === 0 ? 'end' : 'start'))
+      .attr('dy', '0.35em')
+      .attr('font-size', 12)
+      .attr('fill', '#1f77b4')
       .text(d => {
-        const agentData = agentsMap.get(d.name)!;
-        return d.depth === 0 
-          ? `${d.name} (Total ${agentData.total})`  // Left
-          : `${d.name} (Capture Rate ${agentData.captureRate})`;  // right
-    });
+        const a = agentByName.get(d.name)!;
+        return d.depth === 0
+          ? `${d.name} (Total ${a.total})`
+          : `${d.name} (Capture Rate ${a.captureRate})`;
+      });
 
-     // label left
-     svg.append('text')
-     .attr('x', 150)
-     .attr('y', 15)
-     .attr('dy', '2em') // add space
-     .text('Agents by Sales')
-     .attr('text-anchor', 'start')
-     .attr('font-weight', 'bold')
-     .attr('fill', '#333');
-
-   // label right
-   svg.append('text')
-     .attr('x', 1070)
-     .attr('y', 15)
-     .attr('dy', '2em') // add space
-     .text('Agents by Opportunity')
-     .attr('text-anchor', 'end')
-     .attr('font-weight', 'bold')
-     .attr('fill', '#333');
-    setLoading(false);
-
+    // Note
     svg.append('text')
-  .attr('x', 570) // Centrer horizontalement
-  .attr('y', 500) // Positionner 30px du bas
-  .text('Click on any of the linking lines of the diagram to activate the reports below')
-  .attr('text-anchor', 'middle')
-  .style('font-size', '14px')
-  .attr('fill', '#333')
-  .attr('font-weight', 'bold')
-  .style('text-decoration', 'underline');
+      .attr('x', margin.left + innerW / 2)
+      .attr('y', margin.top + innerH + 32)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 14)
+      .attr('fill', '#333')
+      .attr('font-weight', '700')
+      .style('text-decoration', 'underline')
+      .text('Click on any of the linking lines of the diagram to activate the reports below');
 
+  }, [data]);
 
-}, [chartData]);
+  //  resize container
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const ro = new ResizeObserver(() => setData(prev => [...prev]));
+    ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, []);
 
+  // Link click
+  useEffect(() => {
+    if (!selectedLink) return;
+    dispatch(setSankeyReportClicked(!sankeyReportClicked));
+    if (officeRankingLOClicked) dispatch(setOfficeRankingLOClicked(false));
+    if (loanOfficerByAgentClicked) dispatch(setLoanOfficerByAgentClicked(false));
 
-useEffect(() => {
-  if(!selectedLink) return ;
+    AgentService.getAgentInfos({ id: (selectedLink.source as any).agentId })
+      .then((infos: AgentInfos[]) => {
+        if (infos?.[0]) {
+          dispatch(setIdOfficeLO(infos[0].officeId));
+          dispatch(setIdAgentLO((selectedLink.source as any).agentId));
+        }
+      })
+      .catch(console.error);
+  }, [selectedLink]); 
 
-  dispatch(setSankeyReportClicked(!sankeyReportClicked));
-  if(officeRankingLOClicked){
-  dispatch(setOfficeRankingLOClicked(!officeRankingLOClicked));   
-  }  
-  if(loanOfficerByAgentClicked){
-    dispatch(setLoanOfficerByAgentClicked(!loanOfficerByAgentClicked));   
-    }
+  if (loading) return <div>Loading Chart...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-
-//   dispatch(setOfficeRankingLOClicked(officeRankingLOClicked?officeRankingLOClicked:!officeRankingLOClicked));
-
-  console.log(sankeyReportClicked);
-
-    var data = {
-      id: selectedLink?.source.agentId
-    };
-    AgentService.getAgentInfos(data)
-    .then((response: any) => {
-      
-      dispatch(setIdOfficeLO(response.data[0].officeId));
-      dispatch(setIdAgentLO(selectedLink?.source.agentId));
-      
-    })
-    .catch((e: Error) => {
-      console.log(e);
-    }); 
-//   navigate(`/AgentProdReports/${selectedLink?.source.agentId}`);
-
-}, [selectedLink]);
-
-
-   
-// if (loading) return <div>Loading...</div>;
-
-const handleClickRankingReport = () => {
-        // setIdAgentForGeoReport(idAgent);
-        // setDisplayGeoReport(true);
-        // setRankingReportClicked(!rankingReportClicked);
-        dispatch(setSankeyReportClicked(sankeyReportClicked));
-    };
-     
-
-return (
-  <>
-    {loading && <div>Loading Chart...</div>}
-    {error && <div>Error: {error}</div>}
-    {!loading && !error && <svg className="ml-5" ref={svgRef} />}
-  </>
-);
-//   if (loading) return <div>Loading...</div>;
-//   if (error) return <div>Error: {error}</div>;
-
-//   return (
-//     <div style={{ height: '100%', width: '100%' ,display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-//       <Chart
-//         width={'100%'}
-//         height={'500px'}
-//         chartType="Sankey"
-//         loader={<div>Loading Chart...</div>}
-//         data={chartData}
-//         options={{
-//           sankey: {
-//             // node: {
-//             //   colors: ['#4a90e2'], // First column color
-//             //   label: { fontName: 'Arial', fontSize: 14 },
-//             // },
-//             // link: {
-//             //   colorMode: 'gradient', // Gradient links
-//             //   colors: ['#66ff66'], // Link color
-//             // },
-//             link: { color: { fill: "#99ddff" } },
-//           },
-//         }}
-//       />
-//     </div>
-//   );
-};
-
-export default LoanOfficerSankeyReport;
+  return (
+    <div
+      ref={wrapRef}
+      style={{
+        width: '100%',
+        minHeight: 420,
+        height: '58vh',
+        background: '#fff',
+        display: 'flex',
+      }}
+    >
+      <svg ref={svgRef} style={{ width: '100%', height: '100%' }} />
+    </div>
+  );
+}

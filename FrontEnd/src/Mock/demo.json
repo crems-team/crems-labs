@@ -1,0 +1,134 @@
+{
+  "demo": [
+    {
+      "id": "L1_OWNER",
+      "parentId": null,
+      "fullName": null,
+      "roleTitle": "Leader or Owner",
+      "nodeType": "VACANT",
+      "sortOrder": 10,
+      "avatarUrl": null,
+      "color": "#134E4A"
+    },
+    {
+      "id": "MA_L2_DIR_MARKETING",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Marketing",
+      "nodeType": "VACANT",
+      "sortOrder": 20,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "AD_L2_DIR_ADMIN",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Administration",
+      "nodeType": "VACANT",
+      "sortOrder": 30,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "OP_L2_DIR_OPS",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Operations",
+      "nodeType": "VACANT",
+      "sortOrder": 40,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "MA_L3_ADS_MANAGER",
+      "parentId": "MA_L2_DIR_MARKETING",
+      "fullName": null,
+      "roleTitle": "Advertising Manager",
+      "nodeType": "VACANT",
+      "sortOrder": 50,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "OP_L3_BROKER",
+      "parentId": "OP_L2_DIR_OPS",
+      "fullName": null,
+      "roleTitle": "Broker",
+      "nodeType": "VACANT",
+      "sortOrder": 60,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "OP_L3_SALES_MANAGER",
+      "parentId": "OP_L2_DIR_OPS",
+      "fullName": null,
+      "roleTitle": "Sales Manager",
+      "nodeType": "VACANT",
+      "sortOrder": 70,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "AD_L3_TX_COORD",
+      "parentId": "AD_L2_DIR_ADMIN",
+      "fullName": null,
+      "roleTitle": "Transaction Coordinator",
+      "nodeType": "VACANT",
+      "sortOrder": 80,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "AD_L4_OSA",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "OSA",
+      "nodeType": "VACANT",
+      "sortOrder": 90,
+      "avatarUrl": null,
+      "color": "#64748B"
+    },
+    {
+      "id": "MA_L4_ADS_PROSPECT",
+      "parentId": "MA_L3_ADS_MANAGER",
+      "fullName": null,
+      "roleTitle": "Advertising or Prospecting",
+      "nodeType": "VACANT",
+      "sortOrder": 95,
+      "avatarUrl": null,
+      "color": "#64748B"
+    },
+    {
+      "id": "OP_L4_SELLING_SIDE",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Selling Side",
+      "nodeType": "VACANT",
+      "sortOrder": 100,
+      "avatarUrl": null,
+      "color": "#475569"
+    },
+    {
+      "id": "OP_L4_LISTING_SIDE",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Listing Side",
+      "nodeType": "VACANT",
+      "sortOrder": 110,
+      "avatarUrl": null,
+      "color": "#475569"
+    },
+    {
+      "id": "OP_L4_BOTH_SIDES",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Both Sides",
+      "nodeType": "VACANT",
+      "sortOrder": 120,
+      "avatarUrl": null,
+      "color": "#475569"
+    }
+  ]
+}

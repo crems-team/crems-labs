@@ -143,9 +143,13 @@ const GetTotalAgents = async (zips: string,nbrMonth : number): Promise<any[]> =>
 };
 
 //Area with USA Map
-const getCitiesByCountyFips = (countyFips : string | null) => {
-  return http.post<Cities>("/geoArea/getCitiesByCountyFips",{countyFips : countyFips});
-};
+// const getCitiesByCountyFips = (countyFips : string | null) => {
+//   return http.post<Cities>("/geoArea/getCitiesByCountyFips",{countyFips : countyFips});
+// };
+
+// const deteteNonFavorite = (userId : string, savedType : string) => {
+//   return http.post("/geoArea/deteteNonFavorite", {userId, savedType});
+// };
 
 const GeoAreaService = {
     
@@ -165,7 +169,8 @@ const GeoAreaService = {
     fetchTransactionsGeoByAgent,
     GetTotalTransactions,
     GetTotalAgents,
-    getCitiesByCountyFips
+    // getCitiesByCountyFips,
+    // deteteNonFavorite
 };
 
 export default GeoAreaService;

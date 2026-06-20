@@ -1,6 +1,7 @@
 export default interface SearchItemHistory {
     idHistory : number;
     savedType : string,
+    fullName  : string,
     firstName: string,
     lastName: string,
     agentIdC : string,
@@ -16,5 +17,8 @@ export default interface SearchItemHistory {
     address : string,
     isFavorite: boolean,
     officerId: string,
-    officerName: string
+    officerName: string,
+    teamName: string,
+    teamId: string,
+
   }

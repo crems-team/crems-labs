@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import USMap from './Maps/USMap';
 import StateMap from './Maps/StateMap';
 import LocationDetails from './LocationDetails';
@@ -9,7 +9,7 @@ import Cities from "../../Models/Cities";
 import { useSelector } from 'react-redux';
 import { RootState } from '../../Redux/Store';
 import { setSelectedLocation,setAgentGeoProdResult} from '../../Redux/Slices/MapSlice'
-import { setMapLevel, setCopyCities, setCities,setSelectedOption,setSelectedZipCode,setZipCodes} from '../../Redux/Slices/AreaAgentSlice'
+import { setMapLevel, setCopyCities, setCities,setSelectedOption,setSelectedZipCode,setZipCodes, setIsLoadingCities} from '../../Redux/Slices/AreaAgentSlice'
 import { useAppDispatch } from '../../Hooks/DispatchHook';
 import { BeatLoader } from 'react-spinners';
 import GeoAreaAgentProdService from "../../Services/GeoAreaAgentProdService";
@@ -49,9 +49,23 @@ function MapIndex() {
   const AgentGeoProdResult = useSelector((state: RootState) => state.map.AgentGeoProdResult);
   const zipcodes = useSelector((state: RootState) => state.map.zipcodes);
 
-  const [isLoadingCities, setIsLoadingCities] = useState(Boolean);
   const selectedOption = useSelector((state: RootState) => state.areaAgent.selectedOption);
+  const isLoadingCities = useSelector((state: RootState) => state.areaAgent.isLoadingCities);
+  const mapBoxRef = useRef<HTMLDivElement>(null);
+  const [mapSize, setMapSize] = useState({ w: 0, h: 0 });
 
+
+
+  useEffect(() => {
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      const h = Math.max(260, Math.round(w * (isMobile ? 3 / 4 : 9 / 16)));
+      setMapSize({ w, h });
+    });
+    if (mapBoxRef.current) ro.observe(mapBoxRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   const handleStateSelect = (state: string,stateCode: string) => {
     dispatch(setMapLevel({ level: 'state', selectedState: state }));
@@ -65,17 +79,20 @@ function MapIndex() {
   };
 
   const handleCountySelect = (countyId: string, county: string) => {
-        setIsLoadingCities(true);
-        GeoAreaService.getCitiesByCountyFips(countyId)
+    console.log('ici');
+        dispatch(setIsLoadingCities(true));
+        GeoAreaAgentProdService.getCitiesByCountyFips(countyId)
         .then((response: any) => {
             dispatch(setCities(response.data));
             dispatch(setCopyCities(response.data));
-            setIsLoadingCities(false);
+            dispatch(setIsLoadingCities(false));
 
+            console.log(response.data);
 
 
         })
         .catch((e: Error) => {
+            dispatch(setIsLoadingCities(false));
             console.log(e);
         });    
 
@@ -85,27 +102,7 @@ function MapIndex() {
             county
       }));  };
 
-  const handleCityClick = (city: Cities) => {
-    const currentCities = selectedLocation.city || [];
-    const newCities = currentCities.includes(city.name)
-      ? currentCities.filter(c => c !== city.name)
-      : [...currentCities, city.name];
-    //   dispatch(setSelectedLocation({
-    //     ...selectedLocation,
-    //     city: newCities
-    //   }));
-      const updatedLocation = {
-        ...selectedLocation,
-        city: newCities
-      };
-      
-      dispatch(setSelectedLocation(updatedLocation));
-      loadZips(updatedLocation);
-
-    
   
-
-  };
 
   const handleBack = () => {
     if (mapLevel.level === 'county' && selectedOption === 'zip') {
@@ -159,20 +156,7 @@ function MapIndex() {
     }
   }, []);
 
-  //Zip Codes
-  const loadZips = async (selectedLocation: SelectedLocation) => {
-
-    GeoAreaAgentProdService.getZipsbyCityName(selectedLocation)
-        .then((response: any) => {
-
-            // const mergedZips = [...zipcodes, ...response.data];
-            dispatch(setZipCodes(response.data));
-
-        })
-        .catch((e: Error) => {
-            console.log(e);
-        });
-};
+ 
 
 
   
@@ -197,40 +181,34 @@ function MapIndex() {
                       </h1> */}
                   </div>
 
-                  <div className="row">
-                      <div className="col-12 col-lg-6">
+                  <div className="row g-2">
+                      <div className="col-12 col-lg-8">
                           <div className="mb-4">
-                              {mapLevel.level === 'country' && (
-                                  <USMap
-                                      width={600}
-                                      height={400}
-                                      onStateSelect={handleStateSelect}
-                                  />
-                              )}
-                              {mapLevel.level === 'state' && selectedLocation.state && (
-                                  <StateMap
-                                      width={600}
-                                      height={400}
-                                      stateName={selectedLocation.state}
-                                      onCountySelect={handleCountySelect}
-                                  />
-                              )}
-                              { isLoadingCities? ( <div  >
- 
-                                <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-
-                                </div>
-                                ):mapLevel.level === 'county' && (
-                                    <LocationDetails
-                                        county={selectedLocation.county}
-                                        cities={cities}
-                                        copyCities={copyCities}                            
-                                        onCitySelect={handleCityClick}
-                                        selectedLocation={selectedLocation}
-                                      //   setCurrentCities={setCurrentCities}
-                                    />
-                                
+                              <div ref={mapBoxRef} className="w-100">
+                                {mapLevel.level === 'country' && (
+                                    <USMap width={mapSize.w} height={mapSize.h} onStateSelect={handleStateSelect} />
                                 )}
+                                {mapLevel.level === 'state' && selectedLocation.state && (
+                                    <StateMap
+                                    width={mapSize.w}
+                                    height={mapSize.h}
+                                    stateName={selectedLocation.state}
+                                    onCountySelect={handleCountySelect}
+                                    />
+                                )}
+                                {isLoadingCities ? (
+                                    <div className="mt-3 d-flex justify-content-center">
+                                    <BeatLoader size={15} color="#36d7b7" />
+                                    </div>
+                                ) : mapLevel.level === 'county' && (
+                                    <LocationDetails
+                                    county={selectedLocation.county}
+                                    cities={cities}
+                                    copyCities={copyCities}
+                                    selectedLocation={selectedLocation}
+                                    />
+                                )}
+                                </div>
                               {/* {mapLevel.level === 'county' && (
                                   <LocationDetails
                                       county={selectedLocation.county}

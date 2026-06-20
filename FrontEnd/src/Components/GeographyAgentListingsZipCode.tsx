@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import AgentService from "../Services/AgentService";
 import { Chart } from 'react-google-charts';
+import GeoDataReport from "../Models/GeoDataReport";
 
 
 interface OtherComponentProps {
@@ -19,13 +20,13 @@ const GeoAgentListZipCodeRepo : React.FC<OtherComponentProps> = ({ id }) => {
                 
             const fetchData=()=>{
                 AgentService.getDataGeoReport({id})
-                .then((response: any) => {
+                .then((report: GeoDataReport[]) => {
                     //console.log(response.data);
-                    if(response.data){
+                    if (report && report.length) {
 
                         const data = [
                             ['Zip Code', 'Total Sell'],
-                            ...response.data.map((element: any) => [
+                            ...report.map((element: any) => [
                                 element.zipCode,
                                 parseInt(element.total) || 0
 

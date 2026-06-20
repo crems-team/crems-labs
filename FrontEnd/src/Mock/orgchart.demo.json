@@ -1,0 +1,1272 @@
+{
+  "Cory Home Team": [
+  {
+    "id": "P:1412D969-0222-44A9-97F0-5701636B091D",
+    "parentId": null,
+    "fullName": "Blake Cory",
+    "roleTitle": "Leader or Owner",
+    "nodeType": "PERSON",
+    "sortOrder": "10001",
+    "avatarUrl": null,
+    "color": "#134E4A"
+  },
+  {
+    "id": "V:MA_L2_DIR_MARKETING",
+    "parentId": "P:1412D969-0222-44A9-97F0-5701636B091D",
+    "fullName": null,
+    "roleTitle": "Director of Marketing",
+    "nodeType": "VACANT",
+    "sortOrder": "20",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:OP_L2_DIR_OPS",
+    "parentId": "P:1412D969-0222-44A9-97F0-5701636B091D",
+    "fullName": null,
+    "roleTitle": "Director of Operations",
+    "nodeType": "VACANT",
+    "sortOrder": "40",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:EF848139-2CBA-404A-9AB2-AABC7D16B42E",
+    "parentId": "P:1412D969-0222-44A9-97F0-5701636B091D",
+    "fullName": "Dana Martinez",
+    "roleTitle": "Director of Administration",
+    "nodeType": "PERSON",
+    "sortOrder": "30001",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:CF304EAB-8CFA-457C-BBA8-2A503B1CAE62",
+    "parentId": "P:1412D969-0222-44A9-97F0-5701636B091D",
+    "fullName": "Remy Victoria",
+    "roleTitle": "Director of Administration",
+    "nodeType": "PERSON",
+    "sortOrder": "30002",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:FF5EE02F-AEDD-42A0-A818-4A89E0D9E637",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Alicia Good",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90001",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:7D4A3259-81E3-4815-A054-DF88C68DA86D",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Cheryl Shaw",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90002",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:46874AAE-8492-4983-BE5E-A788C5276A60",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Edward Kaveney",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90003",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:78988884-D7C5-4355-969A-41CB051BA149",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Jenna Melendez",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90004",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:DD887B7B-4355-49E9-9092-5F7CABC59F73",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Kendra JoHarlan",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90005",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:29441696-1024-40FA-95C5-488B8A04BF8D",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Larry Randolph",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90006",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:A5BAA733-5AFA-4E9F-B18D-FF3BB30BE604",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Mario Munoz",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90007",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:CB5363A7-4126-4246-BA21-2415ECE149AA",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Michael Wickam",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90008",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:442D083A-1673-4284-B899-FBDD1523C4E9",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Nate Bunnell",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90009",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:BDACB28F-4961-4BA8-AE9D-EBEBAE550F90",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Nilska Guerrero",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90010",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:86537AA9-20F1-43A9-9DA3-AF176DB79429",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Rachele Lacey",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90011",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:E227D03A-F68A-4C02-A868-E9C76C47F4D5",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Richard Luizzi",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90012",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:8906D0DA-912F-4919-A2AF-AE05AF74B14B",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Robin Tapia",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90013",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:D4884658-0B9C-4CA3-934C-E3FD9070B73E",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Stephanie Casados",
+    "roleTitle": "OSA",
+    "nodeType": "PERSON",
+    "sortOrder": "90014",
+    "avatarUrl": null,
+    "color": "#64748B"
+  },
+  {
+    "id": "P:32197B9C-642F-4688-9F28-CC3795AF85DB",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Addison Tomlinson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120001",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:8CE2D2F9-9D1D-4E96-B1B1-07084CA2CF3D",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Alexandra Haro",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120002",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:5C4A70E5-B578-4A0B-8D09-37F04F2776F4",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Dana Garcia",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120003",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:51AC96C4-D70A-42E0-B432-CF4D51ACF8C8",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Edith Ruano",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120004",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:D8A1E5D5-2078-4594-94EA-52968184B399",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Jane Arellano",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120005",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:FC97D5C7-73AB-4B2F-B586-D9489FDC1855",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Joe Rodriguez",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120006",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:B8C82E46-4242-4D6C-BCC7-0836651BF308",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "John Whitmarsh",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120007",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:A2CCA1BC-B5D4-4253-AE44-88FBAEAB43EC",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Karely Sanchez",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120008",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:FA98DE97-F95B-4CB2-ADFA-CCBBDBFA3723",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Kathleen Allen",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120009",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:C2E9C94A-4514-4388-912B-F9C40B33EE8C",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Kathy Zumaya",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120010",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:9EB6772A-7A2E-47CF-A4D0-8D550AAECF88",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Kay Patel",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120011",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:C794FF48-2426-4681-B3FB-8BC01259EA73",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Laura Barone",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120012",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:902B7073-CD9B-47CD-94B3-AE9B4A57B6CD",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Myrna Romero Peterson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120013",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:49F3CDAE-DEB0-40C2-8875-901430B3C159",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Paul Claudio",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120014",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:8079B6CE-0E4A-4C7E-95F2-204704C57D6D",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Petra Campos",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120015",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:8008ECED-F662-4709-AE91-784579DECCFE",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Quan Ning",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120016",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:891F5558-BA6E-4FE0-81E4-8F056DE7F314",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Roger Tarango",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120017",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:7AA07449-F086-406C-9393-13688A51E1F6",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Ron Prunty",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120018",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:5D6EDB3B-8EC8-4BC0-BDED-9F87828F9519",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Ronda Bryce",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120019",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:17F2D79B-FBDC-4886-98BD-A2399784D314",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Rosalina WIlliams",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120020",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:AA29F254-A8E5-464A-838D-D9DCAD644C1C",
+    "parentId": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "fullName": "Stephanie Carson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120021",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "V:AD_L3_TX_COORD",
+    "parentId": "P:EF848139-2CBA-404A-9AB2-AABC7D16B42E",
+    "fullName": null,
+    "roleTitle": "Transaction Coordinator",
+    "nodeType": "VACANT",
+    "sortOrder": "80",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:MA_L3_ADS_MANAGER",
+    "parentId": "V:MA_L2_DIR_MARKETING",
+    "fullName": null,
+    "roleTitle": "Advertising Manager",
+    "nodeType": "VACANT",
+    "sortOrder": "50",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:OP_L3_BROKER",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": null,
+    "roleTitle": "Broker",
+    "nodeType": "VACANT",
+    "sortOrder": "60",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:4A5A3DEF-6CF0-471A-933B-3B359DA3292F",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "BRIDGET SISCO",
+    "roleTitle": "Sales Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "70001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:92280F4D-A98D-4EDF-8ADB-B200B7D09ECA",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "Kiona Grantham",
+    "roleTitle": "Sales Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "70002",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:506C6E80-97A4-4F92-9878-5B48CEB2BBE6",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "MELISSA MANTZ",
+    "roleTitle": "Sales Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "70003",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:C86BB24A-706C-4144-A798-BE2DAA639BFB",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "Nichole Raimer",
+    "roleTitle": "Sales Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "70004",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  }
+],
+  "12 Doors Real Estate": [
+  {
+    "id": "P:8D092F3F-D183-4FCA-B23F-A352552570C0",
+    "parentId": null,
+    "fullName": "Joyce Fritz",
+    "roleTitle": "Leader or Owner",
+    "nodeType": "PERSON",
+    "sortOrder": "10001",
+    "avatarUrl": null,
+    "color": "#134E4A"
+  },
+  {
+    "id": "V:MA_L2_DIR_MARKETING",
+    "parentId": "P:8D092F3F-D183-4FCA-B23F-A352552570C0",
+    "fullName": null,
+    "roleTitle": "Director of Marketing",
+    "nodeType": "VACANT",
+    "sortOrder": "20",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:AD_L2_DIR_ADMIN",
+    "parentId": "P:8D092F3F-D183-4FCA-B23F-A352552570C0",
+    "fullName": null,
+    "roleTitle": "Director of Administration",
+    "nodeType": "VACANT",
+    "sortOrder": "30",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:9F5C4E38-F80E-43C9-ADAB-40E2B2DBC653",
+    "parentId": "P:8D092F3F-D183-4FCA-B23F-A352552570C0",
+    "fullName": "Michelle Canlas",
+    "roleTitle": "Director of Operations",
+    "nodeType": "PERSON",
+    "sortOrder": "40001",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:OP_L3_SALES_MANAGER",
+    "parentId": "P:9F5C4E38-F80E-43C9-ADAB-40E2B2DBC653",
+    "fullName": null,
+    "roleTitle": "Sales Manager",
+    "nodeType": "VACANT",
+    "sortOrder": "70",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:FAB61FB4-2323-4145-81A1-941499DFCDE0",
+    "parentId": "P:9F5C4E38-F80E-43C9-ADAB-40E2B2DBC653",
+    "fullName": "Hilary Saunders",
+    "roleTitle": "Broker",
+    "nodeType": "PERSON",
+    "sortOrder": "60001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:AFDCF0C5-94DD-4764-9DE5-40E3566783FE",
+    "parentId": "V:AD_L2_DIR_ADMIN",
+    "fullName": "Sandy Delos Angeles",
+    "roleTitle": "Transaction Coordinator",
+    "nodeType": "PERSON",
+    "sortOrder": "80001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:AE4B435E-E6D9-4176-A635-2E27A1945E96",
+    "parentId": "V:MA_L2_DIR_MARKETING",
+    "fullName": "Elias Astuto",
+    "roleTitle": "Advertising Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "50001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:D9E61DC3-4214-4634-9EAB-15622D2E1AA8",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Andres Villegas-Magana",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120001",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:D022001F-8036-499D-A569-073E71E233B3",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Debbie Regan",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120002",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:107FCC7B-D40B-4C68-B403-391C581C8F36",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Jade Villegas",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120003",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:2AB08572-1FB8-4312-8409-ED861E96557A",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Mary Fancher",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120004",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:DF52BBE0-0FEC-4010-A9C3-7B8C5051EBBD",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Melanie Cullison",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120005",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:9D118C49-17B7-4006-B840-ACAB108FB21F",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Riley Hearn",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120006",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:BDE8E1CF-0273-46BD-B41A-8D6F958F3F5F",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Stephanie Fields",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120007",
+    "avatarUrl": null,
+    "color": "#475569"
+  }
+],
+  "8 Blocks Real Estate": [
+  {
+    "id": "P:CD1300A8-8F2B-451E-814B-65D100329825",
+    "parentId": null,
+    "fullName": "Mei Ling",
+    "roleTitle": "Leader or Owner",
+    "nodeType": "PERSON",
+    "sortOrder": "10001",
+    "avatarUrl": null,
+    "color": "#134E4A"
+  },
+  {
+    "id": "P:92D3C406-C77A-46A0-A66D-55EE35CD3CB4",
+    "parentId": "P:2305C5D3-AC3A-4ABE-BCDA-A928EC6B58F3",
+    "fullName": "Andrew Huitink",
+    "roleTitle": "Advertising Manager",
+    "nodeType": "PERSON",
+    "sortOrder": "50001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:AD_L3_TX_COORD",
+    "parentId": "P:6E32F839-13E6-4FC7-A772-3EE081EC5936",
+    "fullName": null,
+    "roleTitle": "Transaction Coordinator",
+    "nodeType": "VACANT",
+    "sortOrder": "80",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:OP_L2_DIR_OPS",
+    "parentId": "P:CD1300A8-8F2B-451E-814B-65D100329825",
+    "fullName": null,
+    "roleTitle": "Director of Operations",
+    "nodeType": "VACANT",
+    "sortOrder": "40",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:2305C5D3-AC3A-4ABE-BCDA-A928EC6B58F3",
+    "parentId": "P:CD1300A8-8F2B-451E-814B-65D100329825",
+    "fullName": "Brook Oneto",
+    "roleTitle": "Director of Marketing",
+    "nodeType": "PERSON",
+    "sortOrder": "20001",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "P:6E32F839-13E6-4FC7-A772-3EE081EC5936",
+    "parentId": "P:CD1300A8-8F2B-451E-814B-65D100329825",
+    "fullName": "Carlos Aguilar",
+    "roleTitle": "Director of Administration",
+    "nodeType": "PERSON",
+    "sortOrder": "30001",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:OP_L3_SALES_MANAGER",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": null,
+    "roleTitle": "Sales Manager",
+    "nodeType": "VACANT",
+    "sortOrder": "70",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:427EB198-BA15-4AF8-BDEA-B74C87DE5903",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "Hilary Saunders",
+    "roleTitle": "Broker",
+    "nodeType": "PERSON",
+    "sortOrder": "60001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:E99BBF11-3D1C-47B1-AE72-E4B2DA7BD053",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Amy Gu",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120001",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:5262F4A9-1F86-4B8D-96E0-1678CD337175",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Christy Pak",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120002",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:34B2AFE6-FDF1-4033-ACBB-5AE03268CDA6",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Emily Shangkuan",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120003",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:1749AB1B-742A-40F4-8210-C9524FA56373",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Hieu Nguyen",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120004",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:CF5C3155-E2EC-42BE-9F6A-05A39F0819A0",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Jessica Li",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120005",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:15EE4C76-8813-42AC-BB46-FA95B6BDA0A5",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Melanie Tan",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120006",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:E632E2B3-E3F1-4B59-BEB8-DF3FE7EFF0A4",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Miller Qian",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120007",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:B2D39605-75BF-4BFB-9260-6629C48A1A9C",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Renna Lin",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120008",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:E9AC50BC-CD4A-4C2B-9F3E-6465DAD45F5F",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Taylor Lambert",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120009",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:DE76C47D-CFA4-41CC-8F42-A423C2B94F7F",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "William Ping",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120010",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:B2C898F7-5C95-4D5F-8938-D43221A0F983",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Yadi Ruiz",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120011",
+    "avatarUrl": null,
+    "color": "#475569"
+  }
+],
+  "All City Homes": [
+  {
+    "id": "P:3C5245E9-0E76-4685-997E-DFF622C09CF7",
+    "parentId": null,
+    "fullName": "Roy Machado",
+    "roleTitle": "Leader or Owner",
+    "nodeType": "PERSON",
+    "sortOrder": "10001",
+    "avatarUrl": null,
+    "color": "#134E4A"
+  },
+  {
+    "id": "V:MA_L2_DIR_MARKETING",
+    "parentId": "P:3C5245E9-0E76-4685-997E-DFF622C09CF7",
+    "fullName": null,
+    "roleTitle": "Director of Marketing",
+    "nodeType": "VACANT",
+    "sortOrder": "20",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:AD_L2_DIR_ADMIN",
+    "parentId": "P:3C5245E9-0E76-4685-997E-DFF622C09CF7",
+    "fullName": null,
+    "roleTitle": "Director of Administration",
+    "nodeType": "VACANT",
+    "sortOrder": "30",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:OP_L2_DIR_OPS",
+    "parentId": "P:3C5245E9-0E76-4685-997E-DFF622C09CF7",
+    "fullName": null,
+    "roleTitle": "Director of Operations",
+    "nodeType": "VACANT",
+    "sortOrder": "40",
+    "avatarUrl": null,
+    "color": "#0D9488"
+  },
+  {
+    "id": "V:AD_L3_TX_COORD",
+    "parentId": "V:AD_L2_DIR_ADMIN",
+    "fullName": null,
+    "roleTitle": "Transaction Coordinator",
+    "nodeType": "VACANT",
+    "sortOrder": "80",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:MA_L3_ADS_MANAGER",
+    "parentId": "V:MA_L2_DIR_MARKETING",
+    "fullName": null,
+    "roleTitle": "Advertising Manager",
+    "nodeType": "VACANT",
+    "sortOrder": "50",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "V:OP_L3_SALES_MANAGER",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": null,
+    "roleTitle": "Sales Manager",
+    "nodeType": "VACANT",
+    "sortOrder": "70",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:D75C8EE0-4127-44C5-855D-92A235CA3B67",
+    "parentId": "V:OP_L2_DIR_OPS",
+    "fullName": "Vanessa Amador",
+    "roleTitle": "Broker",
+    "nodeType": "PERSON",
+    "sortOrder": "60001",
+    "avatarUrl": null,
+    "color": "#1D4ED8"
+  },
+  {
+    "id": "P:15991395-8875-4230-A616-4DB03D820D1D",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Adrianna Rodriguez",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120001",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:92F3B74D-A828-49F6-B05B-578EEC667064",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Andrew Castelo",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120002",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:B39F257B-8E7A-4650-B216-31DBB2A5DF76",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Andrew Davidson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120003",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:506B0F9A-28BB-42A3-B434-4280E86C3A29",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Anthony Nelson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120004",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:53213649-CEC6-435A-BCEA-C4F77CAD0271",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Ashley Garner",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120005",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:EAF791FE-2CCF-4FEA-A96F-5DD836CD1E7B",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Brenda Chua",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120006",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:74B158AB-DCFE-4373-8F57-DDF20B8D7ADF",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Darius Coxum",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120007",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:E98745B8-2594-4032-9120-E88CE40D16D6",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Desiree Taylor",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120008",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:1BEC20DB-4E48-444E-966A-FC81D0858C41",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Dezman Beasley",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120009",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:A2FA5FCE-D6A0-4894-817C-9E1B6CFB3C37",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Erika Robertson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120010",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:AA29D849-EE25-4DAB-B235-BE38934CB2A2",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "John Paul Ibarra",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120011",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:0C48F14A-FA72-47DC-B57A-E572CC5283BC",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Jose Garcia Venegas",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120012",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:91427A97-0CF1-48DF-BF0E-C97B6E92210E",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Jose Gomez",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120013",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:FC4EA9B5-8EE9-4B29-A659-93A56D13DC4C",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Leo Callo",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120014",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:0AC3ED3C-7735-4DDF-9131-E1B1E1DDF8A8",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Mauana Anderson",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120015",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:49FE2C49-74FF-4969-A9A1-365F3AB3D30A",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Maykel Orozco Cruz",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120016",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:9DB5E83B-0681-4028-9FC1-5F5640DD02D3",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Micayla Brim",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120017",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:09A43454-79C9-4635-A49D-D7C265B062E7",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Nanyamka Russell",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120018",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:F66153CC-21D3-4C76-86DF-832BBFFD0EBF",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Nhi Le",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120019",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:A29FD7E3-25E4-4523-ABD5-8E4A7A8AB36B",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Noah Martin",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120020",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:C16D4AEA-53A7-42C5-8128-2BCC816427A5",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Tamim Kabir",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120021",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:4CB0075E-51A4-4980-94D3-CF85127B8D88",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Tavon Willis",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120022",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:50071C69-3DA9-490D-8678-3BD3E0934130",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Valencia Mischal",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120023",
+    "avatarUrl": null,
+    "color": "#475569"
+  },
+  {
+    "id": "P:73891BB1-BD9A-4E97-90F1-C6DF899B399A",
+    "parentId": "V:OP_L3_SALES_MANAGER",
+    "fullName": "Whiteny Fong",
+    "roleTitle": "Both Sides",
+    "nodeType": "PERSON",
+    "sortOrder": "120024",
+    "avatarUrl": null,
+    "color": "#475569"
+  }
+],
+  "demo": [
+    {
+      "id": "L1_OWNER",
+      "parentId": null,
+      "fullName": null,
+      "roleTitle": "Leader or Owner",
+      "nodeType": "VACANT",
+      "sortOrder": 10,
+      "avatarUrl": null,
+      "color": "#134E4A"
+    },
+    {
+      "id": "MA_L2_DIR_MARKETING",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Marketing",
+      "nodeType": "VACANT",
+      "sortOrder": 20,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "AD_L2_DIR_ADMIN",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Administration",
+      "nodeType": "VACANT",
+      "sortOrder": 30,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "OP_L2_DIR_OPS",
+      "parentId": "L1_OWNER",
+      "fullName": null,
+      "roleTitle": "Director of Operations",
+      "nodeType": "VACANT",
+      "sortOrder": 40,
+      "avatarUrl": null,
+      "color": "#0D9488"
+    },
+    {
+      "id": "MA_L3_ADS_MANAGER",
+      "parentId": "MA_L2_DIR_MARKETING",
+      "fullName": null,
+      "roleTitle": "Advertising Manager",
+      "nodeType": "VACANT",
+      "sortOrder": 50,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "OP_L3_BROKER",
+      "parentId": "OP_L2_DIR_OPS",
+      "fullName": null,
+      "roleTitle": "Broker",
+      "nodeType": "VACANT",
+      "sortOrder": 60,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "OP_L3_SALES_MANAGER",
+      "parentId": "OP_L2_DIR_OPS",
+      "fullName": null,
+      "roleTitle": "Sales Manager",
+      "nodeType": "VACANT",
+      "sortOrder": 70,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "AD_L3_TX_COORD",
+      "parentId": "AD_L2_DIR_ADMIN",
+      "fullName": null,
+      "roleTitle": "Transaction Coordinator",
+      "nodeType": "VACANT",
+      "sortOrder": 80,
+      "avatarUrl": null,
+      "color": "#1D4ED8"
+    },
+    {
+      "id": "AD_L4_OSA",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "OSA",
+      "nodeType": "VACANT",
+      "sortOrder": 90,
+      "avatarUrl": null,
+      "color": "#64748B"
+    },
+    {
+      "id": "MA_L4_ADS_PROSPECT",
+      "parentId": "MA_L3_ADS_MANAGER",
+      "fullName": null,
+      "roleTitle": "Advertising or Prospecting",
+      "nodeType": "VACANT",
+      "sortOrder": 95,
+      "avatarUrl": null,
+      "color": "#64748B"
+    },
+    {
+      "id": "OP_L4_SELLING_SIDE",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Selling Side",
+      "nodeType": "VACANT",
+      "sortOrder": 100,
+      "avatarUrl": null,
+      "color": "#475569"
+    },
+    {
+      "id": "OP_L4_LISTING_SIDE",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Listing Side",
+      "nodeType": "VACANT",
+      "sortOrder": 110,
+      "avatarUrl": null,
+      "color": "#475569"
+    },
+    {
+      "id": "OP_L4_BOTH_SIDES",
+      "parentId": "OP_L3_SALES_MANAGER",
+      "fullName": null,
+      "roleTitle": "Both Sides",
+      "nodeType": "VACANT",
+      "sortOrder": 120,
+      "avatarUrl": null,
+      "color": "#475569"
+    }
+  ]
+}

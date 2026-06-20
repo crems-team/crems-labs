@@ -589,6 +589,20 @@ function SearchByArea() {
         }
     };
 
+    // const deteteNonFavorite = async () => {
+
+    //     if (keycloak.tokenParsed?.sub) {
+    //       const userId = keycloak.tokenParsed.sub;
+    //       try {
+    //         await GeoAreaService.deteteNonFavorite(userId, 'area');
+    //         fetchSavedSearches();     
+      
+    //       } catch (error) {
+    //         console.error('Error detele non favorite:', error);
+    //       }
+    //     }
+    //   };
+
     const handleClickActivityReport = () => { 
 
         // setActivityReportClicked(!activityReportClicked);
@@ -840,14 +854,15 @@ function SearchByArea() {
                             </div>
                     </div>
                     <div className="col-12 md:col-4">
-                    <SearchHistory
+                    {/* <SearchHistory
                     title="Area History"
                     isLoading={isLoadingSavedSearch}
                     searchHistory={searchHistory}
                     onSearchClick={(search) => fetchTransactionsdata([search.zips], Number(search.nbrMonth), search.city, search.state, search.county)}
                     onToggleFavorite={toggleFavorite}
+                    onDeteteNonFavorite={deteteNonFavorite}
                     parent="Area"
-                    />
+                    /> */}
 
 
                     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState,useMemo } from 'react';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
 import { Feature, Geometry } from 'geojson';
@@ -14,7 +14,30 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [usData, setUsData] = useState<Feature[]>([]);
   const staticLabelRef = useRef<HTMLDivElement>(null);
+  const [isNortheastView, setIsNortheastView] = useState(false);
 
+  // List of IDs states north-east
+  const NORTHEAST_STATE_IDS = ['11','24','10','34','09','44','25','33','50'];
+  
+  // filter states north-east
+  const filteredData = useMemo(() => {
+    if (!usData.length) return [];
+    return isNortheastView 
+      ? usData.filter(d => NORTHEAST_STATE_IDS.includes(d.id as string))
+      : usData;
+  }, [usData, isNortheastView]);
+
+  // Projection dynamic
+  const projection = useMemo(() => {
+    const proj = d3.geoAlbersUsa();
+    if (filteredData.length) {
+      proj.fitSize([width, height], {
+        type: 'FeatureCollection',
+        features: filteredData
+      });
+    }
+    return proj;
+  }, [filteredData, width, height]);
   // Define color scale based on regions
   const regionColors = {
     // north: '#f1efa0',  // Yellowish
@@ -22,7 +45,8 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
     // midAtlantic: '#297588', // Teal/Blue
     // coastal: '#e2643d'  // Orange
     available: '#98FB98',   
-    notAvailable: '#a48e9c',  
+    notAvailable: '#a48e9c', 
+    westernState :'#DCC991',
   };
 
   // Define a function to get the region color
@@ -48,9 +72,12 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
     // if (['06', '02', '15', '12'].includes(String(id))) {
     //   return regionColors.coastal;
     // }
-    if (['06', '12', '48', '17', '18', '26', '39'].includes(String(id))) {
+    if (['06'].includes(String(id))) {
         return regionColors.available;
       }
+      // if (['04', '32', '41', '53',, '12', '48', '17', '18', '26', '39'].includes(String(id))) {
+      //   return regionColors.westernState;
+      // }
     // Default gray for any other states
     return '#bcb3b3';
   };
@@ -62,7 +89,6 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
       .then((topology: TopoJSON.Topology<TopoJSON.Objects<TopoJSON.Properties>>) => {
         const features = feature(topology, topology.objects.states as TopoJSON.GeometryCollection).features;
   
-        // Définir le type pour le mapping ID → Code
         type StateId = keyof typeof stateIdToCode;
         const stateIdToCode = {
           "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA", 
@@ -78,7 +104,6 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
           "56": "WY"
         } as const;
   
-        // Ajouter le code d'état à chaque feature
         const enhancedFeatures = features.map(f => {
           const id = f.id as StateId;
           return {
@@ -95,71 +120,79 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
   }, []);
 
   useEffect(() => {
-    if (!svgRef.current || !usData.length) return;
+    if (!svgRef.current || !filteredData.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const projection = d3.geoAlbersUsa()
-      .fitSize([width, height], { type: 'FeatureCollection', features: usData });
-
     const path = d3.geoPath().projection(projection);
 
-    // Create staticLabel
-    const staticLabel = d3.select(staticLabelRef.current);
-
-    // Create the map
-    const g = svg.append('g');
-
-    // Draw states
-    g.selectAll('path')
-      .data(usData)
+    // create the elements of map
+    svg.append('g')
+      .selectAll('path')
+      .data(filteredData)
       .enter()
       .append('path')
       .attr('d', path as any)
-      .attr('class', 'state')
       .attr('fill', d => getRegionColor(d as Feature<Geometry, any>))
       .attr('stroke', '#1f2937')
-      .attr('stroke-width', '0.5')
+      .attr('stroke-width', 0.5)
       .on('mouseover', function(event, d: any) {
         d3.select(this).attr('opacity', 0.8);
-        staticLabel.text(`${d.properties.name} (${d.id})`).style('opacity', 1);
+        d3.select(staticLabelRef.current)
+          .text(`${d.properties.name} (${d.properties.stateCode})`)
+          .style('opacity', 1);
       })
       .on('mouseout', function() {
         d3.select(this).attr('opacity', 1);
-        staticLabel.style('opacity', 0);
+        d3.select(staticLabelRef.current).style('opacity', 0);
       })
       .on('click', (event, d: any) => {
         onStateSelect(d.properties.name, d.properties.stateCode);
       });
 
-    // Add state codes as labels
-    g.selectAll('text')
-      .data(usData)
+    // State labels
+    svg.append('g')
+      .selectAll('text')
+      .data(filteredData)
       .enter()
       .append('text')
-      .attr('transform', d => {
-        const centroid = path.centroid(d as any);
-        return centroid ? `translate(${centroid})` : '';
-      })
+      .attr('transform', d => `translate(${path.centroid(d as any)})`)
       .attr('text-anchor', 'middle')
-      .attr('class', 'text-xs font-semibold text-gray-800')
-      .text(d => d.id ?? '');
-
-  }, [usData, width, height, onStateSelect]);
+      .style('font-size', '10px')
+      .style('pointer-events', 'none')
+      .text(d => d.properties && d.properties.stateCode ? d.properties.stateCode : '');
+ 
+  }, [filteredData, width, height, onStateSelect, projection]);
 
   return (
       <div className="position-relative">
+        <div className="position-absolute" style={{ top: 8, right: 8, zIndex: 10 }}>
+               <button
+                 onClick={() => setIsNortheastView(!isNortheastView)}
+                 className="bg-white px-2 py-1 rounded shadow-sm border"
+                 aria-label="Toggle North-East view"
+               >
+                {isNortheastView ? (
+                  <>
+                    <ChevronLeft size={16} className="inline-block mr-1" />
+                    Full View
+                  </>
+                ) : (
+                  'View North-East'
+                )}
+              </button>
+          </div>
           <div
               ref={staticLabelRef}
               className="position-absolute top-0 left-0 w-100 text-center mb-2 bg-white px-3 rounded shadow-sm font-weight-bold"
               style={{ opacity: 0, transition: 'opacity 0.2s ease' }}
           />
           <svg
-              ref={svgRef}
-              width={width}
-              height={height}
-              className="d-block mx-auto"
+            ref={svgRef}
+            viewBox={`0 0 ${width} ${height}`}
+            className="d-block mx-auto w-100 h-auto"
+            preserveAspectRatio="xMidYMid meet"
           />
           <div className="mb-1 ml-1">
             <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0' }}>
@@ -167,7 +200,7 @@ const USMap: React.FC<USMapProps> = ({ width, height, onStateSelect }) => {
                 <span style={{ backgroundColor: '#98FB98', padding: '5px', marginRight: '5px' }}></span> Available
                 </li>
                 <li style={{ display: 'inline-block', marginRight: '20px' }}>
-                <span style={{ backgroundColor: '#bcb3b3', padding: '5px', marginRight: '5px' }}></span> Not Available
+                <span style={{ backgroundColor: '#bcb3b3', padding: '5px', marginRight: '5px' }}></span> Data available upon request
                 </li>                                     
             </ul>
         </div>

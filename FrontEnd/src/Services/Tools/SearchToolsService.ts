@@ -45,6 +45,10 @@ const getSavedFavorite = (userId : string, savedType : string) => {
   return http.post<SearchItemHistory>("/searchTool/getFavoriteHistory",{userId, savedType});
 };
 
+const deteteNonFavorite = (userId : string, savedType : string) => {
+  return http.post("/searchTool/deteteNonFavorite", {userId, savedType});
+};
+
 const SearchToolsService = {
   getAgentIdAutoComplete,
   getAutoCompleteOffice,
@@ -54,7 +58,8 @@ const SearchToolsService = {
   saveSearchHistory,
   getSavedSearches,
   toggleFavorite,
-  getSavedFavorite
+  getSavedFavorite,
+  deteteNonFavorite
 
 };
 

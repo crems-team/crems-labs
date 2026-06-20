@@ -262,13 +262,40 @@ GeoAreaService.getStates = () => {
             request.input('county',  county);
             request.input('nbrMonth',  nbrMonth);
   
+            // const query = `
+            //     IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND City = @city AND Zips = @zips AND State = @state AND County = @county AND NbrMonth = @nbrMonth)
+            //     BEGIN
+            //         INSERT INTO agp_searchHistory (UserId,savedType, City, Zips,State,County,NbrMonth, IsFavorite)
+            //         VALUES (@userId, @savedType, @city, @zips,@state,@county,@nbrMonth, 1)
+            //     END
+            // `;
+
             const query = `
-                IF NOT EXISTS (SELECT 1 FROM agp_searchHistory WHERE UserId = @userId AND City = @city AND Zips = @zips AND State = @state AND County = @county AND NbrMonth = @nbrMonth)
-                BEGIN
+                  IF NOT EXISTS (
+                    SELECT 1 FROM agp_searchHistory
+                    WHERE UserId = @userId AND City = @city AND Zips = @zips AND State = @state AND County = @county AND NbrMonth = @nbrMonth
+                  )
+                  BEGIN
+                    IF (
+                      SELECT COUNT(*) FROM agp_searchHistory
+                      WHERE UserId = @userId
+                      AND   savedType = @savedType
+                    ) >= 10
+                    BEGIN
+                      DELETE FROM agp_searchHistory
+                      WHERE id IN (
+                        SELECT TOP 1 id FROM agp_searchHistory
+                        WHERE UserId = @userId
+                        AND   savedType = @savedType
+                        ORDER BY CreatedAt ASC
+                      )
+                    END
+
                     INSERT INTO agp_searchHistory (UserId,savedType, City, Zips,State,County,NbrMonth, IsFavorite)
                     VALUES (@userId, @savedType, @city, @zips,@state,@county,@nbrMonth, 1)
-                END
-            `;
+
+                  END
+                `;
             request.query(query, (err, res) => {
               //console.log('res');
                 if (err) {
@@ -327,7 +354,6 @@ GeoAreaService.getStates = () => {
             request.input('county',  county);
             request.input('nbrMonth',  nbrMonth);
             request.input('isFavorite',  isFavorite);
-            console.log('hici');
             const query = `
                 UPDATE agp_searchHistory
                 SET IsFavorite = @isFavorite
@@ -371,6 +397,32 @@ GeoAreaService.getStates = () => {
                     return;
                 }
                 resolve(res.recordset);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+  };
+
+  GeoAreaService.deteteNonFavorite = (userId,savedType) => {
+    return new Promise((resolve, reject) => {
+        poolConnect.then(() => {
+            const request = pool.request();
+            request.input('userId',  userId);
+            request.input('savedType',  savedType);
+  
+            const query = `    
+                delete from agp_searchHistory
+                where savedType= @savedType
+                and   UserId = @userId
+                and   IsFavorite = 1;
+            `;
+            request.query(query, (err, res) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(res);
             });
         }).catch(err => {
             reject(err);
@@ -499,7 +551,10 @@ GeoAreaService.getStates = () => {
   
                     reject(err);
                     return;
+                    
                 }
+                console.log(countyFips);
+
                 resolve(res.recordset);
             });
         }).catch(err => {

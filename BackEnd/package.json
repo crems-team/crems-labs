@@ -15,13 +15,20 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "express-basic-auth": "^1.2.1",
+    "express-rate-limit": "^8.0.1",
     "express-session": "^1.18.1",
     "keycloak-connect": "^26.1.1",
     "morgan": "^1.10.0",
     "mssql": "^10.0.2",
     "neo4j-driver": "^5.19.0",
+    "nodemailer": "^7.0.5",
     "nodemon": "^2.0.15",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "tar": "^6.2.0",
-    "xml2js": "^0.6.2"
+    "winston": "^3.17.0",
+    "xml2js": "^0.6.2",
+    "zod": "^4.0.5"
   }
 }

@@ -18,7 +18,13 @@ import { toast } from 'react-toastify';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import SearchHistory from '../Components/SearchHistory';
 import { useAppDispatch } from '../Hooks/DispatchHook';
-import { resetMapState} from '../Redux/Slices/MapSlice'
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
+import {setDataAgent,setFromAgentSearchpage,setAgentTeams} from '../Redux/Slices/MapSlice';
+import { resetMapState } from '../Redux/Slices/MapSlice';
+import { resetTeamInvestigationState } from '../Redux/Slices/TeamInvestigationSlice';
+
+import { Sidebar } from 'primereact/sidebar';
 
 
 
@@ -48,7 +54,7 @@ function SearchByName() {
 
     const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
     //const [dataAgent, setDataAgent] = useState<AgentModel[]>([]);
-    const [dataAgent, setDataAgent] = useState<Array<AgentModel>>([]);
+    // const [dataAgent, setDataAgent] = useState<Array<AgentModel>>([]);
     const navigate = useNavigate();
     const { keycloak, initialized } = useKeycloak();
     //const [searchHistory, setSearchHistory] = useState<Array<{firstName: string, lastName: string}>>([]);
@@ -56,41 +62,48 @@ function SearchByName() {
     const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(Boolean);
     const [isLoadingSearchAgent, setIsLoadingSearchAgent] = useState(Boolean);
     const dispatch = useAppDispatch();
+    const [visibleRight, setVisibleRight] = useState(false);
 
-
+    const [name, setName] = useState('');
+    const [idAgent, setIdAgent] = useState<number>(0);
+    const dataAgent = useSelector((state: RootState) => state.map.dataAgent);
 
 
     const debouncedFetchSuggestions = debounce(async () => {
-      if (lastName.length >= 3 && !isSuggestionClicked) {
+      if (name.length >= 2 && !isSuggestionClicked) {
         setIsLoading(true);
-        try {
-          const response = await http.get<AutocompleteItem[]>(`/search/lastName?term=${lastName}`);
-          const data = response.data;
-          setSuggestions(data);
-        } catch (error) {
-          console.error('Error fetching suggestions:', error);
-        } finally {
-          setIsLoading(false);
-        }
+        await AgentService.getAgentFullName({term: name})
+            .then((response: any) => {
+
+              setSuggestions(response.data);
+                setIsLoading(false);
+
+            })
+            .catch((e: Error) => {
+                console.log(e);
+                setIsLoading(false);
+
+            })
       } else {
         setSuggestions([]);
       }
     }, 1000);
 
-    useEffect(() => {
-      // Call the debounced function instead of fetchSuggestions directly
-      if (lastName.trim() !== '') {
-        debouncedFetchSuggestions();
-      } else {
-        setSuggestions([]);
-        setIsSuggestionClicked(false);
-      }
+
+    // useEffect(() => {
+    //   // Call the debounced function instead of fetchSuggestions directly
+    //   if (name.trim() !== '') {
+    //     debouncedFetchSuggestions();
+    //   } else {
+    //     setSuggestions([]);
+    //     setIsSuggestionClicked(false);
+    //   }
   
-      // Cleanup function to cancel debounce on component unmount
-      return () => {
-        debouncedFetchSuggestions.cancel();
-      };
-    }, [lastName]);
+    //   // Cleanup function to cancel debounce on component unmount
+    //   return () => {
+    //     debouncedFetchSuggestions.cancel();
+    //   };
+    // }, [name]);
 
   /* useEffect(() => {
     // Fetch autocomplete suggestions from API based on inputValue
@@ -121,13 +134,14 @@ function SearchByName() {
   }, [lastName]); */
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLastName(e.target.value);
-    setIsOpen(e.target.value.length >= 3);
-    setIsSuggestionClicked(false);
+    setName(e.target.value);
+    // setIsOpen(e.target.value.length >= 2);
+    // setIsSuggestionClicked(false);
   };
 
   const handleSuggestionClick = (suggestion: AutocompleteItem) => {
-    setLastName(suggestion.label);
+    setName(suggestion.label);
+    setIdAgent(suggestion.value);
     setSuggestions([]);
     setIsOpen(false);
     setIsSuggestionClicked(true);
@@ -204,12 +218,13 @@ function SearchByName() {
     }
 }; */
 
-const saveSearchHistory = async (savedType :string, firstName: string, lastName: string, agentIdC : string ,state : string) => {
+const saveSearchHistory = async (savedType :string, fullName: string, agentIdC : string ,state : string) => {
   if (keycloak.tokenParsed?.sub) {
     const userId = keycloak.tokenParsed.sub;
     let history = JSON.parse(localStorage.getItem(userId+'-agent') || '[]');
-    const newSearch = {savedType, firstName, lastName, isFavorite: true, agentIdC, state };
-    if (!history.some((item :SearchItem)=> item.firstName === firstName && item.lastName === lastName && item.state === state)) {
+    console.log(history);
+    const newSearch = {savedType, fullName, isFavorite: true, agentIdC, state };
+    if (!history.some((item :SearchItem)=> item.fullName === fullName && item.state === state)) {
       if (history.length >= 10) {
         //history = history.slice(1);
         history.pop();
@@ -221,7 +236,7 @@ const saveSearchHistory = async (savedType :string, firstName: string, lastName:
       localStorage.setItem(userId+'-agent', JSON.stringify(history));
       setSearchHistory(history);
       try {
-        await AgentService.saveSearchHistory(userId, savedType,firstName, lastName ,agentIdC,state);
+        await AgentService.saveSearchHistory(userId, savedType,fullName ,agentIdC,state);
       } catch (error) {
         console.error('Error saving search history:', error);
       }
@@ -231,24 +246,24 @@ const saveSearchHistory = async (savedType :string, firstName: string, lastName:
 
 const toggleFavorite = async (search : SearchItem,event: CheckboxChangeEvent) => {
   event.preventDefault();
-
+  console.log(search)
   if (keycloak.tokenParsed?.sub) {
     const userId = keycloak.tokenParsed.sub;
     const updatedSearch = { ...search, isFavorite: !search.isFavorite };
     console.log(updatedSearch);
     try {
-      await AgentService.toggleFavorite(userId, search.firstName, search.lastName, updatedSearch.isFavorite, updatedSearch.state);
+      await AgentService.toggleFavorite(search.agentIdC, updatedSearch.isFavorite);
       setSearchHistory(prevHistory =>
         prevHistory.map(item =>
-          item.firstName === search.firstName && item.lastName === search.lastName && item.state === search.state ? { ...item, isFavorite: !item.isFavorite } : item
+          item.fullName === search.fullName && item.state === search.state ? { ...item, isFavorite: !item.isFavorite } : item
         )
       );
 
       localStorage.setItem(userId+'-agent', JSON.stringify(searchHistory));
       if(updatedSearch.isFavorite === false){
-        toast.success(updatedSearch.firstName +' '+ updatedSearch.lastName+' is saved in your favorite list');
+        toast.success(updatedSearch.fullName+' is saved in your favorite list');
       }else{
-        toast.success(updatedSearch.firstName +' '+ updatedSearch.lastName+' is deleted from your favorite list');
+        toast.success(updatedSearch.fullName+' is deleted from your favorite list');
 
       }
 
@@ -263,27 +278,57 @@ const fetchSavedSearches =  async() => {
     setIsLoadingSavedSearch(true);
     const userId = keycloak.tokenParsed.sub;
 
-      await AgentService.getSavedSearches(userId, "agent")
-      .then((response: any) => {
-        
-       /*  const history = response.data;
-        console.log(history);
-        localStorage.setItem(userId, JSON.stringify(history));
-        setSearchHistory(history); */ 
-        
-        setSearchHistory(response.data);
-        console.log(response.data);
-        localStorage.setItem(userId+'-agent', JSON.stringify(response.data));
-        setIsLoadingSavedSearch(false);
 
 
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      });
+
+    try {
+      const savedSearches: SearchItem[] = await AgentService.getSavedSearches(userId, "agent");
+  
+      setSearchHistory(savedSearches);
+      localStorage.setItem(userId+'-agent', JSON.stringify(savedSearches));
+  
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingSavedSearch(false);
+    }
+
+      // await AgentService.getSavedSearches(userId, "agent")
+      // .then((response: any) => {
+        
+      //  /*  const history = response.data;
+      //   console.log(history);
+      //   localStorage.setItem(userId, JSON.stringify(history));
+      //   setSearchHistory(history); */ 
+        
+      //   setSearchHistory(response.data);
+      //   localStorage.setItem(userId+'-agent', JSON.stringify(response.data));
+      //   setIsLoadingSavedSearch(false);
+
+
+      // })
+      // .catch((e: Error) => {
+      //   setIsLoadingSavedSearch(false);
+
+      //   console.log(e);
+      // });
 
  
    
+  }
+};
+
+  const deteteNonFavorite = async () => {
+
+  if (keycloak.tokenParsed?.sub) {
+    const userId = keycloak.tokenParsed.sub;
+    try {
+      await AgentService.deteteNonFavorite(userId, 'agent');
+      fetchSavedSearches();     
+
+    } catch (error) {
+      console.error('Error detele non favorite:', error);
+    }
   }
 };
 
@@ -319,197 +364,260 @@ const fetchSavedSearches =  async() => {
 useEffect(() => {
   if (keycloak.tokenParsed?.sub) {
     dispatch(resetMapState());
+    dispatch(resetTeamInvestigationState());
     fetchSavedSearches();
-    const roles = keycloak.hasRealmRole('admin');
-    console.log(roles);
+   
   }
 }, [keycloak.tokenParsed?.sub]);
 
 
-const handleSearch = async(firstName : string, lastName : string) => {
-  setIsLoadingSearchAgent(true);
-    var data = {
-        firstName: firstName,
-        lastName: lastName
-      };
+// const handleSearch = async() => {
+//   setIsLoadingSearchAgent(true);
 
-      await AgentService.getAgent(data)
-      .then((response: any) => {
-        setDataAgent(response.data);
-        console.log(response.data[0]);
-        saveSearchHistory("agent",firstName, lastName,response.data[0].agentIdC,response.data[0].officeState);
-        setIsLoadingSearchAgent(false);
-      })
-      .catch((e: Error) => {
-        setIsLoadingSearchAgent(false);
+//       await AgentService.getAgent({term : name})
+//       .then((response: any) => {
+//         dispatch(setDataAgent(response.data));
+//         // saveSearchHistory("agent",name,response.data[0].agentIdC,response.data[0].officeState);
+//         setIsLoadingSearchAgent(false);
+//         console.log(response.data);
+//       })
+//       .catch((e: Error) => {
+//         setIsLoadingSearchAgent(false);
 
-        console.log(e);
-      });
+//         console.log(e);
+//       });
     
       
 
-  };
+//   };
+
+const handleSearch = async () => {
+  if (!name?.trim()) return;
+  setIsLoadingSearchAgent(true);
+
+  try {
+    const agents: AgentModel[] = await AgentService.getAgent({ term: name.trim() });
+    console.log(agents);
+    dispatch(setDataAgent(agents));
+    
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setIsLoadingSearchAgent(false);
+  }
+};
 
   const handleClick = ( event: React.MouseEvent<HTMLButtonElement>)=> {
     event.preventDefault();
   };
 
   const handleClear = () =>{
-    setDataAgent([]);
+    dispatch(setDataAgent([]));
     setFirstName('');
-    setLastName('');
+    setName('');
+    setIdAgent(0);
 
   }
 
 
 const buttonDataTable = (rowData : AgentModel) => {
+
+  const hasTeams = rowData.teams?.some(team => team.teamId != null);
+  
   return(
   <div style={{ display: 'flex',  gap: '1rem' }}>
-        <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" onClick={() => redirectToApr(rowData.agentIdC)} />
-        <Button label="Teams" icon="bi bi-microsoft-teams" className="btn btn-primary" onClick={() => redirectToTeamInvestigator(rowData.agentIdC)} />
+        <Button label="Report" icon="bi bi-bar-chart-line-fill" className="btn btn-success" style={{ whiteSpace: 'nowrap' }} onClick={() => redirectToApr(rowData)} />
+        <Button label="Inter. Report" icon="bi bi-microsoft-teams" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={() => redirectToInteractionReport(rowData)} />
+          
+        {hasTeams && (
+        <Button
+          label="Teams"
+          icon="bi bi-microsoft-teams"
+          className="btn btn-primary"
+          style={{ whiteSpace: 'nowrap' }}
+          onClick={() => redirectToTeamInvestigator(rowData)}
+        />
+      )}
 
     </div>
   );
   };
 
-  const redirectToApr = (id : number) => {
-    navigate(`/AgentProdReports/${id}`);
+  const redirectToApr = (agent : AgentModel) => {
+    if(dataAgent.length > 1){
+    dispatch(setFromAgentSearchpage(true));
+    }
+    const fullName = agent.agentfirstName + ' ' + agent.agentlastName;
+    const fullNameUpperCase = fullName.toUpperCase();
+
+    saveSearchHistory("agent",fullNameUpperCase,agent.agentIdC.toString(),agent.officeState);
+
+    navigate(`/AgentProdReports/${agent.agentIdC}`);
+
   };
 
   const redirectSaveToApr = (id : string) => {
+    setVisibleRight(false);
+
     navigate(`/AgentProdReports/${id}`);
   };
 
-  const redirectToTeamInvestigator = (id : number) => {
-    navigate(`/TeamInvestigator/${id}`);
+  const redirectToInteractionReport = (agent : AgentModel) => {
+
+    const fullName = agent.agentfirstName + ' ' + agent.agentlastName;
+    const fullNameUpperCase = fullName.toUpperCase();
+
+    saveSearchHistory("agent",fullNameUpperCase,agent.agentIdC.toString(),agent.officeState);
+    navigate(`/TeamInvestigator/${agent.agentIdC}`);
 };
 
+const redirectToTeamInvestigator = (agent: AgentModel) => {
+
+ if (!agent.teams || agent.teams.length > 1) {
+
+    dispatch(setFromAgentSearchpage(true));
+ }
+  const firstTeam = agent.teams[0];
   
+  
+  dispatch(setAgentTeams(agent.teams));
 
-  return (
-    <div className="container mt-3">
-       
+  const fullName = agent.agentfirstName + ' ' + agent.agentlastName;
+    const fullNameUpperCase = fullName.toUpperCase();
+
+    saveSearchHistory("agent",fullNameUpperCase,agent.agentIdC.toString(),agent.officeState);
+
+  navigate(`/teamInvestGraph/${firstTeam.teamId}`);
+};
+
+const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  handleSearch(); 
+};
+
+return (
+  <div className="container mt-3">
     <main>
-      <form id="frmAction" action="" method="POST">
-        <div className="row">
-            <div className="col-md-8">
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="form-floating">
-                            <input type="text" id="agent_l_name" autoComplete="off" className="form-control" value={lastName}
-                            onChange={handleInputChange} placeholder="Listing Agent Last Name" required/>
-                            {isOpen && (<ul className="autocomplete-suggestions">
-                              { !isLoading ?suggestions[0] &&(suggestions.map((suggestion) => (
-                                <li key={suggestion.value} onClick={() => handleSuggestionClick(suggestion)}>
-                                    {suggestion.label}
-                                </li>
-                                ))):<li>   
-                                  <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
-                                  </li>}
-                            </ul>
-                            )}
-                            <label htmlFor="agent_l_name">Listing Agent Last Name</label>
-                            
-                            <div className="invalid-feedback">Please provide a valid last name.</div>
-                            <span className="form-text">Type the first few letters of the agent’s last name, then select the correct choice from the drop-down list.</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="form-floating">
-                            <input type="text" id="agent_f_name"  autoComplete="off" className="form-control" value={firstName}
-                            onChange={handleInputChangeFn} placeholder="Listing Agent First Name" required/>
-                              {isOpenFn && (<ul className="autocomplete-suggestions">
-                              {!isLoading ? suggestionsFn[0]&&(Array.isArray(suggestionsFn) && suggestionsFn.map((suggestionfn) => (
-                                <li key={suggestionfn.value} onClick={() => handleSuggestionClickFn(suggestionfn)}>
-                                    {suggestionfn.label}
-                                </li>
-                                ))): <li>   
-                                <BeatLoader className="loading-container"size={15} color="#36d7b7" />                         
-                                </li>}
-                            </ul>
-                            )}
+      <form id="frmAction" onSubmit={handleFormSubmit}>
+        <div className="row g-4">
+          <div className="col-md-10">
+            <div className="mb-3">
+              <label htmlFor="A" className="form-label">Listing Agent Full Name</label>
 
-                            <label htmlFor="agent_f_name" >Listing Agent First Name</label>
+              <div className="d-grid d-md-flex align-items-stretch gap-2">
+                <input
+                  type="text"
+                  id="A"
+                  autoComplete="off"
+                  className="form-control form-control-lg rounded-3 flex-grow-1" 
+                  value={name}
+                  onChange={handleInputChange}
+                  placeholder="Type the first few letters..."
+                />
 
-                            <div className="invalid-feedback">Please provide a valid first name.</div>
-                            <span className="form-text">Type the first few letters of the agent’s first name, then select the correct choice from the drop-down list. The system should present only the first names which match with the last name.</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="row text-center" >
-                    <div className="col-md-12">
-                        
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                    <div className="card">
-                      { isLoadingSearchAgent? ( <div  >
- 
-                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
- 
-                                 </div>
-                        ):dataAgent.length >0 && (
-                          
-                        
-
-                        <DataTable value={dataAgent} paginator rows={5}>
-                        <Column body={buttonDataTable} />
-                            <Column field="agentfirstName" header="FirstName" />
-                            <Column field="agentlastName" header="LastName" />
-                            <Column field="officeName" header="Office Name" />
-                            <Column field="officeState" header="State" />
-                        </DataTable>
-                      )}
-                    </div>
-    
-                    </div>
-                </div>
-                <div className="row mt-4">
-                    <div className="col-md-12">
-                        <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button className="btn btn-primary btn-lg me-md-2 mb-2 mb-md-0" type="button" id="search" name="search"
-                            onClick={() => handleSearch(firstName,lastName)}>
-                                Search
-                                <i className="bi bi-search"></i>
-                            </button>
-                            <button className="btn btn-warning btn-lg me-md-2 mb-2 mb-md-0"  type="button" id="clear" name="clear"
-                            onClick={() => handleClear()}>
-                                Clear
-                                <i className="bi bi-arrow-repeat"></i>
-
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <Button
+                  label="Search"
+                  icon="pi pi-search"
+                  type="submit"
+                  className="modern-action modern-search"
+                />
+                <Button
+                  type="button"
+                  label="Clear"
+                  icon="pi pi-times"
+                  severity="warning"
+                  outlined
+                  onClick={handleClear}
+                  className="modern-action"
+                />
+              </div>
             </div>
 
-
-              <div className="col-md-4  mx-auto">
-              <SearchHistory
-                title="Agent Search History"
-                isLoading={isLoadingSavedSearch}
-                searchHistory={searchHistory}
-                onSearchClick={(search : any) => redirectSaveToApr(search.agentIdC)}
-                onToggleFavorite={toggleFavorite}
-                parent="Agent"
-              />
-
-
+            <div className="row">
+              <div className="col-12">
+                {isLoadingSearchAgent ? (
+                  <div className="mt-4 text-center">
+                    <BeatLoader className="loading-container" size={15} color="#36d7b7" />
+                  </div>
+                ) : (
+                  dataAgent.length > 0 && (
+                    <div className="card mt-4">
+                      <div className="card-body p-0">
+                        <DataTable
+                          value={dataAgent}
+                          paginator
+                          rows={5}
+                          breakpoint="768px"
+                          tableStyle={{ minWidth: '620px' }} 
+                        >
+                          <Column body={buttonDataTable} />
+                          <Column field="agentIdC" header="Agent Id" style={{ minWidth: 110 }} />
+                          <Column field="agentfirstName" header="First Name" style={{ minWidth: 140 }} />
+                          <Column field="agentlastName" header="Last Name" style={{ minWidth: 140 }} />
+                          <Column field="officeName" header="Office Name" style={{ minWidth: 180 }} />
+                          <Column field="officeState" header="State" style={{ minWidth: 100 }} />
+                        </DataTable>
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
-              
+            </div>
+          </div>
+
+
+          <div className="col-md-2">
+            <div className="d-flex justify-content-md-end mb-3">
+               <div className="d-flex justify-content-end">
+               <Button
+                  type="button"
+                  outlined
+                  severity="info"
+                  icon="pi pi-history"
+                  label="Search History"
+                  className="modern-history-btn"
+                  onClick={() => setVisibleRight(true)}
+                />
+              </div>
+            </div>
+
+            <Sidebar
+              visible={visibleRight}
+              position="right"
+              onHide={() => setVisibleRight(false)}
+              style={{ width: '85vw', maxWidth: '50rem' }} 
+            >
+              <div className="col-12 mx-auto">
+                <SearchHistory
+                  title="Agent Search History"
+                  isLoading={isLoadingSavedSearch}
+                  searchHistory={searchHistory}
+                  onSearchClick={(search: any) => redirectSaveToApr(search.agentIdC)}
+                  onToggleFavorite={toggleFavorite}
+                  onDeteteNonFavorite={deteteNonFavorite}
+                  parent="Agent"
+                />
+              </div>
+            </Sidebar>
+          </div>
         </div>
-    </form>
+      </form>
     </main>
+
     <footer className="bg-light py-4 mt-5">
       <div className="container text-left">
-      <strong><span style={{ textDecoration: 'underline'}}>SYSTEM PURPOSE:</span> The Agent Production Reporting (APR) system’s purpose is to provide the most accurate summary of a Real Estate Agent’s sales productivity over the past 24 months. It is designed for industry professionals (such as Title and Mortgage, etc.) who market their services to agents and want to confirm the volume of an agent’s productivity (aka Sales).</strong>
+        <strong>
+          <span style={{ textDecoration: 'underline' }}>SYSTEM PURPOSE:</span> The Agent Production Reporting (APR) system’s purpose is to provide
+          the most accurate summary of a Real Estate Agent’s sales productivity over the past 24 months. It is designed for industry professionals
+          (such as Title and Mortgage, etc.) who market their services to agents and want to confirm the volume of an agent’s productivity (aka Sales).
+        </strong>
       </div>
     </footer>
-    </div>
-  );
+  </div>
+);
+
+
 };
 
 export default SearchByName;

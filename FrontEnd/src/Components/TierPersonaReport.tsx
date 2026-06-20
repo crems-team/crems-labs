@@ -2,6 +2,7 @@ import React, { useState,useEffect } from 'react';
 import AgentService from "../Services/AgentService";
 import { Chart } from 'react-google-charts';
 import DataPresentRep from '../Models/DataPresentRep';
+import { Skeleton } from 'primereact/skeleton';
 
 
 interface OtherComponentProps {
@@ -15,35 +16,11 @@ const TierPersonaReport : React.FC<OtherComponentProps> = ({ id }) => {
     const [presentRepoData, setPresentRepoData] = useState<Array<DataPresentRep>>([]);
     const [data, setData] = useState<(any[])>([]);
     const [options, setOptions] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
 
 
-
-
- /*    useEffect(() => {
-        if (id) {
-            const fetchData = async () => {
-                setLoading(true);
-
-                AgentService.getAgentHistoData({ id })
-                .then((response: any) => {
-                  setMonthData(response.data);
-                  setIsFetched(true);
-                  //console.log(response.data);                
-  
-                })
-                .catch((e: Error) => {
-                  console.log(e);
-                });
-                setLoading(false);
-
-            }
-            fetchData();
-        }
-    }, []); */
-
- 
 
 
     useEffect(() => {
@@ -51,18 +28,18 @@ const TierPersonaReport : React.FC<OtherComponentProps> = ({ id }) => {
                 
             const fetchData=()=>{
 
+                setIsLoading(true);
                 AgentService.getTotalPresent({id})
-                .then((response: any) => {
-                    if(response.data){
-                        console.log('in response');
-                        console.log(response.data);
+                .then((totalPresent: [{ list: number; sell: number; dna: number }]) => {
+                    if(totalPresent){
+                    
 
 
                         const data = [
                             ["element", "Total",{ role: "style" }],
-                            ["Listing", response.data[0].list, "red"], 
-                            ["Selling", response.data[0].sell, "blue"], 
-                            ["Non MLS", response.data[0].dna, "green"]
+                            ["Listing", totalPresent[0].list, "red"], 
+                            ["Selling", totalPresent[0].sell, "blue"]
+                            // ["Non MLS", totalPresent[0].dna, "green"]
                         ];
                         
                         
@@ -72,7 +49,10 @@ const TierPersonaReport : React.FC<OtherComponentProps> = ({ id }) => {
                 })
                 .catch((e: Error) => {
                     console.log(e);
-                });    
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                  });    
             }
             if(id){
                 fetchData();
@@ -89,21 +69,22 @@ const TierPersonaReport : React.FC<OtherComponentProps> = ({ id }) => {
     
     return (
         <div>
-            {data[1]?(<Chart
-        width={'198px'}
-        height={'105px'}
-        chartType="ColumnChart"
-        data={data}
-        options={{
-            title: "12 month total",
-
-            legend: 'none',
-           
-           
-        }}
-        
-        />)
-        :<div>Loading Chart...</div>
+            {isLoading?<div><Skeleton size="6rem"></Skeleton></div>
+            :
+            data[1]?(<Chart
+                width={'198px'}
+                height={'105px'}
+                chartType="ColumnChart"
+                data={data}
+                options={{
+                    title: "12 month total",        
+                    legend: 'none',
+                   
+                   
+                }}
+                
+                />)
+                :'Not available'
         
 }
         </div>

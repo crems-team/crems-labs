@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import { resetMapState } from '../Redux/Slices/MapSlice';
 import { resetAreaAgentState } from '../Redux/Slices/AreaAgentSlice';
+import { resetTeamInvestigationState } from '../Redux/Slices/TeamInvestigationSlice';
 import { useSearch } from '../Components/Context/Context';
 import RenderOnRole from '../Helpers/RenderOnRole';
 
@@ -19,8 +20,14 @@ function AppMenu() {
     // document.body.classList.toggle('sidebar-collapse');
     dispatch(resetMapState());
     dispatch(resetAreaAgentState());
+    dispatch(resetTeamInvestigationState());
     setCollapsed(true);
     navigate('/SearchByAreaV2');
+  };
+
+    const goToTeamInvestigation = () => {
+    dispatch(resetTeamInvestigationState());
+    navigate('/SearchTeamInvest');
   };
 
   // const goToSearchByAreaV2 = () => {
@@ -116,22 +123,45 @@ function AppMenu() {
               
               {/* Fact Book */}
               <li className="nav-item border-menu-bottom ">
-                <Link to="/FactBook" className="nav-link d-flex align-items-center align-items-md-start">
-                  <span className=" text-white mt-1"> {isSidebarExpanded ?<span><span className="bi bi-book fs-4"></span> <span className="ml-2"> FACT BOOK Intro </span> </span>: <span><span className="d-md-block"><strong>FACT</strong></span> <span className="d-md-block"><strong>BOOK</strong></span> <span className="d-md-block"><strong>Intro</strong></span></span>} </span>
+                <Link to="/welcomePage" className="nav-link d-flex align-items-center align-items-md-start">
+                  <span className=" text-white mt-1"> {isSidebarExpanded ?<span><span className="bi bi-book fs-4"></span> <span className="ml-2"> Welcome Page </span> </span>: <span><span className="d-md-block " >Welcome</span> <span className="d-md-block">Page</span> </span>} </span>
                 </Link>
               </li>
+
+              <li className="nav-item border-menu-bottom">
+                <a
+                  onClick={goToSearchByArea}
+                  className="nav-link d-flex align-items-center align-items-md-start"
+                  role="button"
+                >
+                  <span className="bi bi-globe-americas fs-3"></span>
+                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Market Intelligence' : 'Market'}</span>
+                </a>
+              </li>
+
               {/* Search By Name */}
               <li className="nav-item border-menu-bottom">
                 <Link to="/SearchByAgent" className="nav-link d-flex align-items-center align-items-md-start">
                   <span className="bi fas bi-person-vcard fs-3"></span>
-                  <span className="menu-label text-white mt-1"> {isSidebarExpanded ? 'Agent Report' : 'Agent'} </span>
+                  <span className="menu-label text-white mt-1"> {isSidebarExpanded ? 'Agent Intelligence' : 'Agent'} </span>
                 </Link>
+              </li>
+
+              <li className="nav-item border-menu-bottom">            
+                <a
+                  onClick={goToTeamInvestigation}
+                  className="nav-link d-flex align-items-center align-items-md-start"
+                  role="button"
+                >
+                  <span className="bi bi-people fs-3"></span>
+                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Team Intelligence' : 'Team'}</span>
+                </a>
               </li>
 
               <li className="nav-item border-menu-bottom">
                 <Link to="/searchByOffice" className="nav-link d-flex  align-items-center align-items-md-start">
                   <span className="bi bi-buildings fs-3"></span>
-                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Office Report' : 'Office'}</span>
+                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Office Intelligence' : 'Office '}</span>
                 </Link>
               </li>
               {/* Area Report */}
@@ -176,28 +206,26 @@ function AppMenu() {
                 )}
               </li> */}
 
-              <li className="nav-item border-menu-bottom">
-                <a
-                  onClick={goToSearchByArea}
-                  className="nav-link d-flex align-items-center align-items-md-start"
-                  role="button"
-                >
-                  <span className="bi bi-globe-americas fs-3"></span>
-                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Area Report' : 'Area'}</span>
-                </a>
-              </li>
+              
 
     
               
               
 
-              <li className="nav-item border-menu-bottom">
+              {/* <li className="nav-item border-menu-bottom">
                 <Link to="/SearchLoanOfficer" className="nav-link d-flex  align-items-center align-items-md-start">
                   <span className="bi bi-bank fs-3"></span>
                   <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Loan Officer' : 'LO'}</span>
                 </Link>
-              </li>
-              <RenderOnRole requiredRoles={['admin']}>
+              </li> */}
+              
+              {/* <li className="nav-item border-menu-bottom">
+                <Link to="/SearchTeam" className="nav-link d-flex  align-items-center align-items-md-start">
+                  <span className="bi bi-people fs-3"></span>
+                  <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Team Report' : 'Team'}</span>
+                </Link>
+              </li> */}
+              {/* <RenderOnRole requiredRoles={['admin']}>
               <li className="nav-item border-menu-bottom">
                 <Link to="/searchTool" className="nav-link d-flex  align-items-center align-items-md-start">
                   <span className="bi bi-search fs-3"></span>
@@ -212,7 +240,7 @@ function AppMenu() {
                   <span className="menu-label text-white mt-1">{isSidebarExpanded ? 'Listing API Report' : 'Listing API'}</span>
                 </Link>
               </li>
-              </RenderOnRole>
+              </RenderOnRole> */}
               <li className="nav-item border-menu-bottom">
                 <a
                   //href="https://www.webedsystems.com/support"

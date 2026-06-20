@@ -1,157 +1,70 @@
 const SearchToolService = require("../Services/SearchTool.service");
+const catchAsync = require('../Utils/CatchAsync');
 
 const SearchToolController = {};
 
+// --- Autocomplete ---
 
-SearchToolController.getAutoCompleteAgentId = async (req, res) => {
-    try {
-      const agentId = req.body.agentId; 
+SearchToolController.getAutoCompleteAgentId = catchAsync(async (req, res) => {
+  const { agentId } = req.body;
+  const agentIdSuggest = await SearchToolService.getAutoCompleteAgentId(agentId);
+  res.status(200).json(agentIdSuggest);
+});
 
-      const agentIdSuggest = await SearchToolService.getAutoCompleteAgentId(agentId);
-  
-      if (!agentIdSuggest) {
-        return res.status(404).json({ message: 'Agent ID not found' });
-      }
-  
-      res.status(200).json(agentIdSuggest);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+SearchToolController.getAutoCompleteOffice = catchAsync(async (req, res) => {
+  const { office, agentId } = req.body;
+  const officeSuggest = await SearchToolService.getAutoCompleteOffice(office, agentId);
+  res.status(200).json(officeSuggest);
+});
 
-  SearchToolController.getAutoCompleteOffice = async (req, res) => {
-    try {
-      const office = req.body.office; 
-      const agentId = req.body.agentId; 
+SearchToolController.getAutoCompleteAddress = catchAsync(async (req, res) => {
+  const { address, agentId } = req.body;
+  const addressSuggest = await SearchToolService.getAutoCompleteAddress(address, agentId);
+  res.status(200).json(addressSuggest);
+});
 
+SearchToolController.getAutoCompleteCity = catchAsync(async (req, res) => {
+  const { city, agentId } = req.body;
+  const citySuggest = await SearchToolService.getAutoCompleteCity(city, agentId);
+  res.status(200).json(citySuggest);
+});
 
-      const officeSuggest = await SearchToolService.getAutoCompleteOffice(office,agentId);
-  
-      if (!officeSuggest) {
-        return res.status(404).json({ message: 'Office  not found' });
-      }
-  
-      res.status(200).json(officeSuggest);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+SearchToolController.getSearchData = catchAsync(async (req, res) => {
+  const { agentId, office, address, city } = req.body;
+  const data = await SearchToolService.getSearchData(agentId, office, address, city);
+  res.status(200).json(data);
+});
 
-  SearchToolController.getAutoCompleteAddress = async (req, res) => {
-    try {
-      const address = req.body.address; 
-      const agentId = req.body.agentId; 
+// --- Search history / Favorite ---
 
-      const addressSuggest = await SearchToolService.getAutoCompleteAddress(address,agentId);
-  
-      if (!addressSuggest) {
-        return res.status(404).json({ message: 'Address  not found' });
-      }
-  
-      res.status(200).json(addressSuggest);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+SearchToolController.getSearchHistory = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  const data = await SearchToolService.getSearchHistory(userId, savedType);
+  res.status(200).json(data);
+});
 
-  SearchToolController.getAutoCompleteCity = async (req, res) => {
-    try {
-      const city = req.body.city; 
-      const agentId = req.body.agentId; 
+SearchToolController.toggleFavorite = catchAsync(async (req, res) => {
+  const { search } = req.body;
+  await SearchToolService.toggleFavorite(search.idHistory, search.isFavorite);
+  res.sendStatus(200);
+});
 
+SearchToolController.saveSearchHistory = catchAsync(async (req, res) => {
+  const { userId, savedType, agentId, officeName, address, city } = req.body;
+  await SearchToolService.saveSearchHistory(userId, savedType, agentId, officeName, address, city);
+  res.sendStatus(200);
+});
 
-      const citySuggest = await SearchToolService.getAutoCompleteCity(city, agentId);
-  
-      if (!citySuggest) {
-        return res.status(404).json({ message: 'City  not found' });
-      }
-  
-      res.status(200).json(citySuggest);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+SearchToolController.getFavoriteHistory = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  const data = await SearchToolService.getFavoriteHistory(userId, savedType);
+  res.status(200).json(data);
+});
 
-  SearchToolController.getSearchData = async (req, res) => {
-    try {
-      const agentId = req.body.agentId; 
-      const office  = req.body.office; 
-      const address = req.body.address; 
-      const city    = req.body.city;
-
-
-      const data = await SearchToolService.getSearchData(agentId, office, address, city);
-  
-      if (!data) {
-        return res.status(404).json({ message: 'data  not found' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  //For saved search and favorite option
-  SearchToolController.getSearchHistory = async (req, res) => {
-    try {
-      const userId = req.body.userId;
-      const savedType = req.body.savedType;
-      const data = await SearchToolService.getSearchHistory(userId,savedType);
-  
-      if (!data) {
-        return res.status(404).json({ message: 'Result not found' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  SearchToolController.toggleFavorite = async (req, res) => {
-    const { userId, search } = req.body;
-    console.log(search);
-    try {
-        await SearchToolService.toggleFavorite(search.idHistory, search.isFavorite);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send('Error toggling favorite');
-    }
-  };
-
-  SearchToolController.saveSearchHistory = async (req, res) => {
-    const { userId, savedType, agentId,officeName, address, city } = req.body;
-    try {
-        await SearchToolService.saveSearchHistory(userId, savedType, agentId,officeName, address, city);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send('Error saving search history');
-    }
-  };
-
-  SearchToolController.getFavoriteHistory = async (req, res) => {
-    try {
-      const userId = req.body.userId;
-      const savedType = req.body.savedType;
-      const data = await SearchToolService.getFavoriteHistory(userId, savedType);
-  
-      if (!data) {
-        return res.status(404).json({ message: 'Result not found' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  
- 
+SearchToolController.deteteNonFavorite = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  await SearchToolService.deteteNonFavorite(userId, savedType);
+  res.sendStatus(200);
+});
 
 module.exports = SearchToolController;

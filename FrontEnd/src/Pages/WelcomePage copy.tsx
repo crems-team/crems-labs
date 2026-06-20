@@ -40,7 +40,7 @@ interface AutocompleteItem {
   agentIdC : string;
 } */
 
-function FactBook() {
+function WelcomePage() {
 
   
 
@@ -52,7 +52,7 @@ function FactBook() {
             <div className="row align-items-center">
                 <div className="col-md-12">
                 <p className="custom-font">
-                <strong>Purpose:</strong> This system is designed to provide Title, Mortgage, and RE Expansion Team sales managers with detailed reports* about every real estate agent and loan officer (LO) operating within their sales territory.  We call this a “FACT BOOK” of information. 
+                <strong>Purpose:</strong> This system is designed to provide Title, Mortgage, and RE Expansion Team sales managers with detailed reports* about every real estate agent and loan officer (LO) operating within their sales territory.  We call this the “PRODUCTIVITY REPORT” of information. 
                 </p>
                 </div>
                
@@ -60,14 +60,14 @@ function FactBook() {
             <div className="row align-items-center">
                 <div className="col-md-12">
                 <p className="custom-font">
-                <strong>Information Source:</strong> The source of the FACT BOOK’s information is updated twice daily from hundreds of MLS data feeds, with title data verifications, DRE (Department of Real Estate) license information, and published reports of Agent Teams.  CREMS filters and cleans the incoming data every day with proprietary AI systems to provide a near real time update to the system’s database.  The CREMS FACT BOOK builds as complete a record of real estate transactions over multiple years as the available data makes possible.
+                <strong>Information Source:</strong> The source of the PRODUCTIVITY REPORT’S information is updated twice daily from hundreds of MLS data feeds, with title data verifications, DRE (Department of Real Estate) license information, and published reports of Agent Teams.  CREMS filters and cleans the incoming data every day with proprietary AI systems to provide a near real time update to the system’s database.  The CREMS PRODUCTIVITY PREPORT builds as complete a record of real estate transactions over multiple years as the available data makes possible.
                 </p>
                 </div>
                
             </div>
-            <div className="row text-center">
+            <div className="row text-center mb-3">
                 <span className="custom-font">
-                    <strong>Using the FACT BOOK</strong>
+                    <strong>Using the PRODUCTIVITY REPORT</strong>
                 </span>
             </div>
         </section>
@@ -75,12 +75,12 @@ function FactBook() {
         <div className="row align-items-center">
                 <div className="col-md-8">
                 <p className="custom-font">
-                <strong>Reporting Format:</strong> Each of the sections of the FACT BOOK begins with a search for one of the following:</p>
+                <strong>Reporting Format:</strong> Each of the sections of the PRODUCTIVITY REPORTING begins with a search for one of the following:</p>
                         
                         <ul className="custom-font ml-3">
-                            <li>an individual Real Estate “Agent”;</li>
-                            <li>Real Estate “Office”;</li>
                             <li>Geographic “Area”;</li>
+                            <li>Real Estate “Agent”;</li>
+                            <li>Real Estate “Office”;</li>                            
                             <li>Loan Officer (“LO”).</li>
                         </ul> 
                         <p className="custom-font">
@@ -158,4 +158,4 @@ function FactBook() {
   );
 };
 
-export default FactBook;
+export default WelcomePage;

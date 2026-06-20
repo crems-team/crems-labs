@@ -33,10 +33,10 @@ const TeamInvestigatorProductiveGroup : React.FC<ComponentProps> = ({ id }) => {
                 
             const fetchData=()=>{
                 AgentService.getTeamAgentsTable({id})
-                .then((response: any) => {
-                    if(response.data){
-                        setDataTeam(response.data);
-                        setTotalRecords(response.data.length);
+                .then((report: TeamAgentsTable[]) => {
+                    if(report){
+                        setDataTeam(report);
+                        setTotalRecords(report.length);
                     }                 
                 })
                 .catch((e: Error) => {

@@ -21,6 +21,8 @@ import { useSearch } from '../Components/Context/Context';
 import SearchHistory from '../Components/SearchHistory';
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import { resetMapState} from '../Redux/Slices/MapSlice'
+import { resetTeamInvestigationState} from '../Redux/Slices/TeamInvestigationSlice'
+import { Sidebar } from 'primereact/sidebar';
 
 
 
@@ -51,6 +53,7 @@ function SearchByOffice() {
 
     const [filteredData, setFilteredData] = useState(dataAgent);
     const dispatch = useAppDispatch();
+    const [visibleRight, setVisibleRight] = useState(false);
 
 
 
@@ -216,6 +219,7 @@ function SearchByOffice() {
       setDataAgent([]);
       setCity('');
       setOffice('');
+      setOfficeId('');
 
   
     }
@@ -308,6 +312,20 @@ function SearchByOffice() {
       }
     };
 
+    const deteteNonFavorite = async () => {
+
+      if (keycloak.tokenParsed?.sub) {
+        const userId = keycloak.tokenParsed.sub;
+        try {
+          await OfficeService.deteteNonFavorite(userId, 'office');
+          fetchSavedSearches();     
+    
+        } catch (error) {
+          console.error('Error detele non favorite:', error);
+        }
+      }
+    };
+
     // const handleSearchAction = (search : SearchItemOffice) => {
     //   setIsLoadingSearchOffice(true);
     //   const data={
@@ -332,6 +350,8 @@ function SearchByOffice() {
     }
     
     const redirectSaveToOpr = (id : string) => {
+      setVisibleRight(false);
+
       navigate(`/officeProdReports/${id}`);
     };
 
@@ -345,6 +365,21 @@ function SearchByOffice() {
       );
       }
 
+    useEffect(() => {
+      const handleGlobalKeyDown = (event: KeyboardEvent) => {
+          // Only trigger search if no input or textarea element is focused
+          if (event.key === 'Enter' && !(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)) {
+              event.preventDefault();
+              handleSearch();
+          }
+      };
+
+      document.addEventListener('keydown', handleGlobalKeyDown);
+
+      return () => {
+          document.removeEventListener('keydown', handleGlobalKeyDown);
+      };
+  }, [handleSearch]); 
     
   return (
     <div className="container mt-3">
@@ -356,7 +391,7 @@ function SearchByOffice() {
         Select the desired agent.">
                                     <i id="idInfoIcon" className="bi bi-info-circle" /></a>
           </div>
-            <div className="col-md-8 col-sm-4">
+            <div className="col-md-10 col-sm-6">
                 <div className="row">
                     <div className="col-md-12 col-sm-4">
                             <div className="form-floating mr-3 ml-3">
@@ -436,35 +471,62 @@ function SearchByOffice() {
                 <div className="row mt-4">
                     <div className="col-md-12">
                         <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button className="btn btn-primary btn-lg me-md-2 mb-2 mb-md-0" type="button" id="search" name="search"
-                             onClick={() => handleSearch()}>
-                                Search
-                                <i className="bi bi-search"></i>
-                            </button>
-                            <button className="btn btn-warning btn-lg me-md-2 mb-2 mb-md-0"  type="button" id="clear" name="clear"
-                               onClick={() => handleClear()}>
-                                Clear
-                                <i className="bi bi-arrow-repeat"></i>
-
-                            </button>
+                           <Button
+                              type="button"
+                              label="Search"
+                              icon="pi pi-search"
+                              onClick={() => handleSearch()}
+                              className="modern-action modern-search"
+                            />
+                            <Button
+                              type="button"
+                              label="Clear"
+                              icon="pi pi-times"
+                              severity="warning"
+                              outlined
+                              onClick={handleClear}
+                              className="modern-action"
+                            />
+                            
                         </div>
                     </div>
                 </div>
             </div>
 
 
-              <div className="col-md-4  mx-auto">
+        <div className="col-md-2  mx-auto">
+          <div className="d-flex justify-content-end">
+            <Button
+              type="button"
+              outlined
+              severity="info"
+              icon="pi pi-history"
+              label="Search History"
+              className="modern-history-btn"
+              onClick={() => setVisibleRight(true)}
+            />
+          </div>
+          <Sidebar visible={visibleRight} position="right" onHide={() => setVisibleRight(false)} style={{ width: '50rem' }}>
+            <div className="col-12  mx-auto">
               <SearchHistory
                 title="Office Search History"
                 isLoading={isLoadingSavedSearch}
                 searchHistory={searchHistory}
-                onSearchClick={(search : any) => redirectSaveToOpr(search.officeId)}
+                onSearchClick={(search: any) => redirectSaveToOpr(search.officeId)}
                 onToggleFavorite={toggleFavorite}
+                onDeteteNonFavorite={deteteNonFavorite}
                 parent="Office"
               />
 
 
-              </div>
+
+            </div>
+          </Sidebar>
+
+
+
+
+        </div>
               
       </div>
 

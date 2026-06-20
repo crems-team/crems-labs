@@ -4,6 +4,8 @@
     agentoffice: string;
     size: number;
     color : string;
+    tier: number;
+    admin: string;
   }
 
   

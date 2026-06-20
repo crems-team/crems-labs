@@ -21,6 +21,10 @@ import { RootState } from '../Redux/Store';
 import { setSankeyReportClicked,setOfficeRankingLOClicked, setLoanOfficerByAgentClicked} from '../Redux/Slices/MapSlice'
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import OfficeProd from '../Models/OfficeProd';
+import OrientationGate from '../Components/LandscapeView/OrientationGate'; 
+import { BeatLoader } from 'react-spinners';
+import { ProgressSpinner } from 'primereact/progressspinner';
+
 
 import { off } from 'process';
 
@@ -59,7 +63,9 @@ interface NameItem {
     // const [sankeyReportClicked, setSankeyReportClicked] = useState(true);
     const [loanOfficerInfos, setLoanOfficerInfos] = useState<AgentInfos>();
     const [totalAgents, setTotalAgents] = useState<any>();
+    const [totalAgentsLoading, setTotalAgentsLoading] = useState<boolean>(false);
     const [salesCapRate, setSalesCapRate] = useState<any>();
+    const [salesCapRateLoading, setSalesCapRateLoading] = useState<boolean>(false);
     // const [rankingReportClicked, setRankingReportClicked] = useState(true);
     const sankeyReportClicked = useSelector((state: RootState) => state.map.sankeyReportClicked);
     const officeRankingLOClicked = useSelector((state: RootState) => state.map.officeRankingLOClicked);
@@ -71,6 +77,8 @@ interface NameItem {
     const [names, setNames] = useState<NameItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [headerCardClicked, setHeaderCardClicked] = useState(true);
+    const [isLoadingReports, setIsLoadingReports] = useState<boolean>(false);
+
 
 
 
@@ -100,25 +108,33 @@ interface NameItem {
                 console.log(e);
               });
               //Total agents
+
+              setTotalAgentsLoading(true);
               LoanOfficerService.getTotalAgents(data)
-              .then((response: any) => {
-                
-                setTotalAgents(response.data);
-                
-              })
-              .catch((e: Error) => {
-                console.log(e);
-              });
+                  .then((response: any) => {
+                    setTotalAgents(response.data);
+  
+                  }) 
+                  .catch((e: Error) => {
+                      console.log(e);
+                  })
+                  .finally(() => {
+                    setTotalAgentsLoading(false);
+                  });
               //Sales Cap Rate
-                LoanOfficerService.getTotalSalesAndCapRate(data)    
-                .then((response: any) => {
-                    
+              setSalesCapRateLoading(true);
+              LoanOfficerService.getTotalSalesAndCapRate(data)    
+              .then((response: any) => {
                     setSalesCapRate(response.data);
-                    
-                })
-                .catch((e: Error) => {
-                    console.log(e);
-                });
+  
+                  }) 
+                  .catch((e: Error) => {
+                      console.log(e);
+                  })
+                  .finally(() => {
+                    setSalesCapRateLoading(false);
+                  });
+                
                //
                LoanOfficerService.getOfficeNamesLo(data)    
                .then((response: any) => {
@@ -249,22 +265,22 @@ interface NameItem {
     
 
         //Ranking report
-        useEffect(() => {
-            if(idOfficeLO && idAgentLO){
-                var input = {
-                    id: idAgentLO,
-                    officeId : idOfficeLO
-                };
-                AgentService.getofficeproduction(input)
-                .then((response: any) => {
-                    setOfficeProd(JSON.parse(response.data)); 
-                })
-                .catch((e: Error) => {
-                    console.log(e);
-                });       
-                }
-            
-        }, [idAgentLO,idOfficeLO]);
+    useEffect(() => {
+        if (!idOfficeLO || !idAgentLO) return;
+    
+        setIsLoadingReports(true);
+    
+        const input = { id: idAgentLO, officeId: idOfficeLO };
+        AgentService.getofficeproduction(input)
+            .then((OffProd: OfficeProd) => {
+            setOfficeProd(OffProd);
+            })
+            .catch(console.log)
+            .finally(() => {
+           
+            setIsLoadingReports(false);
+            });
+        }, [idAgentLO, idOfficeLO, dispatch]);
     
         // Fonction for devise the table in 3 columns
     const splitArray = (arr: NameItem[], chunks: number) => {
@@ -284,251 +300,310 @@ interface NameItem {
     
     };
     return (
-    <div>
-        <LoadingBar
-        color="#f11946"
-        height={3}
-        progress={progress}
-        onLoaderFinished={() => setProgress(0)}
-      />
-        {/* Content Wrapper. Contains page content */}
-        {/* Content Header (Page header) */}
-        <div className="content-header">
-            <div className="container-fluid">
-                <div className="row mb-2">
+        <div>
+            <LoadingBar
+            color="#f11946"
+            height={3}
+            progress={progress}
+            onLoaderFinished={() => setProgress(0)}
+        />
+            {/* Content Wrapper. Contains page content */}
+            {/* Content Header (Page header) */}
+            <div className="content-header">
+                <div className="container-fluid">
+                    <div className="row mb-2">
+                        
                     
-                
 
-                    <div className="col-md-12 col-sm-6">
-                        <div className={`card ${!headerCardClicked ? '' : 'collapsed-card'}`}>
-                                    <div className="card-header">
-                   
-                                       <div className="row">
-                                           <div className="col-sm-6 border-right">
-                                           <h3 className="card-title mb-0 "><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
-                                           <i id="idInfoIcon" className="bi bi-info-circle" /></a> LO Information: <strong>{loanOfficerInfos ? loanOfficerInfos.officerName : ''} </strong></h3>
-                                           </div>                                                                 
-                                           
-                                           <div className="col-sm-6 text-right">
-                                               <button type="button" className="btn btn-tool"  onClick={handleClickLOheader}>
-                                               {!headerCardClicked ? <strong>Close</strong> : <strong>Open</strong>}
+                        <div className="col-md-12 col-sm-6">
+                            <div className={`card ${!headerCardClicked ? '' : 'collapsed-card'}`}>
+                                        <div className="card-header">
+                    
+                                        <div className="row">
+                                            <div className="col-sm-6 border-right">
+                                            <h3 className="card-title mb-0 "><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
+                                            <i id="idInfoIcon" className="bi bi-info-circle" /></a> LO Information: <strong>{loanOfficerInfos ? loanOfficerInfos.officerName : ''} </strong></h3>
+                                            </div>                                                                 
+                                            
+                                            <div className="col-sm-6 text-right">
+                                                <button type="button" className="btn btn-tool"  onClick={handleClickLOheader}>
+                                                {!headerCardClicked ? <strong>Close</strong> : <strong>Open</strong>}
 
-                                               </button>
-                                           </div>
-                                       </div>
-                                       {/* /.card-tools */}
-                                   </div>
-                                   {/* /.card-header */}
-                                   <div  className={`card-body pb-0 pt-0 pr-0 pl-0 ${!headerCardClicked ? '' : 'd-none'}`}>
-                                    <div className="row  pb-0 pt-1 pr-0 pl-0">
-                                        
-                                        <h3 className="card-title mb-0 ml-3"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
-                                        <i id="idInfoIcon" className="bi bi-info-circle" /></a> Offices: </h3>
-
-                                    {!loading && columns.map((column, colIndex) => (
-                                            <div key={colIndex} className=" col-md-2">
-                                            {/* <div className="card-column"> */}
-                                                {column.map((item) => (
-                                                <div 
-                                                    className="card shadow-sm  hover-card"
-                                                >
-                                                    <div className="card-body d-flex align-items-center">
-                                                    {/* <div className="bg-primary text-white rounded-circle mr-3 d-flex align-items-center justify-content-center" 
-                                                        style={{ width: '40px', height: '40px' }}>
-                                                    </div> */}
-                                                    <h6 className="mb-0 mr-0 text-nowrap">{item.officeName}</h6>
-                                                    </div>
-                                                </div>
-                                                ))}
-                                            {/* </div> */}
+                                                </button>
                                             </div>
-                                        ))}
+                                        </div>
+                                        {/* /.card-tools */}
+                                    </div>
+                                    {/* /.card-header */}
+                                    <div  className={`card-body pb-0 pt-0 pr-0 pl-0 ${!headerCardClicked ? '' : 'd-none'}`}>
+                                        <div className="row  pb-0 pt-1 pr-0 pl-0">
+                                            
+                                            <h3 className="card-title mb-0 ml-3"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
+                                            <i id="idInfoIcon" className="bi bi-info-circle" /></a> Offices: </h3>
+
+                                        {!loading && columns.map((column, colIndex) => (
+                                                <div key={colIndex} className=" col-md-2">
+                                                {/* <div className="card-column"> */}
+                                                    {column.map((item) => (
+                                                    <div 
+                                                        className="card shadow-sm  hover-card"
+                                                    >
+                                                        <div className="card-body d-flex align-items-center">
+                                                        {/* <div className="bg-primary text-white rounded-circle mr-3 d-flex align-items-center justify-content-center" 
+                                                            style={{ width: '40px', height: '40px' }}>
+                                                        </div> */}
+                                                        <h6 className="mb-0 mr-0 text-nowrap">{item.officeName}</h6>
+                                                        </div>
+                                                    </div>
+                                                    ))}
+                                                {/* </div> */}
+                                                </div>
+                                            ))}
+                                                            
+                                        </div>
+                    
+                                    </div>
+                                    {/* /.card-body */}
+                                    
+                                </div> 
+                            
+                     </div>{/* /.row */}
+                    </div>
+
+                        <div className="row ">
+                        <div className="col-md-12 col-sm-6">
+
+                        <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 15 agents this loan officer (LO) has completed sales with during the past year. The left column lists them from highest to lowest number of sales. The right column re-orders them by the lowest capture rate at the top to the highest capture rate at the bottom. The purpose of the graph is to illustrate which of the agents has the most potential or opportunity to increase total sales by increasing the capture rate.">
+                                        <i className="bi bi-info-circle fs-6" /></a> Who are the Loan Officer's top agents in the last year? & Which agents offer the best opportunity to grow sales?</h5>                               
+                                        <div className={`card ${!sankeyReportClicked ? '' : 'collapsed-card'}`}>
+                                        <div className="card-header">
+                    
+                                        <div className="row">
+                                            <div className="col-sm-2 border-right">
+                                                <div className="description-block">
+                                                    {totalAgentsLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                    <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Total Agents</span>
+                                                                <span className="font-bold text-lg">{totalAgents ? totalAgents.total || 0: '0' }</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-users" />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                   
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-2 border-right">
+                                                <div className="description-block">
+                                                {salesCapRateLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                    <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Sales 12m</span>
+                                                                <span className="font-bold text-lg">{salesCapRate ? salesCapRate.sales || 0: '0'}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-key " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                    
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-2 border-right">
+                                                <div className="description-block">
+                                                {salesCapRateLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                    <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Capture</span>
+                                                                <span className="font-bold text-lg">{salesCapRate ? salesCapRate.capRate || 0: '0'} %</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-bullseye " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                       
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                        
+                                            
+                                            <div className="col-sm-6 text-right">
+                                                <button type="button" className="btn btn-tool"  onClick={handleClickSankeyReport}>
+                                                {!sankeyReportClicked ? <strong>Close</strong> : <strong>Open</strong>}
+
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {/* /.card-tools */}
+                                    </div>
+                                    {/* /.card-header */}
+                                    <div id="LoanOfficerCard" className={`card-body pb-0 pt-0 pr-0 pl-0 ${!sankeyReportClicked ? '' : 'd-none'}`}>
+                                        {/* <div className="row  pb-0 pt-0 pr-0 pl-0"> */}
+                                        {!sankeyReportClicked && (
+                                            <OrientationGate minWidth={768}>
+                                                <LoanOfficerSankeyReport officerId={idAgent ? idAgent : ''} />
+                                            </OrientationGate>
+                                        )}
+
+                                                            
+                                        {/* </div> */}
+                    
+                                    </div>
+                                    {/* /.card-body */}
+                                    
+                                </div>   
+                            </div> 
+                            {isLoadingReports ? (
+                                <div className="col-12 mt-4 mb-4 d-flex justify-content-center">
+                                    <BeatLoader size={14} color="#36d7b7" />
+                                </div>
+                            ) : (officeProd &&(
+                                <>
+                            <section className="col-sm-6">
+                
+                            <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 agents in this office alongside a graph of their sales volume in the past 12 months. If the agent of your search is part of the top 10, you can note their ranking in the office highlighted with a yellow bar graph. If the agent is below the top 10, then they will be shown in the 11th row so that you can see their relative sized graph. If you are interested in any of the other agents named on this graph, you can click on the bar chart next to their name and the report will move to that agent’s production reporting.">
+                                        <i className="bi bi-info-circle fs-6" /></a> Office Ranking: Who else in the agent’s office is best to approach?</h5>
+                                
+                                    <div className={`card ${!officeRankingLOClicked ? '' : 'collapsed-card'}`}>
+                                    <div className="card-header">
+                    
+                                        <div className="row">
+                                            <div className="col-sm-3 border-right">
+                                                <div className="description-block">
+                                                    <h5 className="">{officeProd ? officeProd.ranking : '0' }</h5>
+                                                    <span className="">Of {officeProd ? officeProd.numAgents : '0'} agents</span>
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-3 border-right">
+                                                <div className="description-block">
+                                                <h5 className="">{officeProd ? officeProd.officeProd : '0'} %</h5>
+                                                <span className="">Of Office</span>
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-4">
+                                                <div className="description-block">
+                                                    
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                        
+                                            
+                                            <div className="col-sm-2 text-right">
+                                                <button type="button" className="btn btn-tool" onClick={handleClickRankingReport}>
+                                                {!officeRankingLOClicked ? <strong>Close</strong> : <strong>Open</strong>}
+
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {/* /.card-tools */}
+                                    </div>
+                                    {/* /.card-header */}
+                                    <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!officeRankingLOClicked ? '' : 'd-none'}`}>
+
+                                    <div className="row  pb-0 pt-0 pr-0 pl-0">
+                                    {!officeRankingLOClicked&&<LoanOfficerOfficeRanking officerId={idAgent?idAgent:''} agentId={idAgentLO?idAgentLO:''}  officeId={idOfficeLO ? idOfficeLO : ''}/>}
+
                                                         
                                     </div>
-                   
-                                   </div>
-                                   {/* /.card-body */}
-                                   
-                               </div> 
-                        
-                </div>{/* /.row */}
-                </div>
-
-                    <div className="row ">
-                    <div className="col-md-12 col-sm-6">
-
-                    <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 15 agents this loan officer (LO) has completed sales with during the past year. The left column lists them from highest to lowest number of sales. The right column re-orders them by the lowest capture rate at the top to the highest capture rate at the bottom. The purpose of the graph is to illustrate which of the agents has the most potential or opportunity to increase total sales by increasing the capture rate.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Who are the Loan Officer's top agents in the last year? & Which agents offer the best opportunity to grow sales?</h5>                               
-                                    <div className={`card ${!sankeyReportClicked ? '' : 'collapsed-card'}`}>
-                                    <div className="card-header">
-                   
-                                       <div className="row">
-                                           <div className="col-sm-2 border-right">
-                                               <div className="description-block">
-                                                   <h5 className="">{totalAgents ? totalAgents.total || 0: '0' }</h5>
-                                                   <span className="">Total Agents</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-2 border-right">
-                                               <div className="description-block">
-                                                   <h5 className="">{salesCapRate ? salesCapRate.sales || 0: '0'}</h5>
-                                                   <span className="">Sales 12m</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-2 border-right">
-                                               <div className="description-block">
-                                                    <h5 className="">{salesCapRate ? salesCapRate.capRate || 0: '0'} %</h5>
-                                                    <span className="">Capture</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                      
-                                           
-                                           <div className="col-sm-6 text-right">
-                                               <button type="button" className="btn btn-tool"  onClick={handleClickSankeyReport}>
-                                               {!sankeyReportClicked ? <strong>Close</strong> : <strong>Open</strong>}
-
-                                               </button>
-                                           </div>
-                                       </div>
-                                       {/* /.card-tools */}
-                                   </div>
-                                   {/* /.card-header */}
-                                   <div id="LoanOfficerCard" className={`card-body pb-0 pt-0 pr-0 pl-0 ${!sankeyReportClicked ? '' : 'd-none'}`}>
-                                    {/* <div className="row  pb-0 pt-0 pr-0 pl-0"> */}
+                    
+                                    </div>
+                                    {/* /.card-body */}
                                     
-                                            {!sankeyReportClicked&&(<LoanOfficerSankeyReport officerId={idAgent?idAgent:''} />)}
+                                </div>
+                    
+                            </section>
+
+                            <section className="col-sm-6">
+                            <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 agents in this office alongside a graph of their sales volume in the past 12 months. If the agent of your search is part of the top 10, you can note their ranking in the office highlighted with a yellow bar graph. If the agent is below the top 10, then they will be shown in the 11th row so that you can see their relative sized graph. If you are interested in any of the other agents named on this graph, you can click on the bar chart next to their name and the report will move to that agent’s production reporting.">
+                                        <i className="bi bi-info-circle fs-6" /></a> Competition: What other Loan Officer’s does this agent work with?</h5>
+                                
+                                    <div className={`card ${!loanOfficerByAgentClicked ? '' : 'collapsed-card'}`}>
+                                    <div className="card-header">
+                    
+                                        <div className="row">
+                                            <div className="col-sm-3 border-right">
+                                                <div className="description-block">
+                                                    <h5 className="">{officeProd ? officeProd.ranking : '0' }</h5>
+                                                    <span className="">Of {officeProd ? officeProd.numAgents : '0'} agents</span>
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-3 border-right">
+                                                <div className="description-block">
+                                                <h5 className="">{officeProd ? officeProd.officeProd : '0'} %</h5>
+                                                <span className="">Of Office</span>
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-4">
+                                                <div className="description-block">
+                                                    
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                        
+                                            
+                                            <div className="col-sm-2 text-right">
+                                                <button type="button" className="btn btn-tool" onClick={handleClickLOOfficericerReport}>
+                                                {!loanOfficerByAgentClicked ? <strong>Close</strong> : <strong>Open</strong>}
+
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {/* /.card-tools */}
+                                    </div>
+                                    {/* /.card-header */}
+                                    <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!loanOfficerByAgentClicked ? '' : 'd-none'}`}>
+
+                                    <div className="row  pb-0 pt-0 pr-0 pl-0">
+                                    {!loanOfficerByAgentClicked&&<LoanOfficerWorkedwithAgentReport agentId={idAgentLO?idAgentLO:''}/>}
 
                                                         
-                                    {/* </div> */}
-                   
-                                   </div>
-                                   {/* /.card-body */}
-                                   
-                               </div>   
-                        </div> 
-
-                        <section className="col-sm-6">
-                        <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 agents in this office alongside a graph of their sales volume in the past 12 months. If the agent of your search is part of the top 10, you can note their ranking in the office highlighted with a yellow bar graph. If the agent is below the top 10, then they will be shown in the 11th row so that you can see their relative sized graph. If you are interested in any of the other agents named on this graph, you can click on the bar chart next to their name and the report will move to that agent’s production reporting.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Office Ranking: Who else in the agent’s office is best to approach?</h5>
-                               
-                                <div className={`card ${!officeRankingLOClicked ? '' : 'collapsed-card'}`}>
-                                   <div className="card-header">
-                   
-                                       <div className="row">
-                                           <div className="col-sm-3 border-right">
-                                               <div className="description-block">
-                                                <h5 className="">{officeProd ? officeProd.ranking : '0' }</h5>
-                                                <span className="">Of {officeProd ? officeProd.numAgents : '0'} agents</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-3 border-right">
-                                               <div className="description-block">
-                                               <h5 className="">{officeProd ? officeProd.officeProd : '0'} %</h5>
-                                               <span className="">Of Office</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-4">
-                                               <div className="description-block">
-                                                   
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                      
-                                           
-                                           <div className="col-sm-2 text-right">
-                                               <button type="button" className="btn btn-tool" onClick={handleClickRankingReport}>
-                                               {!officeRankingLOClicked ? <strong>Close</strong> : <strong>Open</strong>}
-
-                                               </button>
-                                           </div>
-                                       </div>
-                                       {/* /.card-tools */}
-                                   </div>
-                                   {/* /.card-header */}
-                                   <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!officeRankingLOClicked ? '' : 'd-none'}`}>
-
-                                   <div className="row  pb-0 pt-0 pr-0 pl-0">
-                                   {!officeRankingLOClicked&&<LoanOfficerOfficeRanking officerId={idAgent?idAgent:''} agentId={idAgentLO?idAgentLO:''}  officeId={idOfficeLO ? idOfficeLO : ''}/>}
-
-                                                      
-                                   </div>
-                   
-                                   </div>
-                                   {/* /.card-body */}
-                                   
-                               </div>
-                        </section>
-
-                        <section className="col-sm-6">
-                        <h5 className="mb-2 mt-0"><a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="This chart shows the top 10 agents in this office alongside a graph of their sales volume in the past 12 months. If the agent of your search is part of the top 10, you can note their ranking in the office highlighted with a yellow bar graph. If the agent is below the top 10, then they will be shown in the 11th row so that you can see their relative sized graph. If you are interested in any of the other agents named on this graph, you can click on the bar chart next to their name and the report will move to that agent’s production reporting.">
-                                    <i className="bi bi-info-circle fs-6" /></a> Competition: What other Loan Officer’s does this agent work with?</h5>
-                               
-                                <div className={`card ${!loanOfficerByAgentClicked ? '' : 'collapsed-card'}`}>
-                                   <div className="card-header">
-                   
-                                       <div className="row">
-                                           <div className="col-sm-3 border-right">
-                                               <div className="description-block">
-                                                <h5 className="">{officeProd ? officeProd.ranking : '0' }</h5>
-                                                <span className="">Of {officeProd ? officeProd.numAgents : '0'} agents</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-3 border-right">
-                                               <div className="description-block">
-                                               <h5 className="">{officeProd ? officeProd.officeProd : '0'} %</h5>
-                                               <span className="">Of Office</span>
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                                           <div className="col-sm-4">
-                                               <div className="description-block">
-                                                   
-                                               </div>
-                                               {/* /.description-block */}
-                                           </div>
-                      
-                                           
-                                           <div className="col-sm-2 text-right">
-                                               <button type="button" className="btn btn-tool" onClick={handleClickLOOfficericerReport}>
-                                               {!loanOfficerByAgentClicked ? <strong>Close</strong> : <strong>Open</strong>}
-
-                                               </button>
-                                           </div>
-                                       </div>
-                                       {/* /.card-tools */}
-                                   </div>
-                                   {/* /.card-header */}
-                                   <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!loanOfficerByAgentClicked ? '' : 'd-none'}`}>
-
-                                   <div className="row  pb-0 pt-0 pr-0 pl-0">
-                                   {!loanOfficerByAgentClicked&&<LoanOfficerWorkedwithAgentReport agentId={idAgentLO?idAgentLO:''}/>}
-
-                                                      
-                                   </div>
-                   
-                                   </div>
-                                   {/* /.card-body */}
-                                   
-                               </div>
-                        </section>
- 
-                                                
-                    </div>
-                        {/*<!-- /.row (main row) -->*/}                                          
+                                    </div>
+                    
+                                    </div>
+                                    {/* /.card-body */}
+                                    
+                                </div>
+                            </section>
+                            </>
+                            )
+                            )}            
+                        </div>
+                            {/*<!-- /.row (main row) -->*/}                                          
 
 
 
-            </div>{/* /.container-fluid */}
+                </div>{/* /.container-fluid */}
 
 
+            </div>
         </div>
-    </div>
     
     );
   };

@@ -32,7 +32,6 @@ const FirstSecondLevelTeamTable : React.FC<ComponentProps> = ({ id,  filterCrite
     useEffect(() => {
         const { office,currentTab, tiers } = filterCriteria;
        
-        console.log(currentTab);
       // if one propertie is true
       const modeFilter = office || Object.values(tiers).some(tier => tier);
     
@@ -44,7 +43,6 @@ const FirstSecondLevelTeamTable : React.FC<ComponentProps> = ({ id,  filterCrite
                 .then((response: any) => {
 
                     if(response.data){
-                        console.log(response.data.firstSecondLevelList);
                         setDataTeam(response.data.firstSecondLevelList);
                         setIsLoading(false);
 

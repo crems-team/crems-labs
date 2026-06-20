@@ -38,7 +38,7 @@ const getSavedSearches = (userId : string, savedType : string) => {
 };
 
 const getSavedFavorite = (userId : string,savedType : string) => {
-  return http.post<SearchItemOffice>("/office/getFavoriteHistory",{userId, savedType});
+  return http.post<SearchItemOffice[]>("/office/getFavoriteHistory",{userId, savedType});
 };
 
 const getTotalPastOffice = (data : {id:string}) => {
@@ -85,6 +85,10 @@ const getOfficeRankingReport = (data:{id:string} ) => {
 const getOfficeTopCities = (data:{id:string} ) => {
     return http.post<OfficeTopCities>("/office/getOfficeTopCities", data);
     };
+
+    const deteteNonFavorite = (userId : string, savedType : string) => {
+      return http.post("/office/deteteNonFavorite", {userId, savedType});
+    };
 const OfficeService = {
     
   getAgentsByOffice,
@@ -102,7 +106,8 @@ const OfficeService = {
   getOfficeDataGeoReport,
   getOfficeProduction,
   getOfficeRankingReport,
-  getOfficeTopCities
+  getOfficeTopCities,
+  deteteNonFavorite
 };
 
 export default OfficeService;

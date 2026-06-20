@@ -19,27 +19,7 @@ const OfficeMixOfSalesReport : React.FC<OtherComponentProps> = ({ id }) => {
 
 
 
- /*    useEffect(() => {
-        if (id) {
-            const fetchData = async () => {
-                setLoading(true);
-
-                AgentService.getAgentHistoData({ id })
-                .then((response: any) => {
-                  setMonthData(response.data);
-                  setIsFetched(true);
-                  //console.log(response.data);                
-  
-                })
-                .catch((e: Error) => {
-                  console.log(e);
-                });
-                setLoading(false);
-
-            }
-            fetchData();
-        }
-    }, []); */
+ 
 
  
 

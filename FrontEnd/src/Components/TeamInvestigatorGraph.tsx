@@ -131,8 +131,9 @@ const TeamInvestigatorGraph : React.FC<ComponentProps> = ({ id, filterCriteria }
   }, [filterCriteria]);
 
   useEffect(() => {
+    if(!id) return;
+    
     const fetchData = async () => {
-
       TeamService.getTeam({id :id})
               .then((response: any) => {
                 // setTeamNeo4jData(response.data);
@@ -215,6 +216,8 @@ const TeamInvestigatorGraph : React.FC<ComponentProps> = ({ id, filterCriteria }
     // console.log(processedLinks);
 
     if(teamNeo4jData){
+          console.log(teamNeo4jData.nodes);
+
     
     setNodes(teamNeo4jData.nodes);
     // setLinks(teamNeo4jData.links);
@@ -228,6 +231,7 @@ const TeamInvestigatorGraph : React.FC<ComponentProps> = ({ id, filterCriteria }
         }
       });
     }
+
   }, [teamNeo4jData,processedLinks]);
 
   useEffect(() => {

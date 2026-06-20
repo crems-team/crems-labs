@@ -9,6 +9,9 @@ import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import { RootState } from '../Redux/Store';
 import { setMarkers, addMarker ,setLoadingMarkers,setFromSearchByArea,setError} from '../Redux/Slices/MapSlice';
+import { pushBackTarget} from '../Redux/Slices/navigationSlice';
+import { Dialog } from 'primereact/dialog';
+
 import Zip from "../Models/Zip";
 
 
@@ -16,6 +19,43 @@ interface CremsTableProps {
     displayAreaMap : () => void;
     // areaReportRendred: (newBoolean: boolean) => void;
   }
+
+type Team = {
+    teamId: string;
+    teamName: string;
+  };
+
+type Agent = {
+  agentId: string;
+
+  firstName: string;
+  lastName: string;
+
+  state: string;
+  city: string;
+
+  officeName: string;
+  officeAddress1: string;
+
+  total_cur: number;
+  total_before: number;
+
+  dna: number;
+  list: number;
+  sell: number;
+
+  persona: string;
+
+  part_total_curr: number;
+  part_total_before: number;
+
+  tier: string;
+
+  agentSalesYoyInOutArea: string;  
+  agentSalesYoyInArea: string;
+  teams: Team[];
+  hasTeam: boolean;     
+};
 
 
   const CremsTableAgents: React.FC<CremsTableProps> = ({ displayAreaMap}) => {
@@ -27,7 +67,8 @@ interface CremsTableProps {
   const dispatch = useAppDispatch();
   const AgentGeoProdResult = useSelector((state: RootState) => state.map.AgentGeoProdResult);
   const dt = useRef<DataTable<any>>(null);
-
+  const [visible, setVisible] = useState(false);
+  const [selectedTeams, setSelectedTeams] = useState<Agent>();
 
   const handleClickArea = (rowData: any) => {
     console.log(rowData);
@@ -36,18 +77,58 @@ interface CremsTableProps {
   };
 
   const handleRedirectToApr = (rowData: any) => {
-    dispatch(setFromSearchByArea(true));
+    // dispatch(setFromSearchByArea(true));
+
+    dispatch(pushBackTarget({ type: 'search_area' }));
 
     navigate(`/AgentProdReports/${rowData.agentId}`);
 
   };
 
+ function handleTeamClick(team: Team) {
+    dispatch(pushBackTarget({ type: 'search_area' }));
+    navigate(`/teamInvestGraph/${team.teamId}`);
+  }
+
+  
+
   const buttons = (rowData: any) => {
+    const hasTeams = rowData.hasTeam;
     return (
-    <div style={{ display: 'flex',  gap: '1rem' }}>
-        <Button label="Area" icon="bi bi-globe-americas" className="btn btn-success" onClick={() => handleClickArea(rowData)} />
-        <Button label="Reports" icon="bi bi-bar-chart-line-fill" className="btn btn-primary" onClick={() => handleRedirectToApr(rowData)}/>
-    </div>    
+      <div style={{ 
+        display: 'flex', 
+        gap: '0.5rem', 
+        
+      }}>
+        <Button 
+            label="Area" 
+            icon="bi bi-globe-americas" 
+            className="btn btn-success p-button-sm" 
+            style={{ whiteSpace: 'nowrap' }}
+            onClick={() => handleClickArea(rowData)} 
+        />
+        <Button 
+            label="Reports" 
+            icon="bi bi-bar-chart-line-fill" 
+            className="btn btn-primary p-button-sm" 
+            style={{ whiteSpace: 'nowrap' }}
+            onClick={() => handleRedirectToApr(rowData)}
+        />
+
+        {hasTeams && (
+        <Button
+          label="Teams"
+          icon="bi bi-microsoft-teams"
+          className="btn btn-primary"
+          style={{ whiteSpace: 'nowrap' }}
+          onClick={() => {
+            setSelectedTeams(rowData);
+            setVisible(true);
+          }}
+        />
+      )}
+
+    </div>  
     );
   }
   useEffect(() => {
@@ -105,11 +186,11 @@ interface CremsTableProps {
           
           const response = await GeoAreaAgentProdService.fetchTransactionsGeoByAgent(rowData.agentId);
 
-          if (!response.data || response.data.length === 0) {
+          if (!response || response.length === 0) {
             dispatch(setError("No data available for this agent."));
             return; 
         }
-          setListPositions(response.data);
+          setListPositions(response);
           dispatch(setError(null));
           
       } catch (e: any) {
@@ -132,6 +213,7 @@ interface CremsTableProps {
   
 
   
+console.log(AgentGeoProdResult);
 
   return (
     <>
@@ -146,21 +228,58 @@ interface CremsTableProps {
     <div>
      
     {AgentGeoProdResult.length >0?
-      <DataTable value={AgentGeoProdResult} paginator rows={10} sortField="part_total_curr" sortOrder={-1}>
-          <Column body={buttons} />
-          <Column field="firstName" header="First Name" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }} />
-          <Column field="lastName" header="Last Name" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="officeName" header="Office Name" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
+      <DataTable value={AgentGeoProdResult} paginator rows={10} sortField="part_total_curr" sortOrder={-1} >
+          <Column body={buttons}  />
+          <Column field="firstName" header="First" sortable headerStyle={{ 
+                minWidth: '220px', 
+                whiteSpace: 'nowrap',
+                textAlign: 'center'
+            }}
+            bodyStyle={{ 
+                minWidth: '220px',
+                padding: '0.1rem',
+                textAlign: 'center'
+            }}/>
+          <Column field="lastName" header="Last" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
+          <Column field="officeName" header="Office" sortable headerStyle={{ 
+                minWidth: '230px', 
+                whiteSpace: 'nowrap',
+                textAlign: 'center'
+            }}
+            />
+          <Column field="part_total_curr" header="Sale In Area" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
+          {/* <Column field="agentSalesYoyInOutArea" header="A12mo YoY % In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/> */}
+          <Column field="total_cur" header="Sale In & Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
           <Column field="tier" header="Tier" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="total_global" header="12mo Sales In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="agentSalesYoyInOutArea" header="A12mo YoY % In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="part_total_curr" header="12mo Sales In/Only" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="agentSalesYoyInArea" header="12mo YoY % In/Only" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="list" header="Listing In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
-          <Column field="sell" header="Selling In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/>
+
+          {/* <Column field="agentSalesYoyInArea" header="12mo YoY % In/Only" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/> */}
+          {/* <Column field="list" header="Listing In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/> */}
+          {/* <Column field="sell" header="Selling In/Out" sortable headerStyle={{ whiteSpace: 'nowrap', minWidth: '100px' }}/> */}
+
       </DataTable>
       :"No results found"
     }
+
+    <Dialog
+      header={`${selectedTeams?.firstName || ''} ${selectedTeams?.lastName || ''}`}
+      visible={visible}
+      style={{ width: '320px' }}
+      onHide={() => setVisible(false)}
+    >
+       <ul className="list-group">
+        {selectedTeams?.teams?.map((t: Team) => (
+          <li
+            key={t.teamId}
+            className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            style={{ cursor: 'pointer' }}
+            onClick={() => handleTeamClick(t)}
+          >
+            <span>{t.teamName}</span>
+            <i className="pi pi-arrow-right"></i>
+          </li>
+        ))}
+      </ul>
+    </Dialog>
     </div>
     </>
   );

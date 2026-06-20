@@ -9,6 +9,7 @@ interface SearchHistoryProps {
   searchHistory: any[];
   onSearchClick: (search: any) => void;
   onToggleFavorite: (search: any, event: CheckboxChangeEvent) => void;
+  onDeteteNonFavorite: () => void;
   parent: string;
 
 }
@@ -20,8 +21,54 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
   searchHistory,
   onSearchClick,
   onToggleFavorite,
+  onDeteteNonFavorite,
   parent
 }) => {
+
+  const formatAreaHistory = (search: any) => {
+    const cities = search.city
+        ? search.city.split(',').filter(Boolean)
+        : [];
+
+    const zips = search.zips
+        ? search.zips.split(',').filter(Boolean)
+        : [];
+
+    let text = `State: ${search.state}`;
+
+    if (search.county) {
+        text += ` | County [${search.county}]`;
+    }
+
+    if (cities.length > 0) {
+        const displayedCities = cities.slice(0, 2).join(', ');
+        const remainingCities = cities.length - 2;
+
+        text += ` | City [${displayedCities}`;
+
+        if (remainingCities > 0) {
+            text += `, ${remainingCities} Cities Selected`;
+        }
+
+        text += ']';
+    }
+
+    if (zips.length > 0) {
+        const displayedZips = zips.slice(0, 2).join(', ');
+        const remainingZips = zips.length - 2;
+
+        text += ` | Zip [${displayedZips}`;
+
+        if (remainingZips > 0) {
+            text += `, ${remainingZips} Zip Codes Selected`;
+        }
+
+        text += ']';
+    }
+
+    return text;
+  };
+
   return (
       <div className="card">
         <div className="card-header bg-primary text-white">
@@ -33,6 +80,14 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                                 <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
                               </svg> icon to unsave.
           </span>
+          <button
+            className="btn btn-sm btn-light text-primary mt-1"
+            onClick={onDeteteNonFavorite}
+            title="Clear Non-Favorite"
+            style={{ display: 'flex', alignItems: 'center' }}
+          >
+    <i className="bi bi-x-circle mr-1"></i> Clear Non-Favorite
+  </button>
         </div>
         <div className="card-body cardRecentSearch">
           {isLoading ? (
@@ -49,11 +104,15 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                   <span role="button" onClick={() => onSearchClick(search)}>
                     {/* {search.officeName || `${search?.firstName} ${search?.lastName}` || `City: ${search.city.split(',')[0]} | zip [${search.zips}] | Mo [${search.nbrMonth}]`} */}
-                    {parent === 'Area' && (
-                        "City: " + search.city.split(',')[0]+" | zip [" + search.zips + "] | Mo [" + search.nbrMonth + "] | State: "+search.state.split(',')[0]
-                    )}
+                    {/* {parent === 'Area' && (
+                        `State: ${search.state}`
+                        + (search.city ? ` | City [${search.city}]` : '')
+                        + (search.county ? ` | County [${search.county}]` : '')
+                        + (search.zips ? ` | Zip [${search.zips}]` : '')
+                    )} */}
+                    {parent === 'Area' && formatAreaHistory(search)}
                     {parent === 'Agent' && (
-                        `${search.firstName} ${search.lastName}${search.state ? " | State: " + search.state : ""}`
+                        `${search.fullName}${search.state ? " | State: " + search.state : ""}`
                     )}
                     {parent === 'Office' && (
                         `${search.officeName}${search.state ? " | State: " + search.state : ""}`
@@ -64,6 +123,10 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                     {parent === 'LoanOfficer' && (
                         `${search.officerName}`
                     )}
+                    {parent === 'Team' && (
+                        `${search.teamName}`
+                    )}
+                    
                   </span>
                   <Checkbox onChange={(event) => onToggleFavorite(search, event)} checked={!search.isFavorite} />
                 </li>

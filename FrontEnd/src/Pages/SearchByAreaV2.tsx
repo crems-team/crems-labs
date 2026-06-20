@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef ,useMemo} from 'react';
 import CremsMap from '../Components/Map';
 import { MultiSelect } from 'primereact/multiselect';
 import { CascadeSelect } from 'primereact/cascadeselect';
@@ -41,8 +41,12 @@ import { RadioButton, RadioButtonChangeEvent } from "primereact/radiobutton";
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
 import { useAppDispatch } from '../Hooks/DispatchHook';
-import {getAgentGeoProduction,setGeoAreaAgentProdReportClicked,setAgentGeoProdResult,setActivityReportClicked} from '../Redux/Slices/MapSlice'
-import {getAgentGeoProductionForExtraction, setSelectedTabIndex} from '../Redux/Slices/AreaAgentSlice'
+import {getAgentGeoProduction,setGeoAreaAgentProdReportClicked,setAgentGeoProdResult,
+        setActivityReportClicked,setSelectedLocation,setInitialeAgentGeoProdResult, setSearchTerm, setIsFiltered} from '../Redux/Slices/MapSlice'
+import {getAgentGeoProductionForExtraction, setSelectedTabIndex,setSearchHistory,getTotalTransactionAgent,getTotalAgents,setTotalTransactionsAg,setTotalListingsAgent,setTotalAgent,getTotalListingsAgent,setTotalTransactionForListings,
+        setTotalAgentForListing,setListingsGeoProduction,getTotalTransactionForListings,getTotalAgentForListing,getListingsGeoProduction,
+        setOriginalData,setDisplayedData,setSearchHistoryTeam,getTeamGeoProduction, setAccordionIndex} from '../Redux/Slices/AreaAgentSlice'
+
 import { useSearch } from '../Components/Context/Context';
 import SearchHistory from '../Components/SearchHistory';
 import {useLocation } from 'react-router-dom';
@@ -55,6 +59,12 @@ import SelectedLocation from "../Models/GeoAreaAgentProd/SelectedLocation";
 import { utils, writeFile } from 'xlsx';
 import * as XLSX from 'xlsx';
 import { TabView, TabPanel } from 'primereact/tabview';
+import { Sidebar } from 'primereact/sidebar';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import AreaTeamTable from '../Components/AreaTeam/AreaTeamTable';
+import SearchByInputCounty from './USAMap/SearchByInput/SearchByInputCounty';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
 
 
@@ -73,7 +83,20 @@ interface MonthSuggestion {
 
 
 function SearchByAreaV2() {
-
+    
+    function useIsMobile(breakpoint = 768) {
+        const [isMobile, setIsMobile] = useState(
+          typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+        );
+        useEffect(() => {
+          const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+          window.addEventListener("resize", onResize);
+          return () => window.removeEventListener("resize", onResize);
+        }, [breakpoint]);
+        return isMobile;
+      }
+      
+    const isMobile = useIsMobile();
 
     const [states, setstates] = useState<Array<States>>([]);
     const [copyStates, setCopyStates] = useState<Array<States>>([]);
@@ -104,14 +127,10 @@ function SearchByAreaV2() {
     const loadingAgentGeoProdResult = useSelector((state: RootState) => state.map.loadingAgentGeoProdResult);
     const geoAreaAgentProdReportClicked = useSelector((state: RootState) => state.map.geoAreaAgentProdReportClicked);
     const error = useSelector((state: RootState) => state.map.error);
+    const searchTerm = useSelector((state: RootState) => state.map.searchTerm);
 
-    const [searchTerm, setSearchTerm] = useState<AgentSearch>();
         // const [currentCity, setCurrentCity] = useState<Cities | null>();
     const [suggestions, setSuggestions] = useState<Array<AgentSearch>>([]);
-
-
-
-
 
     // const handleLoadingTransactions = (newBoolean: boolean) => {
     //     setIsLoadingTransactions(newBoolean);
@@ -140,8 +159,11 @@ function SearchByAreaV2() {
         }
     }
 
-    const [searchHistory, setSearchHistory] = useState<Array<SearchItemArea>>([]);
+    // const [searchHistory, setSearchHistory] = useState<Array<SearchItemArea>>([]);
+    const searchHistory = useSelector((state: RootState) => state.areaAgent.searchHistory);
+    const searchHistoryTeam = useSelector((state: RootState) => state.areaAgent.searchHistoryTeam);
     const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(Boolean);
+    const [isLoadingSavedSearchTeam, setIsLoadingSavedSearchTeam] = useState(Boolean);
     const { keycloak, initialized } = useKeycloak();
     //const [activityReportClicked, setActivityReportClicked] = useState(true);
     const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
@@ -153,20 +175,28 @@ function SearchByAreaV2() {
     const isFirstLoad = useSelector((state: RootState) => state.map.firstLoad);
     const location = useLocation();
     const totalAgents = useSelector((state: RootState) => state.areaAgent.totalAgent);
-    const totalTransaction = useSelector((state: RootState) => state.areaAgent.totalTransaction);
-    const totalListings = useSelector((state: RootState) => state.areaAgent.totalListings);
+    const totalAgentLoading = useSelector((state: RootState) => state.areaAgent.totalAgentLoading);
+    const totalTransactionAgent = useSelector((state: RootState) => state.areaAgent.totalTransactionAgent);
+    const totalTransactionAgentLoading = useSelector((state: RootState) => state.areaAgent.totalTransactionAgentLoading);
+    const totalListingsAgent = useSelector((state: RootState) => state.areaAgent.totalListingsAgent);
+    const totalListingsAgentLoading = useSelector((state: RootState) => state.areaAgent.totalListingsAgentLoading);
     const agentGeoProdResultExtract = useSelector((state: RootState) => state.areaAgent.agentGeoProdResultExtract);
     const extractionLoading = useSelector((state: RootState) => state.areaAgent.extractionLoading);
     // const [selectedTabIndex, setSelectedTabIndex] = useState(-1);
     const selectedTabIndex = useSelector((state: RootState) => state.areaAgent.selectedTabIndex);
-    const TotalTransactions = useSelector((state: RootState) => state.map.totalTransactions);
+    const totalTransactionForListings = useSelector((state: RootState) => state.areaAgent.totalTransactionForListings);
+    const totalTransactionForListingsLoading = useSelector((state: RootState) => state.areaAgent.totalTransactionForListingsLoading);
     const TotalAgents = useSelector((state: RootState) => state.map.totalAgents);
     const listingsGeoLoading = useSelector((state: RootState) => state.areaAgent.listingsGeoLoading);
-
-    
-
-
-   
+    const totalAgentForListing = useSelector((state: RootState) => state.areaAgent.totalAgentForListing);
+    const totalAgentForListingLoading = useSelector((state: RootState) => state.areaAgent.totalAgentForListingLoading);
+    const [visibleRight, setVisibleRight] = useState(false);
+    const listingsGeoProduction = useSelector((state: RootState) => state.areaAgent.listingsGeoProduction);
+    const initialeAgentGeoProdResult = useSelector((state: RootState) => state.map.initialeAgentGeoProdResult);
+    const isFiltered = useSelector((state: RootState) => state.map.isFiltered);
+    const [selectedTabIndexSearchHis, setselectedTabIndexSearchHis] = useState<number>(0);
+    const areaOverlayRef = useRef<OverlayPanel>(null);
+    const accordionIndex = useSelector((state: RootState) => state.areaAgent.accordionIndex);
     // const clearData = () => {
 
     //     if (msgs.current) {
@@ -188,13 +218,13 @@ function SearchByAreaV2() {
     // }
 
     //Save search and favorite
-    const saveSearchHistory = async (savedType: string, city: string, zips: string,state : string, county : string, nbrMonth : number) => {
+    const saveSearchHistory = async (savedType: string, city: string, zips: string,state : string, county : string) => {
 
         if (keycloak.tokenParsed?.sub) {
             const userId = keycloak.tokenParsed.sub;
             let history = JSON.parse(localStorage.getItem(userId + '-area') || '[]');
-            const newSearch = { savedType, city, zips,state,county,nbrMonth, isFavorite: true };
-            if (!history.some((item: SearchItemArea) => item.city === city && item.zips === zips && item.state === state && item.county === county && item.nbrMonth === nbrMonth)) {
+            const newSearch = { savedType, city, zips,state,county, isFavorite: true };
+            if (!history.some((item: SearchItemArea) => item.city === city && item.zips === zips && item.state === state && item.county === county)) {
                 
                 console.log(newSearch);
                 console.log(history);
@@ -207,11 +237,11 @@ function SearchByAreaV2() {
                 history.unshift(newSearch);
 
                 localStorage.setItem(userId + '-area', JSON.stringify(history));
-                setSearchHistory(history);
+                dispatch(setSearchHistory(history));
 
 
                 try {
-                    await GeoAreaService.saveSearchHistory(userId, savedType, city, zips,state,county,nbrMonth);
+                    await GeoAreaAgentProdService.saveSearchHistory(userId, savedType, city, zips,state,county);
                 } catch (error) {
                     console.error('Error saving search history:', error);
                 }
@@ -225,17 +255,41 @@ function SearchByAreaV2() {
             setIsLoadingSavedSearch(true);
             const userId = keycloak.tokenParsed.sub;
 
-            await GeoAreaService.getSavedSearches(userId, "area")
+            await GeoAreaAgentProdService.getSavedSearches(userId, "area")
                 .then((response: any) => {
 
                     /*  const history = response.data;
                      console.log(history);
                      localStorage.setItem(userId, JSON.stringify(history));
                      setSearchHistory(history); */
-                    setSearchHistory(response.data);
-                    console.log(response.data[0].city);
+                    dispatch(setSearchHistory(response.data));
                     localStorage.setItem(userId + '-area', JSON.stringify(response.data));
                     setIsLoadingSavedSearch(false);
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
+
+
+
+        }
+    };
+
+    const fetchSavedSearchesTeam = async () => {
+        if (keycloak.tokenParsed?.sub) {
+            setIsLoadingSavedSearchTeam(true);
+            const userId = keycloak.tokenParsed.sub;
+
+            await GeoAreaAgentProdService.getSavedSearches(userId, "areaTeam")
+                .then((response: any) => {
+
+                    /*  const history = response.data;
+                     console.log(history);
+                     localStorage.setItem(userId, JSON.stringify(history));
+                     setSearchHistory(history); */
+                    dispatch(setSearchHistoryTeam(response.data));
+                    localStorage.setItem(userId + '-areaTeam', JSON.stringify(response.data));
+                    setIsLoadingSavedSearchTeam(false);
                 })
                 .catch((e: Error) => {
                     console.log(e);
@@ -249,76 +303,256 @@ function SearchByAreaV2() {
     useEffect(() => {
         if (keycloak.tokenParsed?.sub) {
             fetchSavedSearches();
+            fetchSavedSearchesTeam();
             
 
         }
     }, [keycloak.tokenParsed?.sub]);
 
-    
 
     const toggleFavorite = async (search: SearchItemArea, event: CheckboxChangeEvent) => {
         event.preventDefault();
         if (keycloak.tokenParsed?.sub) {
             const userId = keycloak.tokenParsed.sub;
             const updatedSearch = { ...search, isFavorite: !search.isFavorite };
-            try {
-                await GeoAreaService.toggleFavorite(userId, search.city, search.zips,search.state,search.county,search.nbrMonth, updatedSearch.isFavorite);
-                setSearchHistory(prevHistory =>
-                    prevHistory.map(item =>
-                        item.city === search.city && item.zips === search.zips && item.state === search.state && item.county === search.county && item.nbrMonth === search.nbrMonth ? { ...item, isFavorite: !item.isFavorite } : item
-                    )
-                );
-                localStorage.setItem(userId + '-area', JSON.stringify(searchHistory));
-                if (updatedSearch.isFavorite === false) {
-                    toast.success('['+ updatedSearch.zips +']' + ' Mo ['+ updatedSearch.nbrMonth +']' + ' is saved in your favorite list');
-                } else {
-                    toast.success('['+ updatedSearch.zips +']' + ' Mo ['+ updatedSearch.nbrMonth +']' + ' is deleted from your favorite list');
+            if(search.savedType === 'area'){
+                try {
+                    await GeoAreaAgentProdService.toggleFavorite(userId, search.city, search.zips,search.state,search.county, updatedSearch.isFavorite);
+                    const updatedHistory = searchHistory.map(item =>
+                        item.city === search.city && 
+                        item.zips === search.zips && 
+                        item.state === search.state && 
+                        item.county === search.county
+                        ? { ...item, isFavorite: !item.isFavorite }
+                        : item
+                    );
+                    
+                    dispatch(setSearchHistory(updatedHistory));
+                    
+                    localStorage.setItem(userId + '-area', JSON.stringify(searchHistory));
+                    if (updatedSearch.isFavorite === false) {
+                        toast.success('Saved!');
+                    } else {
+                        toast.success('Deleted!');
 
+                    }
+                } catch (error) {
+                    console.error('Error toggling favorite:', error);
                 }
-            } catch (error) {
-                console.error('Error toggling favorite:', error);
+            }else if(search.savedType === 'areaTeam'){
+                try {
+                    await GeoAreaAgentProdService.toggleFavoriteTeam(userId, search.city, search.zips,search.state,search.county, updatedSearch.isFavorite);
+                    const updatedHistory = searchHistoryTeam.map(item =>
+                        item.city === search.city && 
+                        item.zips === search.zips && 
+                        item.state === search.state && 
+                        item.county === search.county
+                        ? { ...item, isFavorite: !item.isFavorite }
+                        : item
+                    );
+                    
+                    dispatch(setSearchHistoryTeam(updatedHistory));
+                    
+                    localStorage.setItem(userId + '-areaTeam', JSON.stringify(searchHistoryTeam));
+                    if (updatedSearch.isFavorite === false) {
+                        toast.success('Saved!');
+                    } else {
+                        toast.success('Deleted!');
+
+                    }
+                } catch (error) {
+                    console.error('Error toggling favorite:', error);
+                }
             }
         }
+    };
+
+    const deteteNonFavorite = async () => {
+        if (keycloak.tokenParsed?.sub) {
+          const userId = keycloak.tokenParsed.sub;
+          if(selectedTabIndexSearchHis === 0){
+            try {
+                await GeoAreaAgentProdService.deteteNonFavorite(userId, 'area');
+                fetchSavedSearches();     
+        
+            } catch (error) {
+                console.error('Error detele non favorite:', error);
+            }
+          }else if(selectedTabIndexSearchHis === 1){
+            try {
+                await GeoAreaAgentProdService.deteteNonFavorite(userId, 'areaTeam');
+                fetchSavedSearchesTeam();     
+        
+            } catch (error) {
+                console.error('Error detele non favorite:', error);
+            }
+          }
+        }
+      };
+
+    const buildAreaHeader = () => {
+         
+        const cities = selectedLocation.city || [];
+        const zips = selectedLocation.zip || [];
+
+        let header = `${selectedLocation.state} (${selectedLocation.stateCode})`;
+
+        if (selectedLocation.county) {
+            header += ` • ${selectedLocation.county}`;
+        }
+
+        if (cities.length > 0) {
+            const displayedCities = cities.slice(0, 2).join(', ');
+            const remainingCities = cities.length - 2;
+
+            header += ` • ${displayedCities}`;
+
+            if (remainingCities > 0) {
+                header += `, ${remainingCities} Cities Selected`;
+            }
+        }
+
+        if (zips.length > 0) {
+            const displayedZips = zips.slice(0, 2).join(', ');
+            const remainingZips = zips.length - 2;
+
+            header += ` • ${displayedZips}`;
+
+            if (remainingZips > 0) {
+                header += `, ${remainingZips} Zip Codes Selected`;
+            }
+        }
+
+        return header;
     };
 
     const headerPane1 = (options: PanelHeaderTemplateOptions) => {
         const className = `${options.className} justify-content-space-between`;
 
+        const hasMoreItems =
+            (selectedLocation.city?.length || 0) > 2 ||
+            (selectedLocation.zip?.length || 0) > 2;
+
+        const hasSelection =
+            selectedLocation.state ||
+            selectedLocation.county ||
+            selectedLocation.city?.length > 0 ||
+            selectedLocation.zip?.length > 0;
 
         return (
-
             <div className={className}>
-
                 <div className="flex align-items-center gap-3">
-                    <Avatar icon="pi pi-search" size="large" shape="circle" className="mr-1" />
-                    <span className="mr-1"><strong>Choose Area</strong></span>
-                    <a className="badge badge-info" role="button" tabIndex={0} data-bs-toggle="popover" data-placement="bottom" title="Note" data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings.">
-                        <i id="idInfoIcon" className="bi bi-info-circle" />
+                    <Avatar
+                        icon="pi pi-search"
+                        size="large"
+                        shape="circle"
+                        className="mr-1"
+                    />
+
+                    <span className="mr-1">
+                        <strong>Choose Area</strong>
+                    </span>
+
+                    <a
+                        className="badge badge-info"
+                        role="button"
+                        tabIndex={0}
+                        data-bs-toggle="popover"
+                        data-placement="bottom"
+                        title="Note"
+                        data-bs-content="The agent and office information shown here comes from the most recent phone numbers and email addresses used in their MLS listings."
+                    >
+                        <i
+                            id="idInfoIcon"
+                            className="bi bi-info-circle"
+                        />
                     </a>
                 </div>
-                    {(selectedLocation.state || 
-                        selectedLocation.county || 
-                        selectedLocation.city?.length > 0 || 
-                        selectedLocation.zip?.length > 0) && 
-                        getMessageHeader(selectedLocation)
-                    }
 
-                <div className='grid'>
+                <div className="d-flex align-items-center flex-grow-1 justify-content-center gap-2">
+                    {hasSelection && (
+        <>
+            <strong>{buildAreaHeader()}</strong>
 
-                    <div className='col'>
-                        
-                        {options.collapsed ? (
-                        <button type="button" className="btn btn-tool " onClick={togglePanel}>
+            {hasMoreItems && (
+                <>
+                        <Button
+                            type="button"
+                            label="View"
+                            link
+                            className="p-0"
+                            onClick={(e) => areaOverlayRef.current?.toggle(e)}
+                        />
+
+                        <OverlayPanel
+                            ref={areaOverlayRef}
+                            style={{ width: '450px' }}
+                        >
+                            <div
+                                style={{
+                                    maxHeight: '350px',
+                                    overflowY: 'auto'
+                                }}
+                            >
+                                {selectedLocation.city?.length > 0 && (
+                                    <>
+                                        <h6>Cities</h6>
+
+                                        <div className="d-flex flex-wrap gap-2 mb-3">
+                                            {selectedLocation.city.map((city) => (
+                                                <span
+                                                    key={city}
+                                                    className="badge bg-primary"
+                                                >
+                                                    {city}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+
+                                {selectedLocation.zip?.length > 0 && (
+                                    <>
+                                        <h6>Zip Codes</h6>
+
+                                        <div className="d-flex flex-wrap gap-2">
+                                            {selectedLocation.zip.map((zip) => (
+                                                <span
+                                                    key={zip}
+                                                    className="badge bg-secondary"
+                                                >
+                                                    {zip}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </OverlayPanel>
+                    </>
+                )}
+            </>
+        )}
+                </div>
+
+                <div>
+                    {options.collapsed ? (
+                        <button
+                            type="button"
+                            className="btn btn-tool"
+                            onClick={togglePanel}
+                        >
                             <strong>Open</strong>
                         </button>
                     ) : (
-                        <button type="button" className="btn btn-tool " onClick={togglePanel}>
+                        <button
+                            type="button"
+                            className="btn btn-tool"
+                            onClick={togglePanel}
+                        >
                             <strong>Close</strong>
                         </button>
                     )}
-                    {/* {options.togglerElement} */}
-                    </div>
-
                 </div>
             </div>
         );
@@ -343,38 +577,29 @@ function SearchByAreaV2() {
 
     //        );
     //  };
-     function getMessageHeader(selectedLocation: SelectedLocation) {
-        const locationParts = [];
-    
-        if (selectedLocation.state) {
-            locationParts.push(`${selectedLocation.state} (${selectedLocation.stateCode})`);
-        }
-    
-        if (selectedLocation.county) {
-            locationParts.push(`${selectedLocation.county}`);
-        }
-    
-        if (selectedLocation.city?.length > 0) {
-            locationParts.push(`${selectedLocation.city.join(', ')}`);
-        }
-    
-        if (selectedLocation.zip?.length > 0) {
-            locationParts.push(`${selectedLocation.zip.join(', ')}`);
-        }
-    
+    function getMessageHeader(sel: SelectedLocation) {
+        const fullParts: string[] = [];
+        if (sel.state) fullParts.push(`${sel.state} (${sel.stateCode})`);
+        if (sel.county) fullParts.push(sel.county);
+        if (sel.city?.length) fullParts.push(sel.city.join(", "));
+        if (sel.zip?.length) fullParts.push(sel.zip.join(", "));
+      
+        const compactParts: string[] = [];
+        if (sel.state) compactParts.push(`${sel.state} (${sel.stateCode})`);
+        if (sel.county) compactParts.push(sel.county);
+        if (sel.city?.length) compactParts.push(`${sel.city.length} cities`);
+        if (sel.zip?.length) compactParts.push(`${sel.zip.length} zips`);
+      
+        const label = isMobile ? compactParts.join(" • ") : fullParts.join(" • ");
+        const title = fullParts.join(" • "); // tooltip complet
+      
         return (
-            <div className="flex align-items-center gap-3">
-                {locationParts.length > 0 && (
-                    <div>
-                        <strong>
-                            {locationParts.join(' • ')}
-                        </strong>
-                    </div>
-                )}
-                
-            </div>
+          <div className="location-summary" title={title}>
+            <strong>{label}</strong>
+          </div>
         );
-    }
+      }
+      
 
     // const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number,citySelected : string,state : string,county : string) => {
 
@@ -458,16 +683,18 @@ function SearchByAreaV2() {
             selectedLocation, 
             event.query
           );
-          setSuggestions(results.data);
+          setSuggestions(results);
         } catch (error) {
           console.error("Erreur de recherche:", error);
         }
       };
 
     const getGeoProductionForAgent = async (agent: AgentSearch) => {
+        dispatch(setIsFiltered(true));
         try {
           const results = await GeoAreaAgentProdService.getGeoProductionForAgent(selectedLocation, agent.agentId);
-          dispatch(setAgentGeoProdResult(results.data));
+          dispatch(setAgentGeoProdResult(results));
+
         } catch (error) {
           console.error("Erreur de recherche:", error);
         }
@@ -504,7 +731,7 @@ function SearchByAreaV2() {
           "Last Name": item.lastName,
           "Office Name": item.officeName,
           "Tier": item.tier,
-          "12mo Sales In/Out": item.total_global,
+          "12mo Sales In/Out": item.total_cur,
           "A12mo YoY % In/Out": item.agentSalesYoyInOutArea,
           "12mo Sales In/Only": item.part_total_curr,
           "12mo YoY % In/Only": item.agentSalesYoyInArea,
@@ -553,7 +780,6 @@ function SearchByAreaV2() {
               return;
             }
       
-            // Création du fichier Excel
             const ws = XLSX.utils.json_to_sheet(resultData.map(item => ({
                 "First Name": item.firstName,
                 "Last Name": item.lastName,
@@ -564,7 +790,7 @@ function SearchByAreaV2() {
                 "Tier": item.tier,
                 "Persona": item.persona,
                 "DNA": item.dna,
-                "12mo Sales In/Out": item.total_global,
+                "12mo Sales In/Out": item.total_cur,
                 "A12mo YoY % In/Out": item.agentSalesYoyInOutArea,
                 "12mo Sales In/Only": item.part_total_curr,
                 "12mo YoY % In/Only": item.agentSalesYoyInArea,
@@ -588,11 +814,97 @@ function SearchByAreaV2() {
 
     }
 
+    const handleTabChangeSearchHis = (e:any) => {
+
+        setselectedTabIndexSearchHis(e.index); // Update the active tab index
+    
+
+    }
+
     const handleClickActivityReport = () => { 
 
         // setActivityReportClicked(!activityReportClicked);
         dispatch(setActivityReportClicked(!activityReportClicked));
     }
+
+    const handleSearchFromHist = async (selectedLocation: SelectedLocation) => {
+        dispatch(setSelectedLocation(selectedLocation));
+        if (selectedLocation.searchType === 'A'){
+            setVisibleRight(false);
+            dispatch(setAgentGeoProdResult([]));
+            dispatch(setTotalAgent(0));
+            dispatch(setTotalTransactionsAg(0));
+            dispatch(setTotalListingsAgent(0));
+            //listings
+            dispatch(setListingsGeoProduction([]));
+            dispatch(setTotalAgentForListing(0));
+            dispatch(setTotalTransactionForListings(0));
+
+            
+            try {
+                dispatch(setSelectedTabIndex(0));
+                togglePanel();
+                await dispatch(getAgentGeoProduction({selectedLocation}));
+                dispatch(getTotalAgents({selectedLocation}));
+                dispatch(getTotalTransactionAgent({selectedLocation}));
+                dispatch(getTotalListingsAgent({selectedLocation}));
+                //listings
+                await dispatch(getListingsGeoProduction({selectedLocation}));
+                // dispatch(setOriginalData(listingsGeoProduction));
+                // dispatch(setDisplayedData(listingsGeoProduction));
+                dispatch(getTotalAgentForListing({selectedLocation}));
+                dispatch(getTotalTransactionForListings({selectedLocation}));
+            } catch (e) {
+                console.error(e);
+            } finally {
+
+                    
+                if(geoAreaAgentProdReportClicked){
+                dispatch(setGeoAreaAgentProdReportClicked(!geoAreaAgentProdReportClicked));
+                }
+                if(activityReportClicked){
+                    dispatch(setActivityReportClicked(!activityReportClicked));
+                }
+            }
+        }
+        if (selectedLocation.searchType === 'T') {
+        try {
+              togglePanel();
+
+            await dispatch(getTeamGeoProduction(selectedLocation));
+
+            
+        } catch (e) {
+            console.error(e);
+        }
+      }
+
+    }
+
+    //Search agent in listings Tab
+    // useEffect(() => {
+
+    //     dispatch(setOriginalData(listingsGeoProduction));
+    //     dispatch(setDisplayedData(listingsGeoProduction));
+
+        
+    // }, [listingsGeoProduction]);
+
+    useEffect(() => {
+        if(!isFiltered){
+        dispatch(setInitialeAgentGeoProdResult(AgentGeoProdResult));
+        }
+        
+    }, [AgentGeoProdResult]);
+
+    const clearSearchAgent = () => {
+        dispatch(setSearchTerm(null));
+        dispatch(setAgentGeoProdResult(initialeAgentGeoProdResult));
+        dispatch(setIsFiltered(false));
+        setSuggestions([]);
+    };
+
+    
 
     return (
         <MapProvider>
@@ -601,21 +913,136 @@ function SearchByAreaV2() {
 
             <Panel header="Choose Area" headerTemplate={headerPane1} ref={panelRef} toggleable>
                 <div className="grid nested-grid" key={refreshKey}>
-                    <div className="col-8">
-
+                    {/* <div className="col-10">
+                        <div className="row mb-3">
+                         <SearchByInputCounty />
+                        </div>
                          <UsaMap />
                     
-                    </div>  
-                    <div className="col-12 md:col-4">
-                    {/* <SearchHistory
-                    title="Area History"
-                    isLoading={isLoadingSavedSearch}
-                    searchHistory={searchHistory}
-                    onSearchClick={(search) => fetchTransactionsdata([search.zips], Number(search.nbrMonth), search.city, search.state, search.county)}
-                    onToggleFavorite={toggleFavorite}
-                    parent="Area"
-                    />
- */}
+                    </div>   */}
+                    <div className="col-10">
+
+                        <Accordion multiple={false} activeIndex={accordionIndex}
+                        onTabChange={(e) =>
+                            dispatch(setAccordionIndex(e.index))
+                        } >
+
+                            <AccordionTab header={
+                                <span >
+                                    <i className="pi pi-search mr-2" />
+                                    Simple Search
+                                </span>
+                            }>
+                                <SearchByInputCounty />
+                            </AccordionTab>
+
+                            <AccordionTab header={
+                                <span>
+                                    <i className="pi pi-map mr-2" />
+                                    Advanced Search
+                                </span>
+                            }>
+                                <UsaMap />
+                            </AccordionTab>
+
+                        </Accordion>
+
+                    </div>
+                    <div className="col-2 md:col-4">
+                    <div className="d-flex justify-content-end">
+                        
+                        <Button
+                            type="button"
+                            outlined
+                            severity="info"
+                            icon="pi pi-history"
+                            label="Search History"
+                            className="modern-history-btn"
+                            onClick={() => setVisibleRight(true)}
+                        />
+                    </div>
+                        <Sidebar visible={visibleRight} position="right" onHide={() => setVisibleRight(false)} style={{width: '50rem'}}>
+                            <TabView activeIndex={selectedTabIndexSearchHis} onTabChange={handleTabChangeSearchHis}>
+                                <TabPanel header="Agents" rightIcon="bi bi-person-badge-fill ml-2">
+                                    <div className="col-12  mx-auto">
+                                        <SearchHistory
+                                            title="Search History"
+                                            isLoading={isLoadingSavedSearch}
+                                            searchHistory={searchHistory}
+                                            // onSearchClick={(search : any) => handleSearchFromHist({state:"",stateCode: search.state, county:search.county,city: search.city.split(',').map((c:any) => c.trim()),agentId:0,zip: search.zips?search.zips.split(',').map((c:any) => c.trim()):[],searchType: 'A'})}
+                                            onSearchClick={(search: any) =>
+                                                handleSearchFromHist({
+                                                    state: "",
+                                                    stateCode: search.state,
+                                                    county: search.county,
+                                                    city: search.city
+                                                    ? search.city
+                                                        .split(',')
+                                                        .map((c: any) => c.trim())
+                                                        .filter(Boolean)
+                                                    : [],
+                                                    agentId: 0,
+                                                    zip: search.zips
+                                                    ? search.zips
+                                                        .split(',')
+                                                        .map((c: any) => c.trim())
+                                                        .filter(Boolean)
+                                                    : [],
+                                                    searchType: 'A'
+                                                })
+                                                }
+                                            onToggleFavorite={toggleFavorite}
+                                            onDeteteNonFavorite={deteteNonFavorite}
+                                            parent="Area"
+                                        />
+
+
+                                    </div>  
+                                
+                                </TabPanel>
+                                <TabPanel header="Teams" rightIcon="bi bi-people-fill ml-2">
+
+                                     <div className="col-12  mx-auto">
+                                        <SearchHistory
+                                            title="Search History"
+                                            isLoading={isLoadingSavedSearchTeam}
+                                            searchHistory={searchHistoryTeam}
+                                            // onSearchClick={(search : any) => handleSearchFromHist({state:"",stateCode: search.state, county:search.county,city: search.city.split(',').map((c:any) => c.trim()),agentId:0,zip: search.zips?search.zips.split(',').map((c:any) => c.trim()):[],searchType: 'T'})}
+                                            onSearchClick={(search: any) =>
+                                                handleSearchFromHist({
+                                                    state: "",
+                                                    stateCode: search.state,
+                                                    county: search.county,
+                                                    city: search.city
+                                                    ? search.city
+                                                        .split(',')
+                                                        .map((c: any) => c.trim())
+                                                        .filter(Boolean)
+                                                    : [],
+                                                    agentId: 0,
+                                                    zip: search.zips
+                                                    ? search.zips
+                                                        .split(',')
+                                                        .map((c: any) => c.trim())
+                                                        .filter(Boolean)
+                                                    : [],
+                                                    searchType: 'T'
+                                                })
+                                                }
+                                            onToggleFavorite={toggleFavorite}
+                                            onDeteteNonFavorite={deteteNonFavorite}
+                                            parent="Area"
+                                        />
+
+
+                                    </div>  
+
+                                </TabPanel>
+                                                
+
+                            </TabView>
+                        
+                        </Sidebar>
 
                     </div>
                 </div>
@@ -625,6 +1052,7 @@ function SearchByAreaV2() {
 
 
             </Panel>
+        {(selectedLocation.searchType ==='A')?    
             <div className="row mt-1" id="custom-tabview">
                 <TabView activeIndex={selectedTabIndex} onTabChange={handleTabChange}>
                     
@@ -638,7 +1066,7 @@ function SearchByAreaV2() {
                                             )  : (
                                                 <>  
                                                     <div className="flex align-items-center ">
-                                                        <span className="ml-2">Agents</span>
+                                                        <span className="ml-2">Past Sales</span>
                                                         <i className="bi bi-person-vcard ml-2" />
                                                     </div>
                                                 
@@ -654,24 +1082,72 @@ function SearchByAreaV2() {
                                 <div className={`card ${!geoAreaAgentProdReportClicked ? '' : 'collapsed-card'}`}>
                                     <div className="card-header">
                                         <div className="row">
-                                            <div className="col-sm-2 ">
+                                            <div className="col-sm-2 border-right">
                                                 <div className="description-block">
-                                                    <h5 className="">{totalAgents}</h5>
-                                                    <span className="">Agents</span>
+                                                    {totalAgentLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Agents</span>
+                                                                <span className="font-bold text-lg">{totalAgents}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-users   " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                </div>
+                                                {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-2 border-right">
+                                                <div className="description-block">  
+                                                {totalTransactionAgentLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Transactions</span>
+                                                                <span className="font-bold text-lg">{totalTransactionAgent}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-money-check-alt   " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }
+
+                                                    
                                                 </div>
                                                 {/* /.description-block */}
                                             </div>
                                             <div className="col-sm-2">
-                                                <div className="description-block">
-                                                    <h5 className="">{totalTransaction}</h5>
-                                                    <span className="">Transactions</span>
-                                                </div>
-                                                {/* /.description-block */}
-                                            </div>
-                                            <div className="col-sm-2">
-                                                <div className="description-block">
-                                                    <h5 className="">{totalListings}</h5>
-                                                    <span className="">Listings</span>
+                                                <div className="description-block">  
+                                                {totalListingsAgentLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Listings</span>
+                                                                <span className="font-bold text-lg">{totalListingsAgent}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-clipboard-list   " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }                                             
+                                                    
                                                 </div>
                                                 {/* /.description-block */}
                                             </div>
@@ -704,18 +1180,34 @@ function SearchByAreaV2() {
                                     <div className={`card-body pb-0 pt-0 pr-0 pl-0 ${!geoAreaAgentProdReportClicked ? '' : 'd-none'}`}>
                                         {AgentGeoProdResult.length > 0 ?
                                             (<div className="mt-5 mb-5 ml-2 d-flex justify-content-between">
-                                                <AutoComplete
-                                                    field="fullName"
-                                                    value={searchTerm}
-                                                    suggestions={suggestions}
-                                                    completeMethod={searchAgents}
-                                                    onChange={(e) => setSearchTerm(e.value)}
-                                                    onSelect={(e) => {
-                                                        setSearchTerm(e.value.fullName);
+                                                <div className=" ml-2 d-flex align-items-center gap-2">
+                                                    <AutoComplete
+                                                        field="fullName"
+                                                        value={searchTerm}
+                                                        suggestions={suggestions}
+                                                        completeMethod={searchAgents}
+                                                        onChange={(e) => dispatch(setSearchTerm(e.value))}
+                                                        onSelect={(e) => {
+                                                        dispatch(setSearchTerm(e.value.fullName));
                                                         getGeoProductionForAgent(e.value);
-                                                    }}
-                                                    placeholder="Search an agent..."
-                                                />
+                                                        }}
+                                                        placeholder="Search an agent..."
+                                                        className="w-25"
+                                                    />
+
+                                                    {isFiltered && (
+                                                        <Button
+                                                        icon="pi pi-times"
+                                                        className="p-button-danger modern-history-btn"
+                                                        label="Clear"
+                                                        aria-label="Clear"
+                                                        onClick={clearSearchAgent}
+                                                        type="button"
+                                                        outlined
+                                                        severity="info"
+                                                        />
+                                                    )}
+                                                </div>
 
                                                 {extractionLoading ? (
                                                     <div className="d-flex align-items-center">
@@ -723,12 +1215,18 @@ function SearchByAreaV2() {
                                                         <span>Exporting...</span>
                                                     </div>
                                                 ) : (
+                                                    <div>
                                                     <Button
                                                         icon="pi pi-file-excel"
                                                         label="Export Excel"
-                                                        className="mr-2"
+                                                        aria-label="Export Excel"
+                                                        className="modern-history-btn mr-2"
                                                         onClick={exportExcel1}
+                                                        type="button"
+                                                        outlined
+                                                        severity="info"
                                                     />
+                                                    </div>
                                                 )}
                                             </div>)
                                             : null}
@@ -774,7 +1272,7 @@ function SearchByAreaV2() {
                                             )  : (
                                                 <>  
                                                     <div className="flex align-items-center ">
-                                                        <span className="ml-2">Listings</span>
+                                                        <span className="ml-2">Current Listings</span>
                                                         <i className="bi bi-card-list ml-2" />
                                                     </div>
                                                 
@@ -790,19 +1288,55 @@ function SearchByAreaV2() {
                                 <div className={`card ${!activityReportClicked ? '' : 'collapsed-card'}`}>
                                     <div className="card-header">
                                         <div className="row">
-                                            <div className="col-sm-3 ">
-                                                <div className="description-block">
-                                                    <h5 className="">{TotalTransactions}</h5>
-                                                    <span className="">Transactions</span>
+                                            <div className="col-sm-2 border-right ">
+                                                <div className="description-block">  
+                                                {totalAgentForListingLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Agents</span>
+                                                                <span className="font-bold text-lg">{totalAgentForListing}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-users" />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }                                          
+                                                
                                                 </div>
                                                 {/* /.description-block */}
                                             </div>
-                                            <div className="col-sm-3">
-                                                <div className="description-block">
-                                                    <h5 className="">{TotalAgents[0] ? TotalAgents[0]?.agents : '0' }</h5>
-                                                    <span className="">Agents</span>
+                                            <div className="col-sm-2 border-right">
+                                                <div className="description-block">     
+                                                {totalTransactionForListingsLoading ? <ProgressSpinner className="spinner-agent-metrics mb-0 mt-0 pb-0 pt-0" style={{ width: '20px', height: '24px' }} strokeWidth="5" />
+                                                        :
+                                                        <div className="mx-3">
+                                                        <div className="flex justify-content-between gap-1">
+                                                            <div className="flex flex-column gap-1">
+                                                                <span className="text-secondary text-sm">Transactions</span>
+                                                                <span className="font-bold text-lg">{totalTransactionForListings}</span>
+                                                            </div>
+                                                            <span
+                                                                className="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                                                                style={{ backgroundColor: '#3adcf2', color: '#ffffff' }}
+                                                            >
+                                                                <i className="fa fa-money-check-alt   " />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    }                                                                                               
+                                                    
                                                 </div>
                                                 {/* /.description-block */}
+                                            </div>
+                                            <div className="col-sm-2">
+
+
                                             </div>
                                             <div className="col-sm-3">
                                                 <div className="description-block">
@@ -871,6 +1405,28 @@ function SearchByAreaV2() {
                 
 
             </div>
+        : 
+        null    
+        }
+        {selectedLocation.searchType ==='T'? 
+            <div className="row  pb-0 pt-0 pr-0 pl-0  ">
+                        <div className="card mt-3"  >
+                            <TabView  >
+                                <TabPanel header="Team Table" rightIcon="bi bi-table ml-2">
+                                  
+                                  <AreaTeamTable  />
+
+                                    
+                                </TabPanel>                                                    
+
+                            </TabView>
+                        </div>
+                    </div>
+        :
+        null
+
+
+        }
 
         </div>
 

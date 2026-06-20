@@ -16,5 +16,7 @@ export default interface AgentGeoProdResult {
     agentSalesYoyInOutArea: string;
     agentSalesYoyInArea: string;
     total_before : number;
+    total_cur: number;
+
 
   }

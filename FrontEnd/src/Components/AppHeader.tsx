@@ -17,7 +17,10 @@ import SearchItemArea from "../Models/SearchItemArea";
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import {fetchTransactions, setActivityReportClicked,fetchTotalAgents,fetchTotalTransactions,setCurrentCitySaveSearch,
   setCurrentZipSaveSearch,setCurrentstateSaveSearch,setCurrentCountySaveSearch,setSelectedZipCodeSaveSearch,
-  setNbrMonthSaveSearch,setClosePanel,handleSearchSource} from '../Redux/Slices/MapSlice'
+  setNbrMonthSaveSearch,setClosePanel,handleSearchSource,setAgentGeoProdResult,getAgentGeoProduction,setGeoAreaAgentProdReportClicked,setSelectedLocation} from '../Redux/Slices/MapSlice'
+import {setSelectedTabIndex,getTotalTransactionAgent,getTotalAgents,setTotalTransactionsAg,setTotalListingsAgent,setTotalAgent,
+        getTotalListingsAgent,setTotalTransactionForListings,setTotalAgentForListing,setListingsGeoProduction,getTotalTransactionForListings,
+        getTotalAgentForListing,getListingsGeoProduction,getTeamGeoProduction} from '../Redux/Slices/AreaAgentSlice'
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
 import Cities from "../Models/Cities";
@@ -27,6 +30,14 @@ import SearchItemHistory from "../Models/SearchItemHistory";
 import SearchToolsService from "../Services/Tools/SearchToolsService";
 import LoanOfficerService from '../Services/LoanOfficerService';
 import { match } from 'assert';
+import GeoAreaAgentProdService from "../Services/GeoAreaAgentProdService";
+import SelectedLocation from "../Models/GeoAreaAgentProd/SelectedLocation";
+import UserMenu from "./UserMenu";
+import SavedSearchMenuBootstrap from "./SavedSearchMenuBootstrap";
+import TeamService from '../Services/TeamService';
+import TeamInvestigationService from '../Services/TeamInvestigation/TeamInvestigationService';
+
+
 
 
 
@@ -41,20 +52,27 @@ const AppHeader : React.FC = () => {
   const matchSearchByName = useMatch('/SearchByAgent');
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
-  const matchSearchByArea = useMatch('/SearchByArea');
+  const matchSearchByArea = useMatch('/SearchByAreaV2');
   const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
   const matchofficeProdReports= useMatch('/officeProdReports/:param');
   const matchsearchTool= useMatch('/searchTool');
   const matchSearchLoanOfficer= useMatch('/SearchLoanOfficer');
   const matchloanOfficerProdReport= useMatch('/loanOfficerProdReport/:param');
+  const matchWelcomePage = useMatch('/welcomePage');
+  const matchSearchTeam= useMatch('/SearchTeamInvest');
+  const matchTeamGraph = useMatch('/teamInvestGraph/:param');
+
+
 
 
   const { keycloak, initialized } = useKeycloak();
   const [searchHistoryAgent, setSearchHistoryAgent] = useState<Array<SearchItemAgent>>([]);
   const [searchHistoryOffice, setSearchHistoryOffice] = useState<Array<SearchItemOffice>>([]);
   const [searchHistoryArea, setSearchHistoryArea] = useState<Array<SearchItemArea>>([]);
+  const [searchHistoryAreaTeam, setSearchHistoryAreaTeam] = useState<Array<SearchItemArea>>([]);
   const [searchHistorySource, setSearchHistorySource] = useState<Array<SearchItemHistory>>([]);
   const [searchHistoryLoanOfficer, setSearchHistoryLoanOfficer] = useState<Array<SearchItemHistory>>([]);
+  const [searchHistoryTeam, setSearchHistoryTeam] = useState<Array<SearchItemHistory>>([]);
 
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
@@ -83,6 +101,8 @@ const AppHeader : React.FC = () => {
   const activityReportClicked = useSelector((state: RootState) => state.map.activityReportClicked);
   const loadingSearchSourceResult = useSelector((state: RootState) => state.map.loadingSearchSourceResult);
   const searchSourceResult = useSelector((state: RootState) => state.map.searchSourceResult);
+  const geoAreaAgentProdReportClicked = useSelector((state: RootState) => state.map.geoAreaAgentProdReportClicked);
+  const selectedLocation = useSelector((state: RootState) => state.map.selectedLocation);
 
 
 
@@ -211,7 +231,7 @@ const AppHeader : React.FC = () => {
 
   }, [isDropdownOpen]); */
 
-  const handleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = async () => {
     //event.preventDefault(); // Prevent the default link behavior
     setIsLoading(true);
     const currentLocation = location.pathname.substring(1,18);
@@ -224,30 +244,23 @@ const AppHeader : React.FC = () => {
         const userId = keycloak.tokenParsed.sub;
   
         await AgentService.getSavedFavorite(userId,"agent")
-        .then((response: any) => {
-          
+        .then(setSearchHistoryAgent)
+        .finally(() => setIsLoading(false));
+
          /*  const history = response.data;
           console.log(history);
           localStorage.setItem(userId, JSON.stringify(history));
           setSearchHistory(history); */ 
-          console.log(response.data);
+          // console.log(response.data);
 
-          setSearchHistoryAgent(response.data);
-          setIsLoading(false);
+          // setSearchHistoryAgent(response.data);
+          // setIsLoading(false);
 
   
          // const filteredHistory = searchHistory.filter((item: SearchItem) => !item.isFavorite);
           //setSearchHistory(filteredHistory);
           
-  
-  
-  
-        })
-        .catch((e: Error) => {
-          console.log(e);
-          setIsLoading(false);
 
-        });
       }
       
 
@@ -287,7 +300,7 @@ const AppHeader : React.FC = () => {
       if (keycloak.tokenParsed?.sub) {
         const userId = keycloak.tokenParsed.sub;
   
-        await GeoAreaService.getSavedFavorite(userId,"area")
+        await GeoAreaAgentProdService.getSavedFavorite(userId,"area")
         .then((response: any) => {
           
          /*  const history = response.data;
@@ -382,6 +395,52 @@ const AppHeader : React.FC = () => {
 
   };
 
+  const fetchFavoritesForCurrentPage = async () => {
+    if (!keycloak.tokenParsed?.sub) return;
+    const userId = keycloak.tokenParsed.sub;
+    setIsLoading(true);
+  
+    setSearchHistoryAgent([]);
+    setSearchHistoryOffice([]);
+    setSearchHistoryArea([]);
+    setSearchHistoryAreaTeam([]);
+    setSearchHistoryLoanOfficer([]);
+    setSearchHistoryTeam([]);
+
+  
+    try {
+      if (matchSearchByName || matchagentProdReports || matchTeamInvestigator) {
+        // Page agents
+        const agentsRes = await AgentService.getSavedFavorite(userId, "agent");
+        setSearchHistoryAgent(agentsRes || []);
+      } else if (matchsearchByOffice || matchofficeProdReports) {
+        // Page offices
+        const officesRes = await OfficeService.getSavedFavorite(userId, "office");
+        setSearchHistoryOffice(officesRes.data || []);
+      } else if (matchSearchByArea) {
+        // Page area
+        const areasRes = await GeoAreaAgentProdService.getSavedFavorite(userId, "area");
+        setSearchHistoryArea(areasRes.data || []);
+
+        const areasTeamRes = await GeoAreaAgentProdService.getSavedFavorite(userId, "areaTeam");
+        setSearchHistoryAreaTeam(areasTeamRes.data || []);
+
+      } else if (matchSearchLoanOfficer || matchloanOfficerProdReport) {
+        // Page loan officers
+        const loRes = await LoanOfficerService.getSavedFavorite(userId, "loanOfficer");
+        setSearchHistoryLoanOfficer(loRes.data || []);
+      }else if (matchSearchTeam || matchTeamGraph) {
+        // Page Team graph
+        const tgRes = await TeamInvestigationService.getSavedFavorite(userId, "team");
+        setSearchHistoryTeam(tgRes.data || []);
+      }
+    } catch (err) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   const redirectToApr = (id : string) => {
     navigate(`/AgentProdReports/${id}`);
   };
@@ -394,6 +453,9 @@ const AppHeader : React.FC = () => {
     navigate(`/loanOfficerProdReport/${id}`);
   };
 
+  const redirectToTeamGraph = (teamId : string) => {
+    navigate(`/teamInvestGraph/${teamId}`);
+  };
   
 
     const fetchTransactionsdata = async (paramZip: string[],nbrMonth : number,citySelected : string,state : string,county : string) => {
@@ -450,6 +512,60 @@ const AppHeader : React.FC = () => {
 
       }
   };
+  //New area search
+  const handleSearchAreaFromFavorit = async (selectedLocation: SelectedLocation) => {
+        dispatch(setSelectedLocation(selectedLocation));
+        if (selectedLocation.searchType === 'A'){
+          dispatch(setAgentGeoProdResult([]));
+          dispatch(setTotalAgent(0));
+          dispatch(setTotalTransactionsAg(0));
+          dispatch(setTotalListingsAgent(0));
+          //listings
+          dispatch(setListingsGeoProduction([]));
+          dispatch(setTotalAgentForListing(0));
+          dispatch(setTotalTransactionForListings(0));
+  
+          
+          try {
+              dispatch(setSelectedTabIndex(0));
+              if(collapsed){
+              togglePanel();
+              }
+              await dispatch(getAgentGeoProduction({selectedLocation}));
+              dispatch(getTotalAgents({selectedLocation}));
+              dispatch(getTotalTransactionAgent({selectedLocation}));
+              dispatch(getTotalListingsAgent({selectedLocation}));
+              //listings
+              await dispatch(getListingsGeoProduction({selectedLocation}));
+              dispatch(getTotalAgentForListing({selectedLocation}));
+              dispatch(getTotalTransactionForListings({selectedLocation}));
+          } catch (e) {
+              console.error(e);
+          } finally {
+                  
+              if(geoAreaAgentProdReportClicked){
+               dispatch(setGeoAreaAgentProdReportClicked(!geoAreaAgentProdReportClicked));
+              }
+              if(activityReportClicked){
+               dispatch(setActivityReportClicked(!activityReportClicked));
+              }
+          }
+        }
+        if (selectedLocation.searchType === 'T') {
+        try {
+           if(collapsed){
+              togglePanel();
+            }
+
+            await dispatch(getTeamGeoProduction(selectedLocation));
+
+            
+        } catch (e) {
+            console.error(e);
+        }
+      }
+  
+      }
       
   const handleSearch = async(agentId : string, office : string, address : string, city : string) => {
   
@@ -553,192 +669,31 @@ const AppHeader : React.FC = () => {
               <li className="nav-item mr-2">
               {!!keycloak.authenticated && (
 
-                    <div className="md-col-2 flex-container mt-2 my-auto" role="button" onClick={handleClick}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
-                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-                    </svg><label role="button" className="text-sm my-auto mx-auto">Saved Searches</label>
-                    </div>
+                    // <div className="md-col-2 flex-container mt-2 my-auto" role="button" onClick={handleClick}>
+                    // <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
+                    //   <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
+                    // </svg><label role="button" className="text-sm my-auto mx-auto">Saved Searches</label>
+                    // </div>
+
+                    <SavedSearchMenuBootstrap
+                      loading={isLoading}
+                      agents={searchHistoryAgent}
+                      offices={searchHistoryOffice}
+                      areas={searchHistoryArea}
+                      areasTeam={searchHistoryAreaTeam}
+                      loanOfficers={searchHistoryLoanOfficer}
+                      team={searchHistoryTeam}
+                      onFetchFavorites={fetchFavoritesForCurrentPage} 
+                      onSelectAgent={redirectToApr}
+                      onSelectOffice={redirectToOpr}
+                      onSelectArea={handleSearchAreaFromFavorit}
+                      onSelectLoanOfficer={redirectToLO}
+                      onSelectTeam={redirectToTeamGraph}
+                    />
                   
                 )}
 
-                {!isDropdownOpen && (
-
-                <div className=" custom-dropdown popover-style" ref={dropDownRef}>
-                  <div className="dropdown-item text-center">
-                  <h6>Agents</h6> 
-                  </div>
-                  {isLoading? ( <div  >
-                                  <ul className=""style={{listStyleType: 'none'}}>
-         
-                                    <li>
-                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-                                    </li>
-                              
-                                 </ul> 
-                                 </div>
-                              ):                                         
-                  searchHistoryAgent[0]?  (
-                          <ul className="">
-                            {searchHistoryAgent.map((search, index) => (
-                                <a className="nav-link"   href="#" onClick={() => redirectToApr(search.agentIdC)}>
-                                  <li key={index} className="">
-                                    {search.firstName} {search.lastName} {search.State ? ` | State: ${search.State}` : ""} 
-                                    
-                                  </li>
-                              </a>
-                            ))}
-                          </ul>
-                        ):(
-                          <div className="dropdown-item text-center">No favorite agents</div>
-                        )}
-
-
-
-                </div>
-                      )}
-
-                    {!isDropdownOpenOffice && (
-
-                    <div className=" custom-dropdown popover-style" ref={dropDownRefOffice}>
-                      <div className="dropdown-item text-center">
-                      <h6>Offices</h6> 
-                      </div>
-                      {isLoading? ( <div  >
-                                  <ul className=""style={{listStyleType: 'none'}}>
-         
-                                    <li>
-                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-                                    </li>
-                              
-                                 </ul> 
-                                 </div>
-                              ):  
-                      searchHistoryOffice[0]?  (
-                              <ul >
-                                {searchHistoryOffice.map((search, index) => (
-                                    <a className="nav-link" href="#" onClick={() => redirectToOpr(search.officeId)} >
-                                      <li key={index} className="">
-                                        {search.officeName}{search.state ? ` | State: ${search.state}` : ""} 
-                                        
-                                      </li>
-                                  </a>
-                                ))}
-                              </ul>
-                            ):(
-                              <div className="dropdown-item text-center">No favorite offices</div>
-                            )}
-
-                        
-
-                    </div>
-                          )}
-                  {!isDropdownOpenArea && (
-
-                    <div className=" custom-dropdown popover-style" ref={dropDownRefArea}>
-                      <div className="dropdown-item text-center">
-                      <h6>Areas</h6> 
-                      </div>
-                      {isLoading? ( <div  >
-                                  <ul className=""style={{listStyleType: 'none'}}>
-
-                                    <li>
-                                    <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-                                    </li>
-                              
-                                </ul> 
-                                </div>
-                              ):  
-                      searchHistoryArea[0]?  (
-                              <ul >
-                                {searchHistoryArea.map((search, index) => (
-                                    <a className="nav-link" href="#"  onClick={() => fetchTransactionsdata([search.zips],Number(search.nbrMonth),search.city,search.state,search.county)}>
-                                      <li key={index} className="">
-                                      {"City: "}{search.city.split(',')[0]}{" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}{" | State: "+search.state.split(',')[0]}
-                                        
-                                      </li>
-                                  </a>
-                                ))}
-                              </ul>
-                            ):(
-                              <div className="dropdown-item text-center">No favorite areas</div>
-                            )}
-
-                        
-
-                    </div>
-                          )}
-                    {!isDropdownOpenSource && (
-
-                      <div className=" custom-dropdown popover-style" ref={dropDownRefSource}>
-                        <div className="dropdown-item text-center">
-                        <h6>Source Report</h6> 
-                        </div>
-                        {isLoading? ( <div  >
-                                    <ul className=""style={{listStyleType: 'none'}}>
-
-                                      <li>
-                                      <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-                                      </li>
-                                
-                                  </ul> 
-                                  </div>
-                                ):  
-                        searchHistorySource[0]?  (
-                                <ul >
-                                  {searchHistorySource.map((search, index) => (
-                                      <a className="nav-link" href="#"  onClick={() => handleSearch(search.agentId , search.officeName, search.address , search.city)}>
-                                        <li key={index} className="">
-                                        {"Agent ID: "}{search.agentId}{search.officeName?" Office: "+search.officeName:""}{search.address?" Address: "+search.address:""}{search.city?" City: "+search.city:""}
-                                        
-                                        {/* {" | zip "}{"[" + search.zips + "]"}{" | Mo "}{"[" + search.nbrMonth + "]"}{" | State: "+search.state.split(',')[0]} */}
-                                          
-                                        </li>
-                                    </a>
-                                  ))}
-                                </ul>
-                              ):(
-                                <div className="dropdown-item text-center">No favorite Source</div>
-                              )}
-
-                          
-
-                      </div>
-                            )}
-                 {!isDropdownOpenLoanOfficer && (
-
-                    <div className=" custom-dropdown popover-style" ref={dropDownRefLoanOfficer}>
-                      <div className="dropdown-item text-center">
-                      <h6>Loan Officer</h6> 
-                      </div>
-                      {isLoading? ( <div  >
-                                      <ul className=""style={{listStyleType: 'none'}}>
-
-                                        <li>
-                                        <BeatLoader className="loading-container mt-3"size={15} color="#36d7b7" />
-                                        </li>
-                                  
-                                    </ul> 
-                                    </div>
-                                  ):                                         
-                      searchHistoryLoanOfficer[0]?  (
-                              <ul className="">
-                                {searchHistoryLoanOfficer.map((search, index) => (
-                                    <a className="nav-link"   href="#" onClick={() => redirectToLO(search.officerId)}>
-                                      <li key={index} className="">
-                                        {search.officerName} 
-                                        
-                                      </li>
-                                  </a>
-                                ))}
-                              </ul>
-                            ):(
-                              <div className="dropdown-item text-center">No favorite LO</div>
-                            )}
-
-
-
-                    </div>
-                          )}
+                
 
                 </li>
 
@@ -753,15 +708,25 @@ const AppHeader : React.FC = () => {
                               Login
                             </button>
                           )}
-
+ {/* <button
+        onClick={() => keycloak.login({ action: 'UPDATE_PASSWORD' })}
+        className="btn btn-outline-primary"
+      >
+        Changer mon mot de passe
+      </button> */}
                           {!!keycloak.authenticated && (
-                            <button
-                              type="button"
-                              className="btn btn-danger "
-                              onClick={() => keycloak.logout({ redirectUri:`${redirectLogOutUrl}`})}
-                            >
-                              Logout ({keycloak.tokenParsed?keycloak.tokenParsed.preferred_username:null})
-                            </button>
+                            // <button
+                            //   type="button"
+                            //   className="btn btn-danger "
+                            //   onClick={() => keycloak.logout({ redirectUri:`${redirectLogOutUrl}`})}
+                            // >
+                            //   Logout ({keycloak.tokenParsed?keycloak.tokenParsed.preferred_username:null})
+                            // </button>
+                            <UserMenu
+                              username={keycloak.tokenParsed?.preferred_username || null}
+                              onLogout={() => keycloak.logout({ redirectUri: `${redirectLogOutUrl}` })}
+                              onChangePassword={() => keycloak.login({ action: "UPDATE_PASSWORD" })}
+                            />
                           )}
               </div>
               

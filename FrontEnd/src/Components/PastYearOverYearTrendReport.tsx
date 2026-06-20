@@ -18,31 +18,6 @@ const PastYearOverYearTrendReport : React.FC<OtherComponentProps> = ({ id }) => 
 
 
 
-
-
-
- /*    useEffect(() => {
-        if (id) {
-            const fetchData = async () => {
-                setLoading(true);
-
-                AgentService.getAgentHistoData({ id })
-                .then((response: any) => {
-                  setMonthData(response.data);
-                  setIsFetched(true);
-                  //console.log(response.data);                
-  
-                })
-                .catch((e: Error) => {
-                  console.log(e);
-                });
-                setLoading(false);
-
-            }
-            fetchData();
-        }
-    }, []); */
-
  
 
 
@@ -51,17 +26,17 @@ const PastYearOverYearTrendReport : React.FC<OtherComponentProps> = ({ id }) => 
                 
             const fetchData=()=>{
                 AgentService.getAgentHistoData({id})
-                .then((response: any) => {
-                    setMonthData(response.data) ;
+                .then((histoData: any) => {
+                    setMonthData(histoData) ;
                     //console.log(response.data);
-                    if(response.data){
+                    if(histoData){
                         console.log('in response');
                         console.log(id);
 
 
                         const data = [
                             ['Month', 'Past 12-Months', 'Current 12-Months'],
-                            ...response.data.map((element: any) => [
+                            ...histoData.map((element: any) => [
                                 element[0],
                                 parseInt(element[1] || '0'),
                                 parseInt(element[2] || '0')
@@ -85,9 +60,7 @@ const PastYearOverYearTrendReport : React.FC<OtherComponentProps> = ({ id }) => 
     
                         setData(data);
                         setOptions(options);
-                        console.log(data);
-
-                        console.log(data);
+             
                 
                         }                 
                 })

@@ -355,15 +355,15 @@ body:not(.sidebar-collapse) .menu-label {
 #LoanOfficerCard {
   overflow: hidden;
   width: 100%;
-  height: 600px; /* Hauteur fixe ou selon besoin */
+  height: 600px; 
 }
 
-/* Pour le composant React */
 .LoanOfficerSankeyReport {
   width: 100%;
   height: 50%;
-  margin: 0 -20px; /* Compenser les marges internes */
+  margin: 0 -20px;
 }
+.sankey-wrap, .sankey-wrap svg { overflow: visible; }
 
 .hover-card {
   transition: all 0.3s ease;
@@ -439,4 +439,936 @@ body:not(.sidebar-collapse) .menu-label {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+.p-knob-text {
+  font-weight: bold !important;
+  font-size: 1.2rem !important; 
+}
+
+
+.spinner-agent-metrics .p-progress-spinner-circle {
+  stroke: #0daae3 !important;
+  animation: p-progress-spinner-dash 1.5s ease-in-out infinite;
+}
+
+/*for mobile serach history*/
+/* Btn "Search History" : (desktop) */
+.search-history-btn .p-button-label { display: inline; }
+
+/* In mobile : just icon */
+@media (max-width: 767.98px) {
+  .search-history-btn {
+    padding: .5rem;
+    min-width: 44px; 
+  }
+  .search-history-btn .p-button-label { 
+    display: none !important; 
+  }
+  .search-history-btn .p-button-icon { 
+    margin-right: 0 !important; 
+    font-size: 1.25rem;          
+    line-height: 1;
+  }
+}
+
+/* header in mobile */
+@media (max-width: 767.98px) {
+  .location-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Legacy WebKit implementation */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    /* Standard property (newer Chromium/Firefox/etc.) */
+    line-clamp: 2;
+  }
+}
+
+/* === Shimmer === */
+:root {
+  --skel-bg: rgba(0, 0, 0, 0.06);
+  --skel-hi: rgba(255, 255, 255, 0.45);
+}
+.chart-skel,
+.chart-skel__bar,
+.chart-skel__pill {
+  background: linear-gradient(90deg, var(--skel-bg) 25%, var(--skel-hi) 37%, var(--skel-bg) 63%);
+  background-size: 400% 100%;
+  animation: skel-shimmer 1.25s linear infinite;
+}
+@keyframes skel-shimmer { 0%{background-position:100% 0} 100%{background-position:0 0} }
+
+.chart-skel {
+  position: relative;
+  border-radius: .5rem;
+  padding: 12px 12px 40px;
+  overflow: hidden;
+}
+.chart-skel__plot {
+  position: absolute;
+  inset: 12px 12px 56px 12px;    
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.chart-skel__bar {
+  flex: 1;
+  border-radius: 6px 6px 0 0;
+}
+.chart-skel__legend {
+  position: absolute;
+  left: 12px; right: 12px; bottom: 10px;
+  display: flex; gap: 12px; align-items: center;
+}
+.chart-skel__pill {
+  width: 160px; height: 14px; border-radius: 999px;
+}
+
+.loading-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.65);
+  backdrop-filter: blur(1px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
+}
+.loading-spinner {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 3px solid var(--skel-bg); border-top-color: #0d6efd;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TeamInvestigator */
+
+/* Mobile (≤ 767.98px)  */
+@media (max-width: 767.98px) {
+  #idfieldset .filter-list {
+    flex-direction: column !important; /* mobile = col  */
+  }
+  #idfieldset .filter-item {
+    width: 100%;
+    justify-content: space-between;
+  }
+   #idfieldset .sep-md {
+    position: static;
+    padding-left: 0;
+    margin-left: 0;
+  }
+  #idfieldset .sep-md::before {
+    content: none !important;
+  }
+}
+
+/* Desktop (≥ 768px)  */
+@media (min-width: 768px) {
+  #idfieldset .filter-list {
+    flex-direction: row !important;   /* desktop = line */
+  }
+  #idfieldset .filter-item {
+    width: auto;                        
+    white-space: nowrap;
+  }
+  #idfieldset .sep-md {
+    position: relative;
+    padding-left: .75rem;
+    margin-left: .75rem;
+  }
+  #idfieldset .sep-md::before {
+    content: "|";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(0,0,0,.5);
+  }
+}
+
+/*Responsive Saved Search popup*/
+
+/* Backdrop for the mobile sheet */
+.favorites-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s ease;
+  z-index: 1054;
+}
+.favorites-backdrop.show { opacity: 1; visibility: visible; }
+
+/* Bottom-sheet full-screen mobile */
+.favorites-sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0; top: 0;
+  background: #fff;
+  z-index: 1055;
+  transform: translateY(100%);
+  transition: transform .25s ease-out;
+  display: block;
+}
+.favorites-sheet.show { transform: translateY(0); }
+@media (min-width: 768px) { .favorites-sheet, .favorites-backdrop { display: none; } }
+
+.sheet-header {
+  position: sticky; top: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+.sheet-body {
+  padding: 12px 16px;
+  height: calc(100vh - 56px - env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+}
+
+/* Larger touch targets on mobile */
+.mobile-item { min-height: 44px; }
+
+:root{
+  --sidebar-expanded: 250px;   /* largeur menu ouvert (AdminLTE par défaut) */
+  --sidebar-collapsed: 4.6rem; /* largeur menu mini (icônes), adapte si besoin */
+}
+
+/* Le bouton reste en haut à droite, mais sa "gauche" suit la sidebar */
+.saved-btn-wrap{
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 1050;
+  transition: left .2s ease, transform .2s ease;
+}
+
+/* Desktop / large écrans */
+@media (min-width: 992px){
+  /* Menu replié */
+  body.sidebar-collapse .saved-btn-wrap{
+    left: var(--sidebar-collapsed);
+  }
+  /* Menu étendu */
+  body:not(.sidebar-collapse) .saved-btn-wrap{
+    left: var(--sidebar-expanded);
+  }
+}
+
+/* Mobile : quand la sidebar est en overlay, on n'a pas besoin de décaler */
+@media (max-width: 991.98px){
+  body.sidebar-open .saved-btn-wrap{ left: 0; right: 8px; }
+}
+
+/*loan officer page design*/
+
+
+/* Conteneur global légèrement aéré */
+.modern-page {
+  --radius: 12px;
+}
+
+.modern-autocomplete .p-inputtext,
+.modern-autocomplete.p-autocomplete .p-autocomplete-input {
+  border-radius: var(--radius);
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+
+/* Boutons “soft” */
+.modern-action {
+  border-radius: 14px;
+  padding: .55rem 1.1rem;
+  font-weight: 600;
+}
+
+.modern-history-btn {
+  border-radius: 999px !important;
+  padding: .6rem 1rem !important;
+  font-weight: 600;
+}
+
+.p-autocomplete,
+.p-autocomplete .p-inputtext {
+  width: 100% !important;
+}
+
+/* .back-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #2c7be5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+} */
+.back-pill {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 28px;
+  border-radius: 999px;
+
+  background: #41c9f2;
+  color: #fff;
+
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+
+  cursor: pointer;
+  z-index: 1000;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* icône */
+.back-pill .icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+/* hover */
+.back-pill:hover {
+  background: #46d1f4;
+}
+
+/* active */
+.back-pill:active {
+  transform: scale(0.96);
+}
+
+/*Accordioion search by area*/
+.p-accordion-header-link {
+    text-decoration: none !important;
+}
+
+/* ═══════════════════════════════════════════
+   Market Intelligence - SearchByAreaV2 Styles
+   ═══════════════════════════════════════════ */
+
+.market-intelligence-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* ─── Hero Section ─── */
+.hero-section {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+  padding: 3rem 0 2rem;
+  color: white;
+}
+
+.hero-header {
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #10b981;
+  font-size: 0.875rem;
+}
+
+/* ─── Search Card ─── */
+.search-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.search-card-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+/* ─── Geo Tabs ─── */
+.geo-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.geo-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.geo-tab:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.geo-tab.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* ─── Search Input ─── */
+.search-input-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  background: white;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+  color: #94a3b8;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper .p-autocomplete {
+  flex: 1;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.search-input-wrapper .p-autocomplete-input {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.625rem 0 !important;
+}
+
+.search-btn {
+  background: #2563eb !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.625rem 1.5rem !important;
+  font-weight: 600 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white !important;
+}
+
+.search-btn:hover {
+  background: #1d4ed8 !important;
+}
+
+.search-btn .p-button-icon {
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Popular Searches ─── */
+.popular-searches {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.popular-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.popular-chip {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: white;
+  color: #475569;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.popular-chip:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* ─── Content Section ─── */
+.content-section {
+  padding: 2rem 0;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Section Header ─── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.view-all-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.view-all-link:hover {
+  color: #1d4ed8;
+}
+
+/* ─── Markets Grid ─── */
+.markets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.market-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.market-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+.market-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.market-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.market-highlight {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.market-view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.market-view-btn:hover {
+  color: #1d4ed8;
+}
+
+/* ─── Sidebar Info Cards ─── */
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.coverage-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.coverage-header h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.coverage-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.coverage-percent {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #10b981;
+  line-height: 1;
+}
+
+.coverage-label {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.coverage-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 1rem 0;
+}
+
+.coverage-additional {
+  display: flex;
+  gap: 0.75rem;
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.additional-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.additional-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.learn-more-link,
+.see-all-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.learn-more-link:hover,
+.see-all-link:hover {
+  color: #1d4ed8;
+}
+
+/* ─── Levels Card ─── */
+.levels-card h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.level-item {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.level-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.level-content {
+  flex: 1;
+}
+
+.level-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem;
+}
+
+.level-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ─── Features Section ─── */
+.features-section {
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 3rem 0;
+  margin-top: 2rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature-item {
+  text-align: center;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.feature-item h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.feature-item p {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ─── Floating Actions ─── */
+.floating-actions {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+.history-floating-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 50px !important;
+  padding: 0.75rem 1.5rem !important;
+}
+
+/* ─── Results Section ─── */
+.results-section {
+  padding: 2rem 0;
+}
+
+.location-summary-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1e293b;
+}
+
+.location-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ─── Results Tabs ─── */
+.results-tabs {
+  margin-top: 1rem;
+}
+
+.tab-header-content {
+  padding: 0.5rem 0;
+}
+
+/* ─── Metrics ─── */
+.metrics-row {
+  align-items: center;
+}
+
+.description-block {
+  padding: 0.5rem 0;
+}
+
+.metric-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+}
+
+/* ─── Container ─── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .search-input-row {
+    flex-direction: column;
+  }
+
+  .search-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .markets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .location-summary-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.market-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ─── PrimeReact Overrides ─── */
+.p-tabview .p-tabview-nav {
+  background: transparent;
+  border: none;
+}
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+}
+
+.p-sidebar .p-sidebar-header {
+  padding: 1rem 1.5rem;
+}
+
+.p-sidebar .p-sidebar-content {
+  padding: 0 1.5rem 1.5rem;
 }

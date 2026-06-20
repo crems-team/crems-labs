@@ -2,6 +2,7 @@ import React, { useState,useEffect } from 'react';
 import AgentService from "../Services/AgentService";
 import { Chart } from 'react-google-charts';
 import { useNavigate } from 'react-router-dom';
+import AgentRanking from "../Models/AgentRanking";
 
 
 
@@ -26,14 +27,14 @@ const OfficeRankingAgentPerformance : React.FC<ComponentProps> = ({ id,officeId 
                 
             const fetchData=()=>{
                 AgentService.getOfficeRankingReport({id,officeId})
-                .then((response: any) => {
+                .then((report: AgentRanking[]) => {
                     //console.log(response.data);
-                    if(response.data){
+                    if (report && report.length) {
 
-                        setOfficeName(response.data[0].officeName);
+                        setOfficeName(report[0].officeName);
                         const data = [
                             ['Agents', '12 month Performance',{ role: 'annotation' },{ role: 'style' },'agentId'],
-                            ...response.data.map((element: any) => [
+                            ...report.map((element: any) => [
                                 element.firstName+' '+element.lastName,
                                 parseInt(element.nombre|| 0),
                                 parseInt(element.ranking|| 0),

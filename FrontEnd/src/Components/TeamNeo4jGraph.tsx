@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { ForceGraph2D } from 'react-force-graph';
 import TeamService from "../Services/TeamService";
 import TeamNeo4jData from "../Models/TeamNeo4jData";
@@ -14,7 +14,8 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
   const [teamNeo4jData, setTeamNeo4jData] = useState<TeamNeo4jData>();
   const [processedLinks, setProcessedLinks] = useState<any[]>([]);
   const [teamNeo4jDataValide, setTeamNeo4jDataValide] = useState<TeamNeo4jData>();
-
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
 
 
@@ -33,6 +34,24 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
       links: validLinks, // only valid links are passed
     };
   }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initialize size
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,13 +161,13 @@ const TeamNeo4jGraph : React.FC<ComponentProps> = ({ id }) => {
 
 
   return (
-    <div style={{ height: '100%', width: '100%' ,display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+    <div style={{ position: 'relative',overflow: 'hidden',height: '100%', width: '100%' ,display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
 
       <ForceGraph2D
         graphData={{ nodes, links }}
         nodeId="id"
         enableZoomInteraction={true}
-        width={650}  // 650 firt level
+        width={dimensions.width}  // 650 firt level
         height={500} // 500 second level
         // nodeAutoColorBy="agentoffice"
         maxZoom={7}

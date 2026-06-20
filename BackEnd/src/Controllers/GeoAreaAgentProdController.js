@@ -1,265 +1,128 @@
 const GeoAreaAgentProdService = require("../Services/GeoAreaAgentProd.service");
+const catchAsync = require('../Utils/CatchAsync');
 
 const GeoAreaAgentProdController = {};
 
-GeoAreaAgentProdController.getAgentGeoProduction = async (req, res) => {
-    try {
+GeoAreaAgentProdController.getAgentGeoProduction = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getAgentGeoProduction(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      const selectedLocation = req.body.selectedLocation;
+GeoAreaAgentProdController.searchAgents = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.searchAgents(req.body.selectedLocation, req.body.searchTerm);
+  res.status(200).json(data);
+});
 
-      console.log(selectedLocation);
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
+GeoAreaAgentProdController.getGeoProductionForAgent = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getGeoProductionForAgent(req.body.selectedLocation, req.body.agentId);
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.getAgentGeoProduction(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+GeoAreaAgentProdController.getZipsbyCityName = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getZipsbyCityName(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-  GeoAreaAgentProdController.searchAgents = async (req, res) => {
-    try {
-      const selectedLocation = req.body.selectedLocation;
-      const searchTerm = req.body.searchTerm;
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
+GeoAreaAgentProdController.fetchTransactionsGeoByAgent = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.fetchTransactionsGeoByAgent(req.body.agentId);
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.searchAgents(selectedLocation, searchTerm);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+GeoAreaAgentProdController.getNumberOfAgent = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getNumberOfAgent(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-  GeoAreaAgentProdController.getGeoProductionForAgent = async (req, res) => {
-    try {
+GeoAreaAgentProdController.getAgentGeoProductionForExtraction = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getAgentGeoProductionForExtraction(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      const selectedLocation = req.body.selectedLocation;
-      const agentId = req.body.agentId;
+GeoAreaAgentProdController.getTotalTransactionAgent = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getTotalTransactionAgent(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      console.log(agentId);
+GeoAreaAgentProdController.getTotalListingsAgent = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getTotalListingsAgent(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
+GeoAreaAgentProdController.getListingsGeoProduction = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getListingsGeoProduction(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.getGeoProductionForAgent(selectedLocation, agentId);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agent found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+GeoAreaAgentProdController.getTotalTransactionForListings = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getTotalTransactionForListings(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-  GeoAreaAgentProdController.getZipsbyCityName = async (req, res) => {
-    try {
+GeoAreaAgentProdController.getTotalAgentsListings = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getTotalAgentsListings(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      const selectedLocation = req.body.selectedLocation;
-      console.log(selectedLocation);
-      if (!selectedLocation?.county || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'County and city are required' });
-      }
+GeoAreaAgentProdController.getTotalAgentForListing = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getTotalAgentForListing(req.body.selectedLocation);
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.getZipsbyCityName(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+// ------- Search History & Favorite -------- //
 
-  GeoAreaAgentProdController.fetchTransactionsGeoByAgent = async (req, res) => {
-      try {
-        const agentId = req.body.agentId;
-        //const nbrMonth = req.body.nbrMonth;
-        //const decodedparam = decodeURIComponent(zips).split(",").join("','");
-  
-        const data = await GeoAreaAgentProdService.fetchTransactionsGeoByAgent(agentId);
-    
-        if (!data) {
-          return res.status(404).json({ message: 'Result not found' });
-        }
-    
-        res.status(200).json(data);
-      } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
-      }
-    };
+GeoAreaAgentProdController.saveSearchHistory = catchAsync(async (req, res) => {
+  const { userId, savedType, city, zips, state, county } = req.body;
+  await GeoAreaAgentProdService.saveSearchHistory(userId, savedType, city, zips, state, county);
+  res.sendStatus(200);
+});
 
-  GeoAreaAgentProdController.getNumberOfAgent = async (req, res) => {
-      try {
-  
-        const selectedLocation = req.body.selectedLocation;
-  
-        console.log(selectedLocation);
-        
-        if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-          return res.status(400).json({ message: 'state and city are required' });
-        }
-  
-        const data = await GeoAreaAgentProdService.getNumberOfAgent(selectedLocation);
-    
-        if (!data || data.length === 0) {
-          return res.status(404).json({ message: 'No agents found for this location' });
-        }
-    
-        res.status(200).json(data);
-      } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
-      }
-    };
+GeoAreaAgentProdController.getSearchHistory = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  const data = await GeoAreaAgentProdService.getSearchHistory(userId, savedType);
+  res.status(200).json(data);
+});
 
-  GeoAreaAgentProdController.getAgentGeoProductionForExtraction = async (req, res) => {
-    try {
+GeoAreaAgentProdController.toggleFavorite = catchAsync(async (req, res) => {
+  const { userId, search } = req.body;
+  await GeoAreaAgentProdService.toggleFavorite(userId, search.city, search.zips, search.state, search.county, search.isFavorite);
+  res.sendStatus(200);
+});
 
-      const selectedLocation = req.body.selectedLocation;
+GeoAreaAgentProdController.toggleFavoriteTeam = catchAsync(async (req, res) => {
+  const { userId, search } = req.body;
+  await GeoAreaAgentProdService.toggleFavoriteTeam(userId, search.city, search.zips, search.state, search.county, search.isFavorite);
+  res.sendStatus(200);
+});
 
-      console.log(selectedLocation);
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
+GeoAreaAgentProdController.getFavoriteHistory = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  const data = await GeoAreaAgentProdService.getFavoriteHistory(userId, savedType);
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.getAgentGeoProductionForExtraction(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+GeoAreaAgentProdController.deteteNonFavorite = catchAsync(async (req, res) => {
+  const { userId, savedType } = req.body;
+  await GeoAreaAgentProdService.deteteNonFavorite(userId, savedType);
+  res.sendStatus(200);
+});
 
-  GeoAreaAgentProdController.getTotalTransaction = async (req, res) => {
-    try {
+GeoAreaAgentProdController.getCitiesByCountyFips = catchAsync(async (req, res) => {
+  const { countyFips } = req.body;
+  const data = await GeoAreaAgentProdService.getCitiesByCountyFips(countyFips);
+  res.status(200).json(data);
+});
 
-      const selectedLocation = req.body.selectedLocation;
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
+GeoAreaAgentProdController.getAllCities = catchAsync(async (req, res) => {
+  const data = await GeoAreaAgentProdService.getAllCities();
+  res.status(200).json(data);
+});
 
-      const data = await GeoAreaAgentProdService.getTotalTransaction(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+GeoAreaAgentProdController.searchZip = catchAsync(async (req, res) => {
+  const { term } = req.body;
+  const data = await GeoAreaAgentProdService.searchZip(term);
+  res.status(200).json(data);
+});
+     
 
-   GeoAreaAgentProdController.getTotalListings = async (req, res) => {
-    try {
-
-      const selectedLocation = req.body.selectedLocation;
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
-
-      const data = await GeoAreaAgentProdService.getTotalListings(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  GeoAreaAgentProdController.getListingsGeoProduction = async (req, res) => {
-    try {
-
-      const selectedLocation = req.body.selectedLocation;
-
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
-
-      const data = await GeoAreaAgentProdService.getListingsGeoProduction(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  GeoAreaAgentProdController.getTotalTransactionsListings = async (req, res) => {
-    try {
-
-      const selectedLocation = req.body.selectedLocation;
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
-
-      const data = await GeoAreaAgentProdService.getTotalTransactionsListings(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-
-  GeoAreaAgentProdController.getTotalAgentsListings = async (req, res) => {
-    try {
-
-      const selectedLocation = req.body.selectedLocation;
-      
-      if (!selectedLocation?.stateCode || !selectedLocation?.city?.length) {
-        return res.status(400).json({ message: 'state and city are required' });
-      }
-
-      const data = await GeoAreaAgentProdService.getTotalAgentsListings(selectedLocation);
-  
-      if (!data || data.length === 0) {
-        return res.status(404).json({ message: 'No agents found for this location' });
-      }
-  
-      res.status(200).json(data);
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
 
 module.exports = GeoAreaAgentProdController;

@@ -43,7 +43,7 @@ function Footer() {
         </ul>
         </nav>
         <p className="text-center mt-4" style={{ color: '#03263a', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
-          © 2024 CONSOLIDATED REAL ESTATE MANAGEMENT STRATEGIES INC. <br />
+          © 2026 CONSOLIDATED REAL ESTATE MANAGEMENT STRATEGIES INC. <br />
           POWERED BY WEB-ED SYSTEMS
         </p>
         <div className="float-right d-none d-sm-inline-block ">

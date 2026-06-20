@@ -19,7 +19,9 @@ import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import SearchHistory from '../Components/SearchHistory';
 import { useAppDispatch } from '../Hooks/DispatchHook';
 import { resetMapState} from '../Redux/Slices/MapSlice'
+import { resetTeamInvestigationState} from '../Redux/Slices/TeamInvestigationSlice'
 import SearchItemHistory from "../Models/SearchItemHistory";
+import { Sidebar } from 'primereact/sidebar';
 
 
 
@@ -60,6 +62,7 @@ function SearchLoanOfficer() {
     const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(Boolean);
     const [isLoadingSearchAgent, setIsLoadingSearchAgent] = useState(Boolean);
     const dispatch = useAppDispatch();
+    const [visibleRight, setVisibleRight] = useState(false);
 
 
 
@@ -210,6 +213,20 @@ function SearchLoanOfficer() {
     }
 };
 
+const deteteNonFavorite = async () => {
+
+  if (keycloak.tokenParsed?.sub) {
+    const userId = keycloak.tokenParsed.sub;
+    try {
+      await LoanOfficerService.deteteNonFavorite(userId, 'loanOfficer');
+      fetchSavedSearches();     
+
+    } catch (error) {
+      console.error('Error detele non favorite:', error);
+    }
+  }
+};
+
 const fetchSavedSearches =  async() => {
   if (keycloak.tokenParsed?.sub) {
     setIsLoadingSavedSearch(true);
@@ -271,6 +288,7 @@ const fetchSavedSearches =  async() => {
 useEffect(() => {
   if (keycloak.tokenParsed?.sub) {
     dispatch(resetMapState());
+    dispatch(resetTeamInvestigationState());
     fetchSavedSearches();
   }
 }, [keycloak.tokenParsed?.sub]);
@@ -285,9 +303,6 @@ const handleSearch = async(name : string) => {
       await LoanOfficerService.getAgentByName(data)
       .then((response: any) => {
         setDataAgent(response.data);
-        console.log(response.data[0]);
-        console.log(officerId);
-        console.log(name);
         saveSearchHistory("loanOfficer",officerId, name);
         setIsLoadingSearchAgent(false);
       })
@@ -325,6 +340,8 @@ const buttonDataTable = (rowData : any) => {
     navigate(`/loanOfficerProdReport/${id}`);
   };
   const redirectSaveToApr = (id : string) => {
+    setVisibleRight(false);
+
     navigate(`/loanOfficerProdReport/${id}`);
   };
 
@@ -335,9 +352,8 @@ const buttonDataTable = (rowData : any) => {
     <div className="container mt-3">
        
     <main>
-      <form id="frmAction" action="" method="POST">
         <div className="row">
-            <div className="col-md-8">
+            <div className="col-md-10">
                 <div className="row">
                     <div className="col-md-12">
                         <div className="form-floating">
@@ -391,38 +407,63 @@ const buttonDataTable = (rowData : any) => {
                 <div className="row mt-4">
                     <div className="col-md-12">
                         <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button className="btn btn-primary btn-lg me-md-2 mb-2 mb-md-0" type="button" id="search" name="search"
-                            onClick={() => handleSearch(name)}>
-                                Search
-                                <i className="bi bi-search"></i>
-                            </button>
-                            <button className="btn btn-warning btn-lg me-md-2 mb-2 mb-md-0"  type="button" id="clear" name="clear"
-                            onClick={() => handleClear()}>
-                                Clear
-                                <i className="bi bi-arrow-repeat"></i>
-
-                            </button>
+                           <Button
+                              type="button"
+                              label="Search"
+                              icon="pi pi-search"
+                              onClick={() => handleSearch(name)}
+                              className="modern-action modern-search"
+                            />
+                            <Button
+                              type="button"
+                              label="Clear"
+                              icon="pi pi-times"
+                              severity="warning"
+                              outlined
+                              onClick={handleClear}
+                              className="modern-action"
+                            />
+                            
                         </div>
                     </div>
                 </div>
             </div>
 
 
-              <div className="col-md-4  mx-auto">
-              <SearchHistory
-                title="LO Search History"
-                isLoading={isLoadingSavedSearch}
-                searchHistory={searchHistory}
-                onSearchClick={(search : any) => redirectSaveToApr(search.officerId)}
-                onToggleFavorite={toggleFavorite}
-                parent="LoanOfficer"
-              />
-
-
+            <div className="col-md-2  mx-auto">
+              <div className="d-flex justify-content-end">
+                <Button
+                  type="button"
+                  outlined
+                  severity="info"
+                  icon="pi pi-history"
+                  label="Search History"
+                  className="modern-history-btn"
+                  onClick={() => setVisibleRight(true)}
+                />
               </div>
+              <Sidebar visible={visibleRight} position="right" onHide={() => setVisibleRight(false)} style={{ width: '50rem' }}>
+                <div className="col-12  mx-auto">
+                  <SearchHistory
+                    title="LO Search History"
+                    isLoading={isLoadingSavedSearch}
+                    searchHistory={searchHistory}
+                    onSearchClick={(search: any) => redirectSaveToApr(search.officerId)}
+                    onToggleFavorite={toggleFavorite}
+                    onDeteteNonFavorite={deteteNonFavorite}
+                    parent="LoanOfficer"
+                  />
+
+
+                </div>
+              </Sidebar>
+
+
+
+
+            </div>
               
         </div>
-    </form>
     </main>
     {/* <footer className="bg-light py-4 mt-5">
       <div className="container text-left">

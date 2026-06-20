@@ -12,13 +12,18 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
   const matchagentProdReports = useMatch('/agentProdReports/:param');
   const matchofficeProdReports = useMatch('/officeProdReports/:param');
   const matchsearchByOffice = useMatch('/searchByOffice');
-  const matchSearchByArea = useMatch('/SearchByArea');
+  const matchSearchByArea = useMatch('/SearchByAreaV2');
   const matchTeamInvestigator = useMatch('/TeamInvestigator/:param');
   const matchSearchTool = useMatch('/searchTool');
   const matchSearchLoanOfficer= useMatch('/SearchLoanOfficer');
   const matchloanOfficerProdReport= useMatch('/loanOfficerProdReport/:param');
   const matchsearchApiListing= useMatch('/searchApiListing');
-  const matchFactBook= useMatch('/FactBook');
+  const welcomePage= useMatch('/welcomePage');
+  const matchTeamGraph = useMatch('/teamGraph/:param');
+  const matchTeam = useMatch('/SearchTeam');
+  const matchSearchTeamInvest = useMatch('/SearchTeamInvest');
+  const matchteamInvestGraph = useMatch('/teamInvestGraph/:param');
+
 
   
 
@@ -26,25 +31,31 @@ const CurrentComponent: React.FC<CurrentComponentProps> = ({ type}) => {
   let currentComponent;
 
   if (matchSearchByName) {
-    currentComponent = 'Agent Production Reporting';
+    currentComponent = 'Agent Intelligence';
   } else if (matchagentProdReports) {
-    currentComponent = 'Agent Production Reporting';
+    currentComponent = 'Agent Intelligence';
   }else if (matchofficeProdReports) {
     currentComponent = 'Office Production Reporting';
   } else if (matchsearchByOffice) {
     currentComponent = 'Office Production Reporting';
   }else if (matchSearchByArea) {
-    currentComponent = 'Market Dynamics';
+    currentComponent = 'Market Intelligence';
   }else if (matchTeamInvestigator) {
-    currentComponent = 'Team Investigator';
+    currentComponent = 'Interaction Report';
   }else if (matchSearchTool) {
     currentComponent = 'Source Report';
   }else if (matchSearchLoanOfficer) {
     currentComponent = 'Loan Officer Production Reporting';
   }else if (matchloanOfficerProdReport) {
     currentComponent = 'Loan Officer Production Reporting';
-  }else if (matchFactBook) {
-    currentComponent = 'FACT BOOK Introduction';
+  }
+  // else if (welcomePage) {
+  //   currentComponent = 'CREMS IQ';
+  // }
+  else if (matchTeamGraph||matchTeam) {
+  currentComponent = 'Team Investigator';
+  }else if (matchSearchTeamInvest||matchteamInvestGraph) {
+  currentComponent = 'Team Intelligence';
   } else {
     currentComponent = ' ';
   }

@@ -37,7 +37,7 @@ const saveSearchHistory = (userId : string, savedType : string, officerId : stri
 };
 
 const getSavedSearches = (userId : string, savedType : string) => {
-  return http.post<SearchItemHistory>("/loanOfficer/saved-searches",{userId, savedType});
+  return http.post<SearchItemHistory[]>("/loanOfficer/saved-searches",{userId, savedType});
 };
 
 const toggleFavorite = (userId : string, idHistory : number, isFavorite : boolean) => {
@@ -45,7 +45,7 @@ const toggleFavorite = (userId : string, idHistory : number, isFavorite : boolea
 };
 
 const getSavedFavorite = (userId : string, savedType : string) => {
-  return http.post<SearchItemHistory>("/loanOfficer/getFavoriteHistory",{userId, savedType});
+  return http.post<SearchItemHistory[]>("/loanOfficer/getFavoriteHistory",{userId, savedType});
 };
 
 const getOfficeRankingReportLO = (idOfficer : string, idAgent : string, officeId: string) => {
@@ -58,6 +58,10 @@ const getOfficeNamesLo = (data : {id:string}) => {
 
 const getDataLOWorkedWithAgent = (idAgent : string) => {
   return http.post<any>("/loanOfficer/getDataLOWorkedWithAgent", {idAgent});
+};
+
+const deteteNonFavorite = (userId : string, savedType : string) => {
+  return http.post("/loanOfficer/deteteNonFavorite", {userId, savedType});
 };
 const LoanOfficerService = {
   getNameLoanOfficer,
@@ -72,7 +76,8 @@ const LoanOfficerService = {
   getTotalSalesAndCapRate,
   getOfficeRankingReportLO,
   getOfficeNamesLo,
-  getDataLOWorkedWithAgent
+  getDataLOWorkedWithAgent,
+  deteteNonFavorite
 
 
 };

@@ -4,6 +4,8 @@ export default interface AgentRanking {
     firstName : string,
     lastName : string,
     nombre : string
+    officeName : string
+
   
   }
   

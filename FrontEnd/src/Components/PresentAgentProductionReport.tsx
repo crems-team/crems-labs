@@ -16,33 +16,6 @@ const PresentAgentProductionReport : React.FC<OtherComponentProps> = ({ id }) =>
     const [data, setData] = useState<(any[])>([]);
     const [options, setOptions] = useState<any>(null);
 
-
-
-
-
-
- /*    useEffect(() => {
-        if (id) {
-            const fetchData = async () => {
-                setLoading(true);
-
-                AgentService.getAgentHistoData({ id })
-                .then((response: any) => {
-                  setMonthData(response.data);
-                  setIsFetched(true);
-                  //console.log(response.data);                
-  
-                })
-                .catch((e: Error) => {
-                  console.log(e);
-                });
-                setLoading(false);
-
-            }
-            fetchData();
-        }
-    }, []); */
-
  
 
 
@@ -51,17 +24,15 @@ const PresentAgentProductionReport : React.FC<OtherComponentProps> = ({ id }) =>
                 
             const fetchData=()=>{
                 AgentService.getDataPresentReport({id})
-                .then((response: any) => {
-                    setPresentRepoData(response.data) ;
+                .then((report: DataPresentRep[]) => {
+                    setPresentRepoData(report) ;
                     //console.log(response.data);
-                    if(response.data){
-                        console.log('in response');
-                        console.log(id);
-
+                    if (report && report.length) {
+             
 
                         const data = [
                             ['Year-to-Date', 'Total MLS List', 'Total MLS Sell', 'Total Non-MLS', 'Total', { role: 'annotation' }],
-                            ...response.data.map((element: any) => [
+                            ...report.map((element: any) => [
                                 element.monthName,
                                 element.LIST || 0,
                                 element.SELL || 0,

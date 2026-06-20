@@ -8,12 +8,15 @@ import Zip from "../../Models/Zip"
 import States from "../../Models/States"
 import Counties from "../../Models/Counties"
 import { useAppDispatch } from '../../Hooks/DispatchHook';
-import SelectedLocation from "../../Models/GeoAreaAgentProd/SelectedLocation"
-import AgentGeoProdResult from "../../Models/GeoAreaAgentProd/AgentGeoProdResult"
+import SelectedLocation from "../../Models/GeoAreaAgentProd/SelectedLocation";
+import AgentGeoProdResult from "../../Models/GeoAreaAgentProd/AgentGeoProdResult";
+import TeamGeoProdResult from "../../Models/GeoAreaAgentProd/TeamGeoProdResult"
 import GeoAreaAgentProdService from "../../Services/GeoAreaAgentProdService";
 import { MapLevel } from '../../Models/UsaMapType';
-
-
+import SearchItemArea from "../../Models/SearchItemHistory";
+import TeamInvestigationAgents from "../../Models/TeamInvestigation/TeamInvestigationAgents";
+import { DataTableFilterMeta } from 'primereact/datatable';
+import { FilterMatchMode } from 'primereact/api';
 
 
 interface Marker {
@@ -32,12 +35,17 @@ interface LocationState {
   agentId: number;
 }
 
+type SearchMode = 'county' | 'city' | 'zip';
+
 interface AreaAgentState {
   totalAgent: number;
+  totalAgentLoading: boolean;
   agentGeoProdResultExtract: AgentGeoProdResult[];
   extractionLoading: boolean;
-  totalTransaction: number;
-  totalListings: number;
+  totalTransactionAgent: number;
+  totalTransactionAgentLoading: boolean;
+  totalListingsAgent: number;
+  totalListingsAgentLoading: boolean;
   mapLevel: MapLevel;
   cities: Cities[];
   copyCities: Cities[];
@@ -47,8 +55,34 @@ interface AreaAgentState {
   zipcodes: Zip[];
   listingsGeoProduction: any[];
   listingsGeoLoading: boolean;
+  totalAgentForListing: number;
+  totalAgentForListingLoading: boolean;
+  totalTransactionForListings: number;
+  totalTransactionForListingsLoading: boolean;
+  searchHistory: SearchItemArea[];
+  originalData: any[] ;
+  displayedData: any[] ;
+  teamGeoProdResult: TeamGeoProdResult[];
+  teamGeoProdResultLoading: boolean;
+  teamAgentList: TeamInvestigationAgents[];
+  teamAgentListLoading: boolean;
+  searchHistoryTeam: SearchItemArea[];
+  areaModeDisplay : string;
+  selectedTeam: TeamGeoProdResult | null;
+  teamFilters: DataTableFilterMeta;
+  agentFilters: DataTableFilterMeta;
+  isLoadingCities : boolean;
+  selectedItem : any;
+  query : string;
+  mode : SearchMode;
+  searchTermListing : string;
+  isFiltered : boolean;
+  inputValue : string;
+  allCities  : boolean;
+  allZipCodes: boolean;
+  accordionIndex: number;
   
-  
+
 
   
 }
@@ -57,10 +91,13 @@ interface AreaAgentState {
 
 const initialState: AreaAgentState = {
     totalAgent: 0,
+    totalAgentLoading : false,
     agentGeoProdResultExtract: [],
     extractionLoading: false,
-    totalTransaction: 0,
-    totalListings: 0,
+    totalTransactionAgent: 0,
+    totalTransactionAgentLoading : false,
+    totalListingsAgent: 0,
+    totalListingsAgentLoading: false,
     mapLevel: {level: 'country', selectedState: "", selectedCounty: ""},
     cities:[],
     copyCities:[],
@@ -70,12 +107,36 @@ const initialState: AreaAgentState = {
     zipcodes: [],
     listingsGeoProduction: [],
     listingsGeoLoading: false,
-
-
-
-
-
-
+    totalAgentForListing: 0,
+    totalAgentForListingLoading: false,
+    totalTransactionForListings: 0,
+    totalTransactionForListingsLoading: false,
+    searchHistory: [],
+    originalData: [] ,
+    displayedData:[] ,
+    teamGeoProdResult : [],
+    teamGeoProdResultLoading : false,
+    teamAgentList : [],
+    teamAgentListLoading : false, 
+    searchHistoryTeam : [],
+    areaModeDisplay : 'team',
+    selectedTeam : null,
+    teamFilters: {
+                    teamName: { value: '', matchMode: FilterMatchMode.CONTAINS }
+                 },
+    agentFilters: {
+                    name: { value: '', matchMode: FilterMatchMode.CONTAINS }
+                  },
+    isLoadingCities : false,
+    selectedItem : null,
+    query : '',
+    mode : 'county',
+    searchTermListing : '',
+    isFiltered : false,
+    inputValue : '',
+    allCities  : false,
+    allZipCodes: false,
+    accordionIndex: 0,
 };
 
 export const getTotalAgents = createAsyncThunk(
@@ -83,7 +144,7 @@ export const getTotalAgents = createAsyncThunk(
   async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
     try {
       const response = await GeoAreaAgentProdService.getNumberOfAgent(selectedLocation);
-      return response.data;
+      return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -95,31 +156,31 @@ export const getAgentGeoProductionForExtraction = createAsyncThunk(
     async (selectedLocation: SelectedLocation, thunkAPI) => {
         try {
         const response = await GeoAreaAgentProdService.getAgentGeoProductionForExtraction(selectedLocation);
-        return response.data;
+        return response;
       } catch (error) {
         return thunkAPI.rejectWithValue(error);
       }
     }
   );
 
-  export const getTotalTransaction = createAsyncThunk(
-    'map/getTotalTransaction',
+  export const getTotalTransactionAgent = createAsyncThunk(
+    'map/getTotalTransactionAgent',
     async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
       try {
-        const response = await GeoAreaAgentProdService.getTotalTransaction(selectedLocation);
-        return response.data;
+        const response = await GeoAreaAgentProdService.getTotalTransactionAgent(selectedLocation);
+        return response;
       } catch (error) {
         return thunkAPI.rejectWithValue(error);
       }
     }
   );
 
-  export const getTotalListings = createAsyncThunk(
-    'map/getTotalListings',
+  export const getTotalListingsAgent = createAsyncThunk(
+    'map/getTotalListingsAgent',
     async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
       try {
-        const response = await GeoAreaAgentProdService.getTotalListings(selectedLocation);
-        return response.data;
+        const response = await GeoAreaAgentProdService.getTotalListingsAgent(selectedLocation);
+        return response;
       } catch (error) {
         return thunkAPI.rejectWithValue(error);
       }
@@ -130,8 +191,9 @@ export const getAgentGeoProductionForExtraction = createAsyncThunk(
     'map/getZipCodesByCity',
     async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
       try {
+        console.log(selectedLocation);
         const response = await GeoAreaAgentProdService.getZipsbyCityName(selectedLocation);
-        return response.data;
+        return response;
       } catch (error) {
         return thunkAPI.rejectWithValue(error);
       }
@@ -146,6 +208,77 @@ export const getAgentGeoProductionForExtraction = createAsyncThunk(
   
         const response = await GeoAreaAgentProdService.getListingsGeoProduction(dispatch,selectedLocation);
         return response;
+      }  catch (e: any) {
+
+      let errorMessage = "Internal server error";
+      const status = e?.response?.status;
+
+      if (status === 404) {
+        errorMessage = "No data available.";
+      } else if (status === 400) {
+        errorMessage = "Invalid request.";
+      } else if (status === 401 || status === 403) {
+        errorMessage = "Unauthorized access.";
+      } else if (status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (e?.response?.data?.message) {
+        errorMessage = e.response.data.message;
+      } else if (e?.message) {
+        errorMessage = e.message;
+      }
+
+      return thunkAPI.rejectWithValue({
+        status,
+        message: errorMessage
+      });
+    }
+    }
+  );
+
+  export const getTotalAgentForListing = createAsyncThunk(
+    'map/getTotalAgentForListing',
+    async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
+      try {
+        const response = await GeoAreaAgentProdService.getTotalAgentForListing(selectedLocation);
+        return response.data;
+      } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+  );
+
+  export const getTotalTransactionForListings = createAsyncThunk(
+    'map/getTotalTransactionForListings',
+    async ({ selectedLocation }: { selectedLocation: SelectedLocation}, thunkAPI) => {
+      try {
+        const response = await GeoAreaAgentProdService.getTotalTransactionForListings(selectedLocation);
+        return response.data;
+      } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+  );
+
+  export const getTeamGeoProduction = createAsyncThunk(
+    'map/getTeamGeoProduction',
+    async (selectedLocation: SelectedLocation, thunkAPI) => {
+        try {
+          const { dispatch } = thunkAPI;
+          dispatch(setAreaModeDisplay('team'));
+          const response = await GeoAreaAgentProdService.getTeamGeoProduction(selectedLocation);
+          return response;
+      } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+  );
+
+  export const getAgentTeamTable = createAsyncThunk(
+    'map/getAgentTeamTable',
+  async ({ teamId }: { teamId: number}, thunkAPI) => {
+        try {
+        const response = await GeoAreaAgentProdService.getAgentTeamTable({teamId});
+        return response.data;
       } catch (error) {
         return thunkAPI.rejectWithValue(error);
       }
@@ -172,10 +305,10 @@ const areaAgentSlice = createSlice({
       state.totalAgent = action.payload;
     },
     setTotalTransactionsAg(state, action: PayloadAction<number>) {
-      state.totalTransaction = action.payload;
+      state.totalTransactionAgent = action.payload;
     },
-    setTotalListings(state, action: PayloadAction<number>) {
-      state.totalListings = action.payload;
+    setTotalListingsAgent(state, action: PayloadAction<number>) {
+      state.totalListingsAgent = action.payload;
     },
     setSelectedOption(state, action: PayloadAction<string>) {
       state.selectedOption = action.payload;
@@ -189,16 +322,81 @@ const areaAgentSlice = createSlice({
     setListingsGeoProduction(state, action: PayloadAction<any[]>) {
       state.listingsGeoProduction = action.payload;
     },
-    
+    setTotalAgentForListing(state, action: PayloadAction<number>) {
+      state.totalAgentForListing = action.payload;
+    },
+    setTotalTransactionForListings(state, action: PayloadAction<number>) {
+      state.totalTransactionForListings = action.payload;
+    },
+    setSearchHistory(state, action: PayloadAction<SearchItemArea[]>) {
+      state.searchHistory = action.payload;
+    },
+    setSearchHistoryTeam(state, action: PayloadAction<SearchItemArea[]>) {
+      state.searchHistoryTeam = action.payload;
+    },
+    setOriginalData(state, action: PayloadAction<any[]>) {
+      state.originalData = action.payload;
+    },
+    setDisplayedData(state, action: PayloadAction<any[]>) {
+      state.displayedData = action.payload;
+    },
+    setAreaModeDisplay(state, action: PayloadAction<string>) {
+      state.areaModeDisplay = action.payload;
+    },
+    setSelectedTeam(state, action: PayloadAction<TeamGeoProdResult>) {
+      state.selectedTeam = action.payload;
+    },
+    setTeamFilters(state, action) {
+        state.teamFilters = action.payload;
+    },
+    setAgentFilters(state, action) {
+        state.agentFilters = action.payload;
+    },
+    setIsLoadingCities(state, action) {
+        state.isLoadingCities = action.payload;
+    },
+    setSelectedItem(state, action) {
+        state.selectedItem = action.payload;
+    },
+    setQuery(state, action) {
+        state.query = action.payload;
+    },
+    setMode(state, action) {
+        state.mode = action.payload;
+    },
+    setSearchTermListing(state, action) {
+        state.searchTermListing = action.payload;
+    },
+    setIsFiltered(state, action) {
+        state.isFiltered = action.payload;
+    },
+    setInputValue(state, action) {
+        state.inputValue = action.payload;
+    },
+    setAllCities(state, action) {
+        state.allCities = action.payload;
+    },
+    setAllZipCodes(state, action) {
+        state.allZipCodes = action.payload;
+    },
+    setAccordionIndex: (state, action) => {
+        state.accordionIndex = action.payload;
+    },
+
     resetAreaAgentState: () => initialState
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getTotalAgents.pending, (state) => {
+        state.totalAgentLoading = true;
+      })
       .addCase(getTotalAgents.fulfilled, (state, action) => {
         state.totalAgent = action.payload;
+        state.totalAgentLoading = false;
       })
       .addCase(getTotalAgents.rejected, (state, action) => {
         console.error(action.payload);
+        state.totalAgentLoading = false;
       
       })
       .addCase(getAgentGeoProductionForExtraction.pending, (state) => {
@@ -213,18 +411,28 @@ const areaAgentSlice = createSlice({
             state.extractionLoading = false;
         
         })
-        .addCase(getTotalTransaction.fulfilled, (state, action) => {
-            state.totalTransaction = action.payload;
+        .addCase(getTotalTransactionAgent.pending, (state) => {
+          state.totalTransactionAgentLoading = true;
         })
-        .addCase(getTotalTransaction.rejected, (state, action) => {
+        .addCase(getTotalTransactionAgent.fulfilled, (state, action) => {
+            state.totalTransactionAgent = action.payload;
+            state.totalTransactionAgentLoading = false;
+        })
+        .addCase(getTotalTransactionAgent.rejected, (state, action) => {
         console.error(action.payload);
+        state.totalTransactionAgentLoading = false;
         
         })
-        .addCase(getTotalListings.fulfilled, (state, action) => {
-          state.totalListings = action.payload;
+        .addCase(getTotalListingsAgent.pending, (state) => {
+          state.totalListingsAgentLoading = true;
         })
-        .addCase(getTotalListings.rejected, (state, action) => {
+        .addCase(getTotalListingsAgent.fulfilled, (state, action) => {
+          state.totalListingsAgent = action.payload;
+          state.totalListingsAgentLoading = false;
+        })
+        .addCase(getTotalListingsAgent.rejected, (state, action) => {
         console.error(action.payload);
+        state.totalListingsAgentLoading = false;
         
         }).addCase(getZipCodesByCity.fulfilled, (state, action) => {
           state.zipcodes = action.payload;
@@ -246,6 +454,54 @@ const areaAgentSlice = createSlice({
             console.error(action.payload);
             state.listingsGeoLoading = false;
         
+        })
+        .addCase(getTotalAgentForListing.pending, (state) => {
+          state.totalAgentForListingLoading = true;
+        })
+        .addCase(getTotalAgentForListing.fulfilled, (state, action) => {
+          state.totalAgentForListing = action.payload;
+          state.totalAgentForListingLoading = false;
+        })
+        .addCase(getTotalAgentForListing.rejected, (state, action) => {
+          console.error(action.payload);
+          state.totalAgentForListingLoading = false;
+        
+        })
+        .addCase(getTotalTransactionForListings.pending, (state) => {
+          state.totalTransactionForListingsLoading = true;
+        })
+        .addCase(getTotalTransactionForListings.fulfilled, (state, action) => {
+          state.totalTransactionForListings = action.payload;
+          state.totalTransactionForListingsLoading = false;
+        })
+        .addCase(getTotalTransactionForListings.rejected, (state, action) => {
+          console.error(action.payload);
+          state.totalTransactionForListingsLoading = false;
+        
+        })
+        .addCase(getTeamGeoProduction.pending, (state) => {
+            state.teamGeoProdResultLoading = true;
+        })
+      .addCase(getTeamGeoProduction.fulfilled, (state, action) => {
+            state.teamGeoProdResult = action.payload;
+            state.teamGeoProdResultLoading = false;
+        })
+      .addCase(getTeamGeoProduction.rejected, (state, action) => {
+            console.error(action.payload);
+            state.teamGeoProdResultLoading = false;
+        
+        })
+        .addCase(getAgentTeamTable.pending, (state) => {
+            state.teamAgentListLoading = true;
+        })
+      .addCase(getAgentTeamTable.fulfilled, (state, action) => {
+            state.teamAgentList = action.payload;
+            state.teamAgentListLoading = false;
+        })
+      .addCase(getAgentTeamTable.rejected, (state, action) => {
+            console.error(action.payload);
+            state.teamAgentListLoading = false;
+        
         });
     
       
@@ -260,11 +516,31 @@ export const {
     setTotalAgent,
     setTotalTransactionsAg,
     resetAreaAgentState,
-    setTotalListings,
+    setTotalListingsAgent,
     setSelectedOption,
     setSelectedZipCode,
     setZipCodes,
     setListingsGeoProduction,
+    setTotalAgentForListing,
+    setTotalTransactionForListings,
+    setSearchHistory,
+    setOriginalData,
+    setDisplayedData,
+    setSearchHistoryTeam,
+    setAreaModeDisplay,
+    setSelectedTeam,
+    setTeamFilters, 
+    setAgentFilters,
+    setIsLoadingCities,
+    setSelectedItem,
+    setQuery,
+    setMode,
+    setSearchTermListing,
+    setIsFiltered,
+    setInputValue,
+    setAllCities,
+    setAllZipCodes,
+    setAccordionIndex
   
 } = areaAgentSlice.actions;
 

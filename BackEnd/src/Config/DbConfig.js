@@ -1,15 +1,15 @@
 const mssql = require("mssql");
 
 const dbconfig = {
-  // server: "webcasting.database.windows.net",
-  // user: "report_user",
-  // password: "@ccess190907",
-  // database: "TerradatumDB",
-  server: "localhost",
-    user: "sa",
-    password: "yourStrong(!)Password",
-    database: "master",
+  server: "webcasting.database.windows.net",
+  user: "report_user",
+  password: "@ccess190907",
+  database: "TerradatumDB",
   trustServerCertificate: true,
+  // server: "localhost",
+  // user: "sa",
+  // password: "yourStrong(!)Password",
+  // database: "TerradatumDB",
   options: {
     encrypt: true,
     enableArithAbort: true,

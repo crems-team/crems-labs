@@ -1,26 +1,16 @@
-import React,{ useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import { ReactKeycloakProvider,useKeycloak } from "@react-keycloak/web";
-import keycloak from "./Keycloak"
+import React, { useEffect, useState, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { ReactKeycloakProvider, useKeycloak } from "@react-keycloak/web";
+import keycloak, { keycloakInitOptions, setupTokenRefresh ,getUserInfo} from "./Keycloak";
 import PrivateRoute from './Helpers/PrivateRoute';
 
+// Import components
 import SearchByName from './Pages/SearchByName';
 import AppMenu from './Components/AppMenu';
 import Footer from './Components/Footer';
 import AppHeader from './Components/AppHeader';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
-import 'primeflex/primeflex.css';  
-import 'primereact/resources/primereact.css';
-import "primereact/resources/themes/lara-light-cyan/theme.css";
-
-import './App.css';
 import AgentProdReports from './Pages/AgentProdReports';
 import OfficeProdReports from './Pages/OfficeProdReports';
-
-
-
-// import 'primeflex/primeflex.css';
-
 import SearchByOffice from './Pages/SearchByOffice';
 import SearchByArea from './Pages/SearchByArea';
 import SearchByAreaV2 from './Pages/SearchByAreaV2';
@@ -29,220 +19,193 @@ import SearchAgent from './Pages/Tools/SearchAgent';
 import SearchApiListing from './Pages/Tools/SearchApiListing';
 import SearchLoanOfficer from './Pages/SearchLoanOfficer';
 import LoanOfficerProdReport from './Pages/LoanOfficerProdReport';
-import FactBook from './Pages/FactBook';
+import WelcomePage from './Pages/WelcomePage';
 import UsaMap from './Pages/USAMap/MapIndex';
+import SearchTeam from './Pages/SearchTeam';
+import TeamGraphMockPage from './Pages/TeamGraphMockPage';
+import SearchTeamInvestigation from './Pages/TeamInvestigation/SearchTeamInvestigation';
+import TeamInvestigationGraphPage from './Pages/TeamInvestigation/TeamInvestigationGraphPage';
 
+// CSS imports
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import 'primeflex/primeflex.css';  
+import 'primereact/resources/primereact.css';
+import "primereact/resources/themes/lara-light-cyan/theme.css";
+import './App.css';
 
-
-
-
-import Home from './Components/Home';
-import InitialRedirect from './Components/InitialRedirect';
-
-import { ToastContainer, toast } from 'react-toastify';
+// Context and hooks
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import { SearchProvider } from './Components/Context/Context'; 
+import SessionExpiredModal from './Components/SessionExpiredModal';
 
-
-const redirectUrl = process.env.REACT_APP_REDIRECT_URL;
-
-
-
-
-console.log("url="+process.env.PUBLIC_URL)
+import { InactivityMonitor } from './Components/InactivityMonitor';
+import  BackButton from './Components/BackButton';
 
 
 
+const INACTIVITY_LIMIT = 30 * 60 * 1000;  
 
+const App: React.FC = () => {
+  const [tokenRefreshCleanup, setTokenRefreshCleanup] = useState<() => void>(() => () => {});
+  const [expired, setExpired] = useState(false);
+  const handleKeycloakEvent = useCallback((event: string) => {
+    if (event === 'onAuthSuccess') {
+      const cleanup = setupTokenRefresh();
+      setTokenRefreshCleanup(() => cleanup);
+      setExpired(false);
+    }
+    if (event === 'onAuthError' || event === 'onAuthLogout') {
+      setExpired(true);
+    }
+  }, []);
 
+  const handleTokens = useCallback((tokens: any) => {
+    if (tokens.token) localStorage.setItem('kc_token', tokens.token);
+  }, []);
 
-function App() {
+  const onInactivity = () => {
+    // Mark the session expired and stop refresh auto
+    setExpired(true);
+    tokenRefreshCleanup();
+  };
 
-  // useEffect(() => {
-  //   const setupTokenRefresh = () => {
-  //     const updateToken = setInterval(() => {
-  //       if (keycloak.authenticated) {
-  //         keycloak.updateToken(70) 
-  //           .then((refreshed) => {
-  //             if (refreshed) {
-  //               console.log('Token rafraîchi avec succès');
-  //             }
-  //           })
-  //           .catch(() => {
-  //             console.error('Échec du rafraîchissement du token, déconnexion...');
-  //             keycloak.logout();
-  //           });
-  //       }
-  //     }, 60000); // Vérifier toutes les 60 secondes
+  const onReconnect = () => {
+    setExpired(false);
+    keycloak.logout();  
+  };
 
-  //     return () => clearInterval(updateToken); // Nettoyer l'intervalle lors du démontage du composant
-  //   };
-
-  //   setupTokenRefresh();
-  // }, []);
 
   return (
     <div>
-          <SearchProvider>
+      <SearchProvider>
+        <ReactKeycloakProvider 
+          authClient={keycloak} 
+          initOptions={keycloakInitOptions}
+          onEvent={handleKeycloakEvent}
+          onTokens={handleTokens}
+          LoadingComponent={
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+        >
+            <InactivityMonitor timeout={INACTIVITY_LIMIT} onTimeout={onInactivity} />
 
-      <ReactKeycloakProvider authClient={keycloak} initOptions={{
-        onLoad: 'login-required', 
-        redirectUri: `${redirectUrl}`,
-        checkLoginIframe: true,
-            }}
-        onEvent={(event, error) => {
-          if (event === 'onAuthError') {
-            console.error('Auth Error:', error);
-          }
-        }}
-        onTokens={(tokens) => {
-          if (tokens.token) {
-            localStorage.setItem('kc_token', tokens.token);
-          }
-        }}>
+            <SessionExpiredModal show={expired} onReconnect={onReconnect} />
 
           <BrowserRouter basename={process.env.PUBLIC_URL}>
-            
             <div className="wrapper">
-                    
-                    <PrivateRoute>
-                      <AppHeader/>
-                    </PrivateRoute>
-                    <div className="content-wrapper bg-white">
-                       
-                      <Routes>  
+              <PrivateRoute>
+                <AppHeader />
+              </PrivateRoute>
+              <PrivateRoute>
+                <BackButton />
+              </PrivateRoute>
 
-                        {/* <Route      path="/"
-                                    element={
-                                        <Home />
-                                    }
-                        />                                       */}
-                           <Route      path="/UsaMap"
-                                    element={
-                                      <PrivateRoute>
-                                        <UsaMap />
-                                      </PrivateRoute>
-                                    }
-                        />
-                        <Route      path="/FactBook"
-                                    element={
-                                      <PrivateRoute>
-                                        <FactBook />
-                                      </PrivateRoute>
-                                    }
-                        />
- 
-                        <Route      path="/SearchByAgent"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchByName />
-                                      </PrivateRoute>
-                                    }
-                        />
-                                    
-                        <Route      path="/searchByOffice"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchByOffice />
-                                      </PrivateRoute>
-                                    }
-                        />
+              <div className="content-wrapper bg-white">
+                <Routes>  
+                  <Route path="/UsaMap" element={
+                    <PrivateRoute><UsaMap /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/welcomePage" element={
+                    <PrivateRoute><WelcomePage /></PrivateRoute>
+                  } />
 
-                        <Route      path="/SearchByArea"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchByArea />
-                                      </PrivateRoute>
-                                    }
-                        />
-                        
-                        <Route      path="/SearchByAreaV2"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchByAreaV2 />
-                                      </PrivateRoute>
-                                    }
-                        />
+                  <Route path="/SearchByAgent" element={
+                    <PrivateRoute><SearchByName /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/searchByOffice" element={
+                    <PrivateRoute><SearchByOffice /></PrivateRoute>
+                  } />
 
-                        <Route      path="/agentProdReports/:param"
-                                    element={
-                                      <PrivateRoute>
-                                        <AgentProdReports />
-                                      </PrivateRoute>
-                                    }
-                        />
-                        <Route      path="/officeProdReports/:param"
-                                    element={
-                                      <PrivateRoute>
-                                        <OfficeProdReports />
-                                      </PrivateRoute>
-                                    }
-                        />
-                        <Route      path="/TeamInvestigator/:param"
-                                    element={
-                                      <PrivateRoute>
-                                        <TeamInvestigator />
-                                      </PrivateRoute>
-                                    }
-                        />
-                        <Route      path="/searchTool"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchAgent />
-                                      </PrivateRoute>
-                                    }
-                        />                        
-                        <Route      path="/searchApiListing"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchApiListing />
-                                      </PrivateRoute>
-                                    } 
-                        /> 
-                        <Route      path="/SearchLoanOfficer"
-                                    element={
-                                      <PrivateRoute>
-                                        <SearchLoanOfficer />
-                                      </PrivateRoute>
-                                    } 
-                        /> 
-                        <Route      path="/loanOfficerProdReport/:param"
-                                    element={
-                                      <PrivateRoute>
-                                        <LoanOfficerProdReport />
-                                      </PrivateRoute>
-                                    } 
-                        />                                                
-                      </Routes>
+                  <Route path="/SearchByArea" element={
+                    <PrivateRoute><SearchByArea /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/SearchByAreaV2" element={
+                    <PrivateRoute><SearchByAreaV2 /></PrivateRoute>
+                  } />
 
-                    </div>
-                    <PrivateRoute>
-                      <Footer/>
-                    </PrivateRoute>
-                    <PrivateRoute>
-                      <AppMenu/>
-                    </PrivateRoute>
+                  <Route path="/agentProdReports/:param" element={
+                    <PrivateRoute><AgentProdReports /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/officeProdReports/:param" element={
+                    <PrivateRoute><OfficeProdReports /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/TeamInvestigator/:param" element={
+                    <PrivateRoute><TeamInvestigator /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/searchTool" element={
+                    <PrivateRoute><SearchAgent /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/searchApiListing" element={
+                    <PrivateRoute><SearchApiListing /></PrivateRoute>
+                  } />
+                  
+                  <Route path="/SearchLoanOfficer" element={
+                    <PrivateRoute><SearchLoanOfficer /></PrivateRoute>
+                  } />
 
-                    <ToastContainer 
-                      position="top-right"
-                      autoClose={3000}
-                      hideProgressBar={false}
-                      newestOnTop={false}
-                      closeOnClick
-                      rtl={false}
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                    />
+                  <Route path="/SearchTeam" element={
+                      <PrivateRoute><SearchTeam /></PrivateRoute>
+                    } />      
+
+                  <Route path="/SearchTeamInvest" element={
+                      <PrivateRoute><SearchTeamInvestigation /></PrivateRoute>
+                    } />   
+
+                  <Route path="/teamInvestGraph/:param" element={
+                    <PrivateRoute><TeamInvestigationGraphPage /></PrivateRoute>
+                  } />    
+
+                  <Route path="/teamGraph/:param" element={
+                    <PrivateRoute><TeamGraphMockPage /></PrivateRoute>
+                  } />       
+                  
+                  <Route path="/loanOfficerProdReport/:param" element={
+                    <PrivateRoute><LoanOfficerProdReport /></PrivateRoute>
+                  } />
+                </Routes>
+              </div>
+
+              <PrivateRoute>
+                <Footer />
+              </PrivateRoute>
+              
+              <PrivateRoute>
+                <AppMenu />
+              </PrivateRoute>
+
+              <ToastContainer 
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+
+
+
             </div>
           </BrowserRouter>
-
-      </ReactKeycloakProvider>
+        </ReactKeycloakProvider>
       </SearchProvider>
-
     </div>
   );
-}
+};
 
 export default App;

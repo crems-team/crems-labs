@@ -12,6 +12,7 @@ import { Sidebar } from 'primereact/sidebar';
 import { useKeycloak } from "@react-keycloak/web";
 import SearchItemHistory from "../../Models/SearchItemHistory";
 import { resetMapState} from '../../Redux/Slices/MapSlice'
+import { resetTeamInvestigationState} from '../../Redux/Slices/TeamInvestigationSlice'
 import SearchHistory from '../../Components/SearchHistory';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { useNavigate } from 'react-router-dom';
@@ -544,6 +545,7 @@ function SearchAgent() {
         if (keycloak.tokenParsed?.sub) {
             setProgress(0);
             dispatch(resetMapState());
+            dispatch(resetTeamInvestigationState());
             fetchSavedSearches();          
             setProgress(100);
         }
@@ -577,6 +579,20 @@ function SearchAgent() {
           }
         }
     };
+
+    const deteteNonFavorite = async () => {
+
+        if (keycloak.tokenParsed?.sub) {
+          const userId = keycloak.tokenParsed.sub;
+          try {
+            await SearchToolsService.deteteNonFavorite(userId, 'searchSource');
+            fetchSavedSearches();     
+      
+          } catch (error) {
+            console.error('Error detele non favorite:', error);
+          }
+        }
+      };
     
 
     return (
@@ -611,6 +627,7 @@ function SearchAgent() {
                                             searchHistory={searchHistory}
                                             onSearchClick={(search : any) => handleSearchFromHist(search.agentId, search.officename,search.address,search.city)}
                                             onToggleFavorite={toggleFavorite}
+                                            onDeteteNonFavorite={deteteNonFavorite}
                                             parent="SearchSource"
                                         />
 

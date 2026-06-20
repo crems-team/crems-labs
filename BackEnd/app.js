@@ -1,63 +1,82 @@
-var  express = require('express');
-var  app = express();
-var  bodyParser = require('body-parser');
-var  morgan = require('morgan');
-const keycloak = require('./src/Config/keycloak'); 
 require('dotenv').config();
-
-
-
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const session = require('express-session');
+const { keycloak, memoryStore } = require('./src/Config/keycloak');
+const AppError = require('./src/Utils/AppError');
+const globalErrorHandler = require('./src/Controllers/ErrorController');
 const { apiRouter } = require('./src/Routes/index');
-
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const swaggerUi = require('swagger-ui-express');
+const { swaggerSpec } = require('./src/Config/swagger');
+const basicAuth = require('express-basic-auth');
 
-// const corsOptions = {
-//     origin: 'http://localhost:3001', // Replace with your client app's URL
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-// };
+const app = express();
+
+app.set('trust proxy', 'loopback');
+
 const corsOptions = {
     origin: 'http://localhost:3001',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     maxAge: 7200
-  };
+};
 
-// Use CORS middleware with options
 app.use(cors(corsOptions));
-//
-app.use(morgan('dev'));
-// Middleware Keycloak
-app.use(keycloak.middleware());
-//body parse
-// parse application/x-www-form-urlencoded
-//app.use(bodyParser.urlencoded({ limit: '50mb',extended: true }))
-// parse application/json
-app.use(bodyParser.json({limit: '50mb', extended: true}))
-app.use(function(req, res, next) {
-    //res.header("Access-Control-Allow-Origin", "https://www.mnxdev.com");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Max-Age", "7200000");
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Authtoken, multipart/form-data,Access-Control-Request-Method, Access-Control-Request-Headers');
-    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate, proxy-revalidate');
-    res.header('Content-Type', 'application/json; charset=utf-8');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS'){
-        res.header("Access-Control-Allow-Methods", 'PUT, POST, PATCH, GET, DELETE, OPTIONS');
-        return res.status(200).json({})
-    }
-    next();
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,             // 15 min
+  max: 500,                              // 500 req/IP/15min
+  standardHeaders: true,                 // RateLimit-* headers
+  legacyHeaders: false,                  
+  skip: (req) => req.method === 'OPTIONS',
+  handler: (req, res, next) =>
+    next(new AppError('Too many requests, please try again later.', 429))
 });
 
+app.use(globalLimiter); 
 
-// app.use('/app', apiRouter);
-app.use('/app', keycloak.protect(), apiRouter);
+app.use(morgan('dev'));
+
+app.use(bodyParser.json({limit: '50mb', extended: true})); 
+
+
+app.use(session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: true,
+      store: memoryStore,
+      cookie: {
+        secure: false, // change to true if use HTTPS
+        maxAge: 24 * 60 * 60 * 1000
+      }
+    }));
+
+const docsBasicAuth = basicAuth({
+  users: { [process.env.DOCS_USER]: process.env.DOCS_PASS },
+  challenge: true,                
+  unauthorizedResponse: 'Unauthorized'
+});    
+app.use('/api-docs', docsBasicAuth, swaggerUi.serve, swaggerUi.setup(swaggerSpec , {
+  swaggerOptions: {
+    // Hide the entire Schemas / Models section
+    defaultModelsExpandDepth: -1,
+    // Do not expand endpoints by default
+    docExpansion: 'none',
+    // collapse individual models
+    defaultModelExpandDepth: 0,
+  },
+}));
+
+app.use(keycloak.middleware());
+
+app.use('/app',keycloak.protect(), apiRouter);
+ 
+// global Error Handler
+app.use(globalErrorHandler);
 
 
 

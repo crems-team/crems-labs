@@ -1,142 +1,131 @@
-import http from "../http-common";
-import AgentNameRequest from "../Models/AgentNameRequest";
+import { api } from "../http-data";
 import AgentModel from "../Models/AgentModel";
 import AgentInfosRequest from "../Models/AgentInfosRequest";
 import AgentInfos from "../Models/AgentInfos";
-import AgentTotalPast from '../Models/AgentTotalPast';
-import DataPresentRep from '../Models/DataPresentRep';
-import FutureMetrics from '../Models/FutureMetrics';
-import DataFutureRep from '../Models/DataFutureRep';
-import GeoDataTot from '../Models/GeoDataTot';
-import GeoDataReport from '../Models/GeoDataReport';
-import OfficeProd from '../Models/OfficeProd';
-import AgentRanking from '../Models/AgentRanking';
-import TeamData from '../Models/TeamData';
-import TeamAgentsTable from '../Models/TeamAgentsTable';
-import AgentTierPersona from '../Models/AgentTierPersona';
+import AgentTotalPast from "../Models/AgentTotalPast";
+import DataPresentRep from "../Models/DataPresentRep";
+import FutureMetrics from "../Models/FutureMetrics";
+import DataFutureRep from "../Models/DataFutureRep";
+import GeoDataTot from "../Models/GeoDataTot";
+import GeoDataReport from "../Models/GeoDataReport";
+import OfficeProd from "../Models/OfficeProd";
+import AgentRanking from "../Models/AgentRanking";
+import TeamData from "../Models/TeamData";
+import TeamAgentsTable from "../Models/TeamAgentsTable";
+import AgentTierPersona from "../Models/AgentTierPersona";
 import SearchItem from "../Models/SearchItemHistory";
+import SearchItemAgent from "../Models/SearchItemAgent";
 
-
-
-
-
-
-
-interface dataReqAgentRank {
+interface DataReqAgentRank {
   id: string;
-  officeId : string
+  officeId: string;
 }
-// interface SearchItem {
-//   savedType : string;
-//   firstName : string;
-//   lastName  : string;
-//   isFavorite: boolean;
-//   agentIdC : string;
 
-// }
+const getAgent = (data: { term: string }) =>
+  api.post<AgentModel[]>("/search/agentByName", data);
 
-const getAgent = (data : AgentNameRequest) => {
-  return http.post<AgentModel>("/search/agentByName", data);
+const getAgentInfos = (data: AgentInfosRequest) =>
+  api.post<AgentInfos[]>("/search/getAgentInfos", data);
+
+const getTotalPast = async (data: AgentInfosRequest) => {
+  return api.post<AgentTotalPast>("/search/getTotalPast", data);
 };
 
-const getAgentInfos = (data : AgentInfosRequest) => {
-return http.post<AgentInfos>("/search/getAgentInfos", data);
+const getTeamData = async (data: AgentInfosRequest) => {
+  return api.post<TeamData>("/search/getTeamData", data);
+  // return JSON.parse(raw) as TeamData;
 };
 
-const getTotalPast = (data : AgentInfosRequest) => {
-return http.post<AgentTotalPast>("/search/getTotalPast", data);
+const getofficeproduction = async (dataReq: DataReqAgentRank) => {
+  return api.post<OfficeProd>("/search/getofficeproduction", dataReq);
+  // return JSON.parse(raw) as OfficeProd;
 };
 
-const getAgentHistoData = (data : AgentInfosRequest) => {
+const getAgentHistoData = (data: AgentInfosRequest) =>
+  api.post<string[][]>("/search/getAgentHistoData", data);
 
-return http.post<string[][]>("/search/getAgentHistoData", data);
-};
+const getTotalPresent = (data: AgentInfosRequest) =>
+  api.post<[{ list: number; sell: number; dna: number }]>(
+    "/search/getTotalPresent",
+    data
+  );
 
-const getTotalPresent = (data : AgentInfosRequest) => {
+const getDataPresentReport = (data: AgentInfosRequest) =>
+  api.post<DataPresentRep[]>("/search/getDataPresentReport", data);
 
-return http.post<string[][]>("/search/getTotalPresent", data);
-};
+const getTotalFuture = (data: AgentInfosRequest) =>
+  api.post<FutureMetrics[]>("/search/getTotalFuture", data);
 
-const getDataPresentReport = (data : AgentInfosRequest) => {
+const getDataFutureReport = (data: AgentInfosRequest) =>
+  api.post<DataFutureRep[]>("/search/getDataFutureReport", data);
 
-return http.post<DataPresentRep>("/search/getDataPresentReport", data);
-};
+const getGeoDataTot = (data: AgentInfosRequest) =>
+  api.post<GeoDataTot>("/search/getGeoDataTot", data);
 
-const getTotalFuture = (data : AgentInfosRequest) => {
+const getDataGeoReport = (data: AgentInfosRequest) =>
+  api.post<GeoDataReport[]>("/search/getDataGeoReport", data);
 
-return http.post<FutureMetrics>("/search/getTotalFuture", data);
-};
+const getOfficeRankingReport = (dataReq: DataReqAgentRank) =>
+  api.post<AgentRanking[]>("/search/getOfficeRankingReport", dataReq);
 
-const getDataFutureReport = (data : AgentInfosRequest) => {
-return http.post<DataFutureRep>("/search/getDataFutureReport", data);
-};
+const getTeamAgentsTable = (data: AgentInfosRequest) =>
+  api.post<TeamAgentsTable[]>("/search/getTeamAgentsTable", data);
 
-const getGeoDataTot = (data : AgentInfosRequest) => {
-return http.post<GeoDataTot>("/search/getGeoDataTot", data);
-};
+const getAgentTierPersona = (data: AgentInfosRequest) =>
+  api.post<AgentTierPersona[]>("/search/getAgentTierPersona", data);
 
-const getDataGeoReport = (data:AgentInfosRequest ) => {
-return http.post<GeoDataReport>("/search/getDataGeoReport", data);
-};
+// Saved search
+const saveSearchHistory = (
+  userId: string,
+  savedType: string,
+  fullName: string,
+  agentIdC: string,
+  state: string
+) =>
+  api.post<void, {userId: string, savedType: string, fullName: string, agentIdC: string, state: string  }>("/search/save-search", { userId, savedType, fullName, agentIdC, state });
 
-const getofficeproduction = (dataReq:dataReqAgentRank ) => {
-  return http.post<OfficeProd>("/search/getofficeproduction", dataReq);
-  };
+const toggleFavorite = (agentId: string, isFavorite: boolean) =>
+  api.post<void, { search: { agentId: string; isFavorite: boolean } }>(
+    "/search/toggle-favorite",
+    { search: { agentId, isFavorite } }
+  );
 
-const getOfficeRankingReport = (dataReq:dataReqAgentRank ) => {
-  return http.post<AgentRanking>("/search/getOfficeRankingReport", dataReq);
-  };
+const getSavedSearches = (userId: string, savedType: string) =>
+  api.post<SearchItem[]>("/search/saved-searches", { userId, savedType });
 
-const getTeamData = (data:AgentInfosRequest ) => {
-  return http.post<TeamData>("/search/getTeamData", data);
-  };
+const getSavedFavorite = (userId: string, savedType: string) =>
+  api.post<SearchItemAgent[]>("/search/getFavoriteHistory", { userId, savedType });
 
+// Autosuggest
+const getAgentFullName = (data: { term: string }) =>
+  api.post<Array<{ value: number; label: string }>>("/search/getAgentFullName", data);
 
-const getTeamAgentsTable = (data : AgentInfosRequest) => {
-  return http.post<TeamAgentsTable>("/search/getTeamAgentsTable", data);
-};
+// Delete non-favorite
+const deteteNonFavorite = (userId: string, savedType: string) =>
+  api.post<void>("/search/deteteNonFavorite", { userId, savedType });
 
-const getAgentTierPersona = (data : AgentInfosRequest) => {
-  return http.post<AgentTierPersona>("/search/getAgentTierPersona", data);
-};
-
-//for saved search and l
-const saveSearchHistory = (userId : string, savedType : string, firstName : string, lastName : string, agentIdC : string, state : string) => {
-  return http.post("/search/save-search", { userId, savedType, firstName, lastName ,agentIdC,state});
-};
-
-const toggleFavorite = (userId : string, firstName : string, lastName : string, isFavorite : boolean, state : string) => {
-  return http.post("/search/toggle-favorite", { userId, search: { firstName, lastName, isFavorite, state } });
-};
-
-const getSavedSearches = (userId : string, savedType : string) => {
-  return http.post<SearchItem>("/search/saved-searches",{userId, savedType});
-};
-
-const getSavedFavorite = (userId : string, savedType : string) => {
-  return http.post<SearchItem>("/search/getFavoriteHistory",{userId, savedType});
-};
 const AgentService = {
-    getAgent,
-    getAgentInfos,
-    getTotalPast,
-    getAgentHistoData,
-    getTotalPresent,
-    getDataPresentReport,
-    getTotalFuture,
-    getDataFutureReport,
-    getGeoDataTot,
-    getDataGeoReport,
-    getofficeproduction,
-    getOfficeRankingReport,
-    getTeamData,
-    getTeamAgentsTable,
-    getAgentTierPersona,
-    saveSearchHistory,
-    toggleFavorite,
-    getSavedSearches,
-    getSavedFavorite
-
+  getAgent,
+  getAgentInfos,
+  getTotalPast,
+  getAgentHistoData,
+  getTotalPresent,
+  getDataPresentReport,
+  getTotalFuture,
+  getDataFutureReport,
+  getGeoDataTot,
+  getDataGeoReport,
+  getofficeproduction,
+  getOfficeRankingReport,
+  getTeamData,
+  getTeamAgentsTable,
+  getAgentTierPersona,
+  saveSearchHistory,
+  toggleFavorite,
+  getSavedSearches,
+  getSavedFavorite,
+  getAgentFullName,
+  deteteNonFavorite,
 };
 
 export default AgentService;

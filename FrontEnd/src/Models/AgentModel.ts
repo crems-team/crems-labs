@@ -1,3 +1,5 @@
+import { TeamModel } from './TeamModel';
+
 export default interface AgentModel {
   agentId: string,
   agentfirstName: string,
@@ -10,6 +12,8 @@ export default interface AgentModel {
   agentPhone: string,
   agentEmail: string,
   officeRank: number,
+
+  teams: TeamModel[],
 
 }
 
